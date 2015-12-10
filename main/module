@@ -1,0 +1,3 @@
+main module sh21:
+	require ft::term
+	require ft::printf
