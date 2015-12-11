@@ -1,3 +1,5 @@
 main module sh21:
 	require ft::term
+	require ft::getkey
 	require ft::printf
+	require editor

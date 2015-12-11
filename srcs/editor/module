@@ -1,0 +1,9 @@
+module editor:
+	public include public/
+	private include ./
+
+	public require ft::base
+	public require ft::bst
+	public require ft::getkey
+	public require ft::out
+	public require ft::dstr
