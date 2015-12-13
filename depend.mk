@@ -1,11 +1,13 @@
 INCLUDE_FLAGS += -I$(O_DIR)/_public
 LINK_FLAGS += -ltermcap
-OBJ_DIR_TREE += $(O_DIR)/srcs/main/ $(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ \
-	$(O_DIR)/libft/ft_term/ $(O_DIR)/libft/ft_printf/formats/ \
-	$(O_DIR)/libft/ft_printf/ $(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_getkey/ \
-	$(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ \
-	$(O_DIR)/libft/ $(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
-O_FILES += $(O_DIR)/srcs/editor/editor_bind.o \
+OBJ_DIR_TREE += $(O_DIR)/srcs/main/ $(O_DIR)/srcs/editor/binding/ \
+	$(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ $(O_DIR)/libft/ft_term/ \
+	$(O_DIR)/libft/ft_printf/formats/ $(O_DIR)/libft/ft_printf/ \
+	$(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_getkey/ $(O_DIR)/libft/ft_dstr/ \
+	$(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ $(O_DIR)/libft/ \
+	$(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
+O_FILES += $(O_DIR)/srcs/editor/binding/cursor.o \
+	$(O_DIR)/srcs/editor/binding/del.o $(O_DIR)/srcs/editor/editor_bind.o \
 	$(O_DIR)/srcs/editor/editor_init.o $(O_DIR)/srcs/editor/editor_key.o \
 	$(O_DIR)/srcs/editor/editor_put.o $(O_DIR)/libft/ft_base/ft_abs.o \
 	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
@@ -47,17 +49,29 @@ O_FILES += $(O_DIR)/srcs/editor/editor_bind.o \
 	$(O_DIR)/libft/ft_printf/formats/str.o $(O_DIR)/libft/ft_printf/ft_out.o \
 	$(O_DIR)/libft/ft_printf/ft_printf.o $(O_DIR)/libft/ft_printf/ft_putf.o \
 	$(O_DIR)/libft/ft_printf/ft_vprintf.o $(O_DIR)/libft/ft_term/ft_tclear.o \
-	$(O_DIR)/libft/ft_term/ft_tinit.o $(O_DIR)/libft/ft_term/ft_trestore.o \
+	$(O_DIR)/libft/ft_term/ft_tcursor.o $(O_DIR)/libft/ft_term/ft_tinit.o \
+	$(O_DIR)/libft/ft_term/ft_tput.o $(O_DIR)/libft/ft_term/ft_trestore.o \
 	$(O_DIR)/libft/ft_term/ft_tupdate.o \
 	$(O_DIR)/libft/ft_term/term_out_flush.o $(O_DIR)/srcs/main/main.o
-PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/ft/ft_colors.h \
-	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/libft.h \
-	$(O_DIR)/_public/ft/ft_bst.h $(O_DIR)/_public/ft/ft_dstr.h \
-	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/ft_out.h \
-	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/ft_printf.h \
-	$(O_DIR)/_public/ft/ft_vprintf.h $(O_DIR)/_public/ft/term.h
+PUBLIC_LINKS += $(O_DIR)/_public/editor_bindings.h $(O_DIR)/_public/editor.h \
+	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_colors.h \
+	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/ft_bst.h \
+	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/getkey.h \
+	$(O_DIR)/_public/ft/ft_out.h $(O_DIR)/_public/ft/ft_str_out.h \
+	$(O_DIR)/_public/ft/ft_printf.h $(O_DIR)/_public/ft/ft_vprintf.h \
+	$(O_DIR)/_public/ft/term.h
 
 # module editor
+$(O_DIR)/srcs/editor/binding/cursor.o: srcs/editor/binding/cursor.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
+	libft/ft_out/public/ft_out.h srcs/editor/public/editor.h \
+	srcs/editor/public/editor_bindings.h
+$(O_DIR)/srcs/editor/binding/del.o: srcs/editor/binding/del.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
+	libft/ft_out/public/ft_out.h srcs/editor/public/editor.h \
+	srcs/editor/public/editor_bindings.h
 $(O_DIR)/srcs/editor/editor_bind.o: srcs/editor/editor_bind.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
@@ -67,7 +81,7 @@ $(O_DIR)/srcs/editor/editor_init.o: srcs/editor/editor_init.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_out/public/ft_out.h srcs/editor/editor_internal.h \
-	srcs/editor/public/editor.h
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h
 $(O_DIR)/srcs/editor/editor_key.o: srcs/editor/editor_key.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
@@ -79,6 +93,7 @@ $(O_DIR)/srcs/editor/editor_put.o: srcs/editor/editor_put.c \
 	libft/ft_getkey/public/getkey.h libft/ft_out/public/ft_out.h \
 	srcs/editor/editor_internal.h srcs/editor/public/editor.h
 
+$(O_DIR)/srcs/editor/binding/cursor.o $(O_DIR)/srcs/editor/binding/del.o \
 $(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
 $(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_put.o: \
 	INCLUDE_FLAGS += -Isrcs/editor
@@ -306,10 +321,16 @@ $(O_DIR)/libft/ft_printf/ft_putf.o $(O_DIR)/libft/ft_printf/ft_vprintf.o: \
 $(O_DIR)/libft/ft_term/ft_tclear.o: libft/ft_term/ft_tclear.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
 	libft/ft_term/public/term.h
+$(O_DIR)/libft/ft_term/ft_tcursor.o: libft/ft_term/ft_tcursor.c \
+	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
+	libft/ft_term/public/term.h libft/ft_term/term_internal.h
 $(O_DIR)/libft/ft_term/ft_tinit.o: libft/ft_term/ft_tinit.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
 	libft/ft_out/public/ft_str_out.h libft/ft_term/public/term.h \
 	libft/ft_term/term_internal.h
+$(O_DIR)/libft/ft_term/ft_tput.o: libft/ft_term/ft_tput.c \
+	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
+	libft/ft_term/public/term.h libft/ft_term/term_internal.h
 $(O_DIR)/libft/ft_term/ft_trestore.o: libft/ft_term/ft_trestore.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
 	libft/ft_term/public/term.h
@@ -320,7 +341,8 @@ $(O_DIR)/libft/ft_term/term_out_flush.o: libft/ft_term/term_out_flush.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
 	libft/ft_term/public/term.h libft/ft_term/term_internal.h
 
-$(O_DIR)/libft/ft_term/ft_tclear.o $(O_DIR)/libft/ft_term/ft_tinit.o \
+$(O_DIR)/libft/ft_term/ft_tclear.o $(O_DIR)/libft/ft_term/ft_tcursor.o \
+$(O_DIR)/libft/ft_term/ft_tinit.o $(O_DIR)/libft/ft_term/ft_tput.o \
 $(O_DIR)/libft/ft_term/ft_trestore.o $(O_DIR)/libft/ft_term/ft_tupdate.o \
 $(O_DIR)/libft/ft_term/term_out_flush.o: INCLUDE_FLAGS += -Ilibft/ft_term
 
@@ -333,6 +355,7 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/libft.h \
 
 # public links
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h
+$(O_DIR)/_public/editor_bindings.h: srcs/editor/public/editor_bindings.h
 $(O_DIR)/_public/ft/ft_bst.h: libft/ft_bst/public/ft_bst.h
 $(O_DIR)/_public/ft/ft_colors.h: libft/ft_base/public/ft_colors.h
 $(O_DIR)/_public/ft/ft_dstr.h: libft/ft_dstr/public/ft_dstr.h

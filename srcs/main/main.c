@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/11 18:35:37 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/14 00:04:47 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,15 @@
 
 #include <termios.h>
 #include <unistd.h>
+
 #include <sys/select.h>
 
 static bool		test_binding(t_editor *editor, t_key key)
 {
 	ft_dstradd(&editor->text, SUBC("looooooooool"));
-	editor->cursor = 0;
+	// editor->cursor = 0;
 	editor->sel = 0;
+	editor->cursor = editor->text.length;
 	// editor->sel = editor->text.length;
 	return (true);
 }
@@ -52,10 +54,12 @@ int				main(void)
 			ft_fprintf(&term->out, "Unaccepted key: %3d '%c' Mods: %.4b (AC.S\\)%n", key.c,
 				IS(key.c, IS_PRINT) ? key.c : 0, key.mods);
 		ft_fprintf(&term->out, "Cursor: %d ; Sel: %d ; Len: %d ; "
-			"Width: %d ; Lines: %d\n",
+			"Width: %d ; Height: %d ; Lines: %d\n",
 			editor.cursor, editor.sel, editor.text.length,
-			term->width, line_count);
+			term->width, term->height, line_count);
 		editor_put(&editor, &term->out);
+		ft_flush(&term->out);
+		ft_tcursor(term, -(editor.text.length - editor.cursor), 0);
 		ft_flush(&term->out);
 		if (key.c == KEY_ESC && key.mods == 0)
 			break ;

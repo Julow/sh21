@@ -6,12 +6,11 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/11 17:45:52 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/13 15:06:26 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/ft_colors.h"
-
 #include "editor_internal.h"
 
 static void	write_color(t_out *out, t_sub sub)
@@ -27,9 +26,9 @@ void		editor_put(t_editor const *editor, t_out *out)
 	if (editor->sel > 0)
 	{
 		ft_write(out, editor->text.str, editor->cursor);
-		write_color(out, SUBC(C_YELLOW));
+		write_color(out, SUBC(BG_YELLOW));
 		ft_write(out, editor->text.str + editor->cursor, editor->sel);
-		write_color(out, SUBC(C_RESET));
+		write_color(out, SUBC(BG_RESET));
 		ft_write(out, editor->text.str + editor->cursor + editor->sel,
 			editor->text.length - editor->cursor - editor->sel);
 	}

@@ -6,10 +6,11 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/11 18:07:27 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/13 13:45:29 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "editor_bindings.h"
 #include "editor_internal.h"
 
 static bool	editor_binding_nl(t_editor *editor, t_key key)
@@ -22,30 +23,18 @@ static bool	editor_binding_nl(t_editor *editor, t_key key)
 	return (true);
 }
 
-static bool	editor_binding_del(t_editor *editor, t_key key) // TODO: move
-{
-	if (editor->sel > 0)
-	{
-		ft_dstrspan(&editor->text, editor->cursor,
-			editor->cursor + editor->sel, 0);
-		editor->sel = 0;
-	}
-	else if (key.c == KEY_BACKSPACE && editor->cursor > 0)
-	{
-		editor->cursor--;
-		editor->text.length--;
-	}
-	else if (key.c == KEY_DELETE && editor->cursor < (uint32_t)editor->text.length)
-		ft_dstrspan(&editor->text, editor->cursor, editor->cursor + 1, 0);
-	else
-		return (false);
-	return (true);
-}
-
 static t_binding const	g_bindings[] = {
-	{KEY(KEY_BACKSPACE, 0), &editor_binding_del},
-	{KEY(KEY_DELETE, 0), &editor_binding_del},
+	{KEY(KEY_BACKSPACE, 0), &editor_bind_backspace},
+	{KEY(KEY_DELETE, 0), &editor_bind_delete},
 	{KEY('m', KEY_MOD_CTRL), &editor_binding_nl},
+
+	{KEY(KEY_HOME, 0), &editor_bind_cursor_begin},
+	{KEY(KEY_END, 0), &editor_bind_cursor_end},
+	{KEY('a', KEY_MOD_CTRL), &editor_bind_cursor_begin},
+	{KEY('e', KEY_MOD_CTRL), &editor_bind_cursor_end},
+
+	{KEY(KEY_LEFT, 0), &editor_bind_cursor_left},
+	{KEY(KEY_RIGHT, 0), &editor_bind_cursor_right},
 };
 
 static int	editor_binding_cmp(t_binding const *a, t_key const *b)
