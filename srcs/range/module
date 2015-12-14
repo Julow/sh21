@@ -1,0 +1,4 @@
+module ft::range:
+	public include public/
+
+	public require ft::base
