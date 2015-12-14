@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/12 21:38:38 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/12 22:24:30 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/14 18:27:02 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,20 @@
 ** Action functions that can be passed to editor_bind()
 */
 
-bool			editor_bind_erase_sel(t_editor *editor, t_key key);
-bool			editor_bind_backspace(t_editor *editor, t_key key);
-bool			editor_bind_delete(t_editor *editor, t_key key);
+# define CURSOR_MOVE_LEFT		(1 << 0)
+# define CURSOR_MOVE_SEL		(1 << 1)
+# define CURSOR_MOVE_BOUND		(1 << 2)
+# define CURSOR_MOVE_WORD		(1 << 3)
+# define _CURSOR_MOVE_SUBWORD	(1 << 4)
+# define CURSOR_MOVE_SUBWORD	(CURSOR_MOVE_WORD | _CURSOR_MOVE_SUBWORD)
 
-bool			editor_bind_cursor_begin(t_editor *editor, t_key key);
-bool			editor_bind_cursor_end(t_editor *editor, t_key key);
+bool		editor_bind_cursor_move(t_editor *editor, uint32_t flags);
 
-bool			editor_bind_cursor_left(t_editor *editor, t_key key);
-bool			editor_bind_cursor_right(t_editor *editor, t_key key);
+# define DELETE_LEFT			CURSOR_MOVE_LEFT
+# define DELETE_BOUND			CURSOR_MOVE_BOUND
+# define DELETE_WORD			CURSOR_MOVE_WORD
+# define DELETE_SUBWORD			CURSOR_MOVE_SUBWORD
+
+bool		editor_bind_delete(t_editor *editor, uint32_t flags);
 
 #endif

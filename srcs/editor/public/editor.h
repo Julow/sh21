@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/13 14:51:06 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/14 17:48:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "ft/ft_out.h"
 # include "ft/getkey.h"
 # include "ft/libft.h"
+# include "ft/range.h"
 
 typedef struct s_editor			t_editor;
 
@@ -33,10 +34,15 @@ typedef struct s_editor			t_editor;
 struct		s_editor
 {
 	t_dstr		text;
-	uint32_t	cursor;
-	uint32_t	sel;
+	int32_t		cursor;
+	int32_t		sel;
 	t_bst		bindings;
 };
+
+/*
+** Return 1 if N is positive -1 otherwise
+*/
+# define INT_NORM(N)	(((N) < 0) ? -1 : 1)
 
 /*
 ** Init editor and default bindings
@@ -58,7 +64,9 @@ void		editor_put(t_editor const *editor, t_out *out);
 ** -
 ** See editor_key
 */
-void		editor_bind(t_editor *editor,
-				t_key key, bool (*f)(t_editor*, t_key));
+void		editor_bind(t_editor *editor, t_key key,
+				bool (*f)(t_editor*, uint32_t), uint32_t flags);
+
+t_range		ft_word_range(t_sub sub, int32_t at, bool subword);
 
 #endif

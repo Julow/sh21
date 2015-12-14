@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/13 15:06:26 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/14 14:21:55 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,15 +22,23 @@ static void	write_color(t_out *out, t_sub sub)
 
 void		editor_put(t_editor const *editor, t_out *out)
 {
+	int32_t		from;
+	int32_t		to;
+
 	ft_putpad_left(out, editor->text.length);
-	if (editor->sel > 0)
+	if (editor->sel != 0)
 	{
-		ft_write(out, editor->text.str, editor->cursor);
+		from = editor->cursor;
+		to = editor->cursor;
+		if (editor->sel > 0)
+			to += editor->sel;
+		else
+			from += editor->sel;
+		ft_write(out, editor->text.str, from);
 		write_color(out, SUBC(BG_YELLOW));
-		ft_write(out, editor->text.str + editor->cursor, editor->sel);
+		ft_write(out, editor->text.str + from, to - from);
 		write_color(out, SUBC(BG_RESET));
-		ft_write(out, editor->text.str + editor->cursor + editor->sel,
-			editor->text.length - editor->cursor - editor->sel);
+		ft_write(out, editor->text.str + to, editor->text.length - to);
 	}
 	else
 		ft_write(out, editor->text.str, editor->text.length);

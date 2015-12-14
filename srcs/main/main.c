@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/14 13:44:59 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/14 18:28:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 
 #include <sys/select.h>
 
-static bool		test_binding(t_editor *editor, t_key key)
+static bool		test_binding(t_editor *editor, uint32_t flags)
 {
 	ft_dstradd(&editor->text, SUBC("looooooooool"));
 	// editor->cursor = 0;
@@ -31,7 +31,7 @@ static bool		test_binding(t_editor *editor, t_key key)
 	return (true);
 }
 
-static bool		test_binding2(t_editor *editor, t_key key)
+static bool		test_binding2(t_editor *editor, uint32_t flags)
 {
 	ft_dstrextend(&editor->text, 118);
 	ft_memset(editor->text.str + editor->text.length, 'a', 118);
@@ -53,8 +53,8 @@ int				main(void)
 		ft_dprintf(2, "Warning: Invalid $TERM value: Use default: %s%n",
 			TERM_DEFAULT_TERM);
 	editor_init(&editor);
-	editor_bind(&editor, KEY('C', KEY_MOD_SHIFT), &test_binding);
-	editor_bind(&editor, KEY('V', KEY_MOD_SHIFT), &test_binding2);
+	editor_bind(&editor, KEY('C', KEY_MOD_SHIFT), &test_binding, 0);
+	editor_bind(&editor, KEY('V', KEY_MOD_SHIFT), &test_binding2, 0);
 	ft_trestore(term, true);
 	while (true)
 	{

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/11 17:17:47 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/14 17:50:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ bool		editor_key(t_editor *editor, t_key key)
 	t_binding *const	binding = ft_bst_get(&editor->bindings, &key);
 
 	if (binding != NULL)
-		return (binding->f(editor, key));
+		return (binding->f(editor, binding->flags));
 	if (!IS(key.c, IS_PRINT) || key.mods & (KEY_MOD_ALT | KEY_MOD_CTRL))
 		return (false);
 	*ft_dstrspan(&editor->text, editor->cursor,
