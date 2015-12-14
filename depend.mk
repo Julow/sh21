@@ -53,9 +53,9 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor.o \
 	$(O_DIR)/libft/ft_term/ft_tput.o $(O_DIR)/libft/ft_term/ft_trestore.o \
 	$(O_DIR)/libft/ft_term/ft_tupdate.o \
 	$(O_DIR)/libft/ft_term/term_out_flush.o $(O_DIR)/srcs/main/main.o
-PUBLIC_LINKS += $(O_DIR)/_public/editor_bindings.h $(O_DIR)/_public/editor.h \
-	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_colors.h \
-	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/ft_bst.h \
+PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
+	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_wchar.h \
+	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_bst.h \
 	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/getkey.h \
 	$(O_DIR)/_public/ft/ft_out.h $(O_DIR)/_public/ft/ft_str_out.h \
 	$(O_DIR)/_public/ft/ft_printf.h $(O_DIR)/_public/ft/ft_vprintf.h \

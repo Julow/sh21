@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/14 00:04:47 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/14 13:44:59 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,16 @@ static bool		test_binding(t_editor *editor, t_key key)
 	return (true);
 }
 
+static bool		test_binding2(t_editor *editor, t_key key)
+{
+	ft_dstrextend(&editor->text, 118);
+	ft_memset(editor->text.str + editor->text.length, 'a', 118);
+	editor->text.length += 118;
+	editor->sel = 0;
+	editor->cursor = editor->text.length;
+	return (true);
+}
+
 int				main(void)
 {
 	t_term *const	term = ft_tinit(1, TERM_RAW | TERM_LINE);
@@ -44,11 +54,12 @@ int				main(void)
 			TERM_DEFAULT_TERM);
 	editor_init(&editor);
 	editor_bind(&editor, KEY('C', KEY_MOD_SHIFT), &test_binding);
+	editor_bind(&editor, KEY('V', KEY_MOD_SHIFT), &test_binding2);
 	ft_trestore(term, true);
 	while (true)
 	{
 		key = ft_getkey(0);
-		uint32_t line_count = term->line_count;
+		uint32_t line_count = term->cursor_y;
 		ft_tclear(term);
 		if (!editor_key(&editor, key))
 			ft_fprintf(&term->out, "Unaccepted key: %3d '%c' Mods: %.4b (AC.S\\)%n", key.c,
@@ -57,10 +68,12 @@ int				main(void)
 			"Width: %d ; Height: %d ; Lines: %d\n",
 			editor.cursor, editor.sel, editor.text.length,
 			term->width, term->height, line_count);
+		ft_flush(&term->out);
+		uint32_t	x = term->cursor_x;
+		uint32_t	y = term->cursor_y;
 		editor_put(&editor, &term->out);
 		ft_flush(&term->out);
-		ft_tcursor(term, -(editor.text.length - editor.cursor), 0);
-		ft_flush(&term->out);
+		ft_tcursor(term, x + editor.cursor, y);
 		if (key.c == KEY_ESC && key.mods == 0)
 			break ;
 	}
