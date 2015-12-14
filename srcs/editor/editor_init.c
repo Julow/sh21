@@ -6,12 +6,43 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/14 18:27:33 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/14 22:50:48 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "editor_bindings.h"
 #include "editor_internal.h"
+
+// // implicit:
+// // 	bind backspace			delete left
+// // 	bind left				cursor_move left
+// // 	bind right				cursor_move
+
+// // delete: left right word subword
+// // TODO: clipboard
+
+// bind delete				delete right
+// bind ctrl+backspace		delete left word
+// bind ctrl+delete		delete right word
+// bind alt+backspace		delete left subword
+// bind alt+delete			delete right subword
+
+// // cursor_move: left right sel bound word subword
+
+// bind home				cursor_move left bound
+// bind end				cursor_move right bound
+// bind ctrl+a				cursor_move left bound
+// bind ctrl+e				cursor_move right bound
+// bind left				cursor_move left
+// bind right				cursor_move right
+// bind shift+left			cursor_move sel left
+// bind shift+right		cursor_move sel right
+// bind ctrl+left			cursor_move left word
+// bind ctrl+right			cursor_move right word
+// bind ctrl+shift+left	cursor_move sel left word
+// bind ctrl+shift+right	cursor_move sel right word
+// bind alt+shift+left		cursor_move sel left subword
+// bind alt+shift+right	cursor_move sel right subword
 
 static t_binding const	g_bindings[] = {
 	{KEY(KEY_BACKSPACE, 0), &editor_bind_delete, DELETE_LEFT},
@@ -34,8 +65,6 @@ static t_binding const	g_bindings[] = {
 	{KEY(KEY_RIGHT, KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_WORD},
 	{KEY(KEY_LEFT, KEY_MOD_CTRL | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_WORD},
 	{KEY(KEY_RIGHT, KEY_MOD_CTRL | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL | CURSOR_MOVE_WORD},
-	{KEY(KEY_LEFT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
-	{KEY(KEY_RIGHT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
 	{KEY(KEY_LEFT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
 	{KEY(KEY_RIGHT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
 };

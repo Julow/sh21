@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/14 17:50:31 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/14 20:35:28 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,10 @@ bool		editor_key(t_editor *editor, t_key key)
 		return (false);
 	*ft_dstrspan(&editor->text, editor->cursor,
 		editor->cursor + editor->sel, 1) = key.c;
-	editor->cursor++;
+	if (editor->sel < 0)
+		editor += editor->sel;
+	else
+		editor->cursor++;
 	editor->sel = 0;
 	return (true);
 }
