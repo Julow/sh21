@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/15 12:54:35 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 16:24:54 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,6 @@ typedef struct s_editor			t_editor;
 /*
 ** ========================================================================== **
 ** Editor
-** TODO: multi line
-** TODO: multi cursor
-** TODO: sequenced binding (like ctrl+K,ctrl+C)
-** TODO: next matching binding on binding returning false
 */
 
 struct		s_editor
@@ -39,6 +35,7 @@ struct		s_editor
 	int32_t		sel;
 	t_bst		bindings;
 	t_list		clipboard;
+	void		*user;
 };
 
 /*

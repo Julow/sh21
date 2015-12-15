@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/15 13:14:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 18:46:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,8 @@ void		editor_init(t_editor *editor)
 		0,
 		0,
 		BST(t_binding, &editor_binding_cmp),
-		LIST(t_sub)
+		LIST(t_sub),
+		NULL
 	};
 	i = 0;
 	while (i < ARRAY_LEN(g_bindings))

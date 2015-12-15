@@ -6,11 +6,13 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/15 12:44:08 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 18:49:02 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/ft_colors.h"
 #include "ft/ft_printf.h"
+#include "ft/get_next_line.h"
 #include "ft/getkey.h"
 #include "ft/term.h"
 
@@ -21,7 +23,95 @@
 
 #include <sys/select.h>
 
-#define pass		(IGNORE(0))
+/*
+** TODO: multi line (ctrl+n)
+** TODO: multi cursor
+** TODO: sequenced binding (like ctrl+K,ctrl+C)
+** TODO: next matching binding on binding returning false
+** TODO: undo/redo history
+** TODO: signals
+*/
+
+#define WARNING_MSG(MSG)	(C_YELLOW "Warning" C_RESET ": " MSG "%n")
+
+/*
+** ========================================================================== **
+** Main
+*/
+
+typedef struct s_main		t_main;
+
+#define FLAG_INTERACTIVE	(1 << 0)
+#define FLAG_EXIT			(1 << 1)
+
+struct			s_main
+{
+	t_term			*term;
+	t_editor		*editor;
+	uint32_t		flags;
+};
+
+/*
+** ========================================================================== **
+** Debug
+*/
+
+struct			s_keyname
+{
+	int				key;
+	char const		*name;
+};
+
+static char const	*get_key_name(t_key key)
+{
+	static struct s_keyname		key_names[] = {
+		{KEY_BACKSPACE, "backspace"},
+		{KEY_ESC, "esc"},
+		{KEY_UP, "up"},
+		{KEY_RIGHT, "right"},
+		{KEY_DOWN, "down"},
+		{KEY_LEFT, "left"},
+		{KEY_DELETE, "delete"},
+		{KEY_HOME, "home"},
+		{KEY_END, "end"},
+		{KEY_PAGEUP, "pageup"},
+		{KEY_PAGEDOWN, "pagedown"},
+		{KEY_F1, "f1"},
+		{KEY_F2, "f2"},
+		{KEY_F3, "f3"},
+		{KEY_F4, "f4"},
+	};
+	uint32_t		i;
+
+	i = 0;
+	while (i < ARRAY_LEN(key_names))
+	{
+		if (key_names[i].key == key.c)
+			return (key_names[i].name);
+		i++;
+	}
+	return (NULL);
+}
+
+static void		put_key(t_out *out, t_key key)
+{
+	char const		*key_name;
+
+	ft_putsub(out, SUBC("Key: "));
+	if (key.mods & KEY_MOD_CTRL)
+		ft_putsub(out, SUBC("ctrl+"));
+	if (key.mods & KEY_MOD_ALT)
+		ft_putsub(out, SUBC("alt+"));
+	if (key.mods & KEY_MOD_SHIFT)
+		ft_putsub(out, SUBC("shift+"));
+	if (IS(key.c, IS_PRINT))
+		ft_fprintf(out, "%c", key.c);
+	else if ((key_name = get_key_name(key)) != NULL)
+		ft_fprintf(out, "%s", key_name);
+	else
+		ft_fprintf(out, "0x%0.2x", (uint32_t)key.c);
+	ft_putendl(out);
+}
 
 static bool		test_binding(t_editor *editor, uint32_t flags)
 {
@@ -37,43 +127,85 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 	return (true);
 }
 
-int				main(void)
-{
-	t_term *const	term = ft_tinit(1, TERM_RAW | TERM_LINE);
-	// t_term *const	term = ft_tinit(1, TERM_RAW | TERM_FULLSCREEN);
-	// t_term *const	term = ft_tinit(1, TERM_RAW);
-	t_editor		editor;
-	t_key			key;
+/*
+** ========================================================================== **
+** Init
+*/
 
-	if (term->flags & TERM_USE_DEFAULT)
-		ft_dprintf(2, "Warning: Invalid $TERM value: Use default: %s%n",
-			TERM_DEFAULT_TERM);
-	editor_init(&editor);
-	editor_bind(&editor, KEY('C', KEY_MOD_SHIFT), &test_binding, ('a' << 16) | 10);
-	ft_trestore(term, true);
-	while (true)
+static bool		init_main(t_main *main)
+{
+	ft_bzero(main, sizeof(t_main));
+	if (isatty(1))
+	{
+		if ((main->term = ft_tinit(1, TERM_RAW | TERM_LINE)) == NULL)
+			return (false);
+		if (main->term->flags & TERM_USE_DEFAULT)
+			ft_dprintf(2, WARNING_MSG("Invalid $TERM value: Use default: %s"),
+				TERM_DEFAULT_TERM);
+		main->editor = MAL1(t_editor);
+		editor_bind(main->editor, KEY('C', KEY_MOD_SHIFT), &test_binding, ('a' << 16) | 10); // tmp
+		editor_init(main->editor);
+		main->editor->user = main;
+		main->flags |= FLAG_INTERACTIVE;
+	}
+	return (true);
+}
+
+/*
+** ========================================================================== **
+** Loop
+*/
+
+static void		interactive_loop(t_main *main)
+{
+	t_key			key;
+	uint32_t		cursor_x;
+	uint32_t		cursor_y;
+
+	ft_trestore(main->term, true);
+	while (!(main->flags & FLAG_EXIT))
 	{
 		key = ft_getkey(0);
-		uint32_t line_count = term->cursor_y;
-		ft_tclear(term);
-		if (!editor_key(&editor, key))
-			pass ;
-			ft_fprintf(&term->out, "Unaccepted key: %3d '%c' Mods: %.4b (AC.S\\)%n", key.c,
-				IS(key.c, IS_PRINT) ? key.c : 0, key.mods);
-		ft_fprintf(&term->out, "Cursor: %d ; Sel: %d ; Len: %d ; "
-			"Width: %d ; Height: %d ; Lines: %d\n",
-			editor.cursor, editor.sel, editor.text.length,
-			term->width, term->height, line_count);
-		ft_flush(&term->out);
-		uint32_t	x = term->cursor_x;
-		uint32_t	y = term->cursor_y;
-		editor_put(&editor, &term->out);
-		ft_flush(&term->out);
-		ft_tcursor(term, x + editor.cursor, y);
-		if (key.c == KEY_ESC && key.mods == 0)
-			break ;
+		ft_tclear(main->term);
+		put_key(&main->term->out, key); // TMP
+		if (!editor_key(main->editor, key))
+			ft_fprintf(&main->term->out, "(Unused key)%n"); // TMP
+		if (key.c == 'd' && key.mods == KEY_MOD_CTRL) // TMP
+			main->flags |= FLAG_EXIT; // TMP
+		ft_flush(&main->term->out);
+		cursor_x = main->term->cursor_x;
+		cursor_y = main->term->cursor_y;
+		editor_put(main->editor, &main->term->out);
+		ft_flush(&main->term->out);
+		ft_tcursor(main->term, cursor_x + main->editor->cursor, cursor_y);
 	}
-	ft_trestore(term, false);
-	ft_printf("exit%n");
+	ft_trestore(main->term, false);
+}
+
+static void		loop(t_main *main)
+{
+	t_sub			line;
+
+	ft_dprintf(2, WARNING_MSG("Non-interactive mode"));
+	while (get_next_line(0, &line) > 0)
+		ft_printf("%ts%n", line); // TMP
+	(void)main;
+}
+
+/*
+** ========================================================================== **
+** Main
+*/
+
+int				main(void)
+{
+	t_main			main;
+
+	if (!init_main(&main))
+		return (0);
+	if (main.flags & FLAG_INTERACTIVE)
+		interactive_loop(&main);
+	else
+		loop(&main);
 	return (0);
 }
