@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/15 18:49:02 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 19:20:35 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ static char const	*get_key_name(t_key key)
 		{KEY_F2, "f2"},
 		{KEY_F3, "f3"},
 		{KEY_F4, "f4"},
+		{'\t', "tab"},
 	};
 	uint32_t		i;
 

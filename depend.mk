@@ -8,13 +8,15 @@ OBJ_DIR_TREE += $(O_DIR)/srcs/range/ $(O_DIR)/srcs/main/ \
 	$(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ \
 	$(O_DIR)/libft/ $(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
 O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
-	$(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/srcs/editor/binding/paste.o \
-	$(O_DIR)/srcs/editor/binding_utils.o $(O_DIR)/srcs/editor/editor_bind.o \
-	$(O_DIR)/srcs/editor/editor_init.o $(O_DIR)/srcs/editor/editor_key.o \
-	$(O_DIR)/srcs/editor/editor_put.o $(O_DIR)/srcs/editor/word_range.o \
-	$(O_DIR)/libft/ft_base/ft_abs.o $(O_DIR)/libft/ft_base/ft_assert.o \
-	$(O_DIR)/libft/ft_base/ft_atoib.o $(O_DIR)/libft/ft_base/ft_bzero.o \
-	$(O_DIR)/libft/ft_base/ft_clock.o $(O_DIR)/libft/ft_base/ft_clock_stack.o \
+	$(O_DIR)/srcs/editor/binding/delete.o \
+	$(O_DIR)/srcs/editor/binding/extra_mod.o \
+	$(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding_utils.o \
+	$(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
+	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_put.o \
+	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_base/ft_abs.o \
+	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
+	$(O_DIR)/libft/ft_base/ft_bzero.o $(O_DIR)/libft/ft_base/ft_clock.o \
+	$(O_DIR)/libft/ft_base/ft_clock_stack.o \
 	$(O_DIR)/libft/ft_base/ft_emalloc.o $(O_DIR)/libft/ft_base/ft_escape.o \
 	$(O_DIR)/libft/ft_base/ft_getenv.o $(O_DIR)/libft/ft_base/ft_is.o \
 	$(O_DIR)/libft/ft_base/ft_max.o $(O_DIR)/libft/ft_base/ft_memcmp.o \
@@ -82,6 +84,12 @@ $(O_DIR)/srcs/editor/binding/delete.o: srcs/editor/binding/delete.c \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
 	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
 	srcs/editor/public/editor_bindings.h srcs/range/public/range.h
+$(O_DIR)/srcs/editor/binding/extra_mod.o: srcs/editor/binding/extra_mod.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
+	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/range/public/range.h
 $(O_DIR)/srcs/editor/binding/paste.o: srcs/editor/binding/paste.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
@@ -125,11 +133,11 @@ $(O_DIR)/srcs/editor/word_range.o: srcs/editor/word_range.c \
 	srcs/editor/public/editor.h srcs/range/public/range.h
 
 $(O_DIR)/srcs/editor/binding/cursor_move.o \
-$(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/srcs/editor/binding/paste.o \
-$(O_DIR)/srcs/editor/binding_utils.o $(O_DIR)/srcs/editor/editor_bind.o \
-$(O_DIR)/srcs/editor/editor_init.o $(O_DIR)/srcs/editor/editor_key.o \
-$(O_DIR)/srcs/editor/editor_put.o $(O_DIR)/srcs/editor/word_range.o: \
-	INCLUDE_FLAGS += -Isrcs/editor
+$(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/srcs/editor/binding/extra_mod.o \
+$(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding_utils.o \
+$(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
+$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_put.o \
+$(O_DIR)/srcs/editor/word_range.o: INCLUDE_FLAGS += -Isrcs/editor
 
 # module ft::base
 $(O_DIR)/libft/ft_base/ft_abs.o: libft/ft_base/ft_abs.c \

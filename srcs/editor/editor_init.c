@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/15 18:46:31 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 19:24:25 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ static t_binding const	g_bindings[] = {
 	{KEY('y', KEY_MOD_CTRL), &editor_bind_paste, 0},
 	{KEY('v', KEY_MOD_CTRL), &editor_bind_paste, PASTE_CONSUME},
 
+	{KEY('s', KEY_MOD_CTRL), &editor_bind_extra_mod, KEY_MOD_SHIFT},
+
 	{KEY(KEY_LEFT, 0), &editor_bind_cursor_move, CURSOR_MOVE_LEFT},
 	{KEY(KEY_RIGHT, 0), &editor_bind_cursor_move, 0},
 	{KEY(KEY_LEFT, KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL},
@@ -101,6 +103,7 @@ void		editor_init(t_editor *editor)
 		0,
 		BST(t_binding, &editor_binding_cmp),
 		LIST(t_sub),
+		0,
 		NULL
 	};
 	i = 0;
