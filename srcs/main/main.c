@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/14 23:38:26 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/15 12:44:08 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 #include <unistd.h>
 
 #include <sys/select.h>
+
+#define pass		(IGNORE(0))
 
 static bool		test_binding(t_editor *editor, uint32_t flags)
 {
@@ -55,6 +57,7 @@ int				main(void)
 		uint32_t line_count = term->cursor_y;
 		ft_tclear(term);
 		if (!editor_key(&editor, key))
+			pass ;
 			ft_fprintf(&term->out, "Unaccepted key: %3d '%c' Mods: %.4b (AC.S\\)%n", key.c,
 				IS(key.c, IS_PRINT) ? key.c : 0, key.mods);
 		ft_fprintf(&term->out, "Cursor: %d ; Sel: %d ; Len: %d ; "

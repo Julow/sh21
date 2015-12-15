@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/12 21:38:38 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/14 18:27:02 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 12:59:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,12 @@ bool		editor_bind_cursor_move(t_editor *editor, uint32_t flags);
 # define DELETE_BOUND			CURSOR_MOVE_BOUND
 # define DELETE_WORD			CURSOR_MOVE_WORD
 # define DELETE_SUBWORD			CURSOR_MOVE_SUBWORD
+# define DELETE_CLIPBOARD		(1 << 5)
 
 bool		editor_bind_delete(t_editor *editor, uint32_t flags);
+
+# define PASTE_CONSUME			(1 << 0)
+
+bool		editor_bind_paste(t_editor *editor, uint32_t flags);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/12 22:00:44 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/14 18:32:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 13:10:54 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 bool			editor_bind_delete(t_editor *editor, uint32_t flags)
 {
 	int32_t			move;
+	t_sub			*save;
 
 	move = cursor_move(editor, flags);
 	if (editor->sel != 0)
@@ -26,6 +27,13 @@ bool			editor_bind_delete(t_editor *editor, uint32_t flags)
 	if (move == 0 || (editor->cursor + move) < 0
 		|| (editor->cursor + move) > editor->text.length)
 		return (false);
+	if (flags & DELETE_CLIPBOARD)
+	{
+		save = ft_listadd(&editor->clipboard, NULL, ABS(move));
+		*save = SUB(ENDOF(save), ABS(move));
+		ft_memcpy(ENDOF(save),
+			editor->text.str + editor->cursor + MIN(move, 0), ABS(move));
+	}
 	ft_dstrspan(&editor->text, editor->cursor, editor->cursor + move, 0);
 	if (move < 0)
 		editor->cursor += move;

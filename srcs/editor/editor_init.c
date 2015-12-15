@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/14 22:50:48 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/15 13:14:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,31 +18,37 @@
 // // 	bind left				cursor_move left
 // // 	bind right				cursor_move
 
-// // delete: left right word subword
-// // TODO: clipboard
-
 // bind delete				delete right
 // bind ctrl+backspace		delete left word
-// bind ctrl+delete		delete right word
+// bind ctrl+delete			delete right word
 // bind alt+backspace		delete left subword
 // bind alt+delete			delete right subword
 
-// // cursor_move: left right sel bound word subword
+// TODO bind ctrl+c				delete line
+
+// bind ctrl+w				delete left word clipboard
+// bind ctrl+k				delete right bound clipboard
+// bind ctrl+o				delete left bound clipboard
+
+// bind ctrl+y				paste
+// bind ctrl+v				paste consume
 
 // bind home				cursor_move left bound
-// bind end				cursor_move right bound
+// bind end					cursor_move right bound
 // bind ctrl+a				cursor_move left bound
 // bind ctrl+e				cursor_move right bound
 // bind left				cursor_move left
 // bind right				cursor_move right
 // bind shift+left			cursor_move sel left
-// bind shift+right		cursor_move sel right
+// bind shift+right			cursor_move sel right
 // bind ctrl+left			cursor_move left word
 // bind ctrl+right			cursor_move right word
-// bind ctrl+shift+left	cursor_move sel left word
+// bind ctrl+shift+left		cursor_move sel left word
 // bind ctrl+shift+right	cursor_move sel right word
+// bind alt+left			cursor_move left subword
+// bind alt+right			cursor_move right subword
 // bind alt+shift+left		cursor_move sel left subword
-// bind alt+shift+right	cursor_move sel right subword
+// bind alt+shift+right		cursor_move sel right subword
 
 static t_binding const	g_bindings[] = {
 	{KEY(KEY_BACKSPACE, 0), &editor_bind_delete, DELETE_LEFT},
@@ -57,6 +63,13 @@ static t_binding const	g_bindings[] = {
 	{KEY('a', KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_BOUND | CURSOR_MOVE_LEFT},
 	{KEY('e', KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_BOUND},
 
+	{KEY('w', KEY_MOD_CTRL), &editor_bind_delete, DELETE_LEFT | DELETE_WORD | DELETE_CLIPBOARD},
+	{KEY('k', KEY_MOD_CTRL), &editor_bind_delete, DELETE_BOUND | DELETE_CLIPBOARD},
+	{KEY('o', KEY_MOD_CTRL), &editor_bind_delete, DELETE_LEFT | DELETE_BOUND | DELETE_CLIPBOARD},
+
+	{KEY('y', KEY_MOD_CTRL), &editor_bind_paste, 0},
+	{KEY('v', KEY_MOD_CTRL), &editor_bind_paste, PASTE_CONSUME},
+
 	{KEY(KEY_LEFT, 0), &editor_bind_cursor_move, CURSOR_MOVE_LEFT},
 	{KEY(KEY_RIGHT, 0), &editor_bind_cursor_move, 0},
 	{KEY(KEY_LEFT, KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL},
@@ -65,6 +78,8 @@ static t_binding const	g_bindings[] = {
 	{KEY(KEY_RIGHT, KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_WORD},
 	{KEY(KEY_LEFT, KEY_MOD_CTRL | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_WORD},
 	{KEY(KEY_RIGHT, KEY_MOD_CTRL | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL | CURSOR_MOVE_WORD},
+	{KEY(KEY_LEFT, KEY_MOD_ALT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SUBWORD},
+	{KEY(KEY_RIGHT, KEY_MOD_ALT), &editor_bind_cursor_move, CURSOR_MOVE_SUBWORD},
 	{KEY(KEY_LEFT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
 	{KEY(KEY_RIGHT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
 };
@@ -84,7 +99,8 @@ void		editor_init(t_editor *editor)
 		DSTR0(),
 		0,
 		0,
-		BST(t_binding, &editor_binding_cmp)
+		BST(t_binding, &editor_binding_cmp),
+		LIST(t_sub)
 	};
 	i = 0;
 	while (i < ARRAY_LEN(g_bindings))

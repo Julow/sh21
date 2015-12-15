@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/14 17:48:22 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/15 12:54:35 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "ft/ft_bst.h"
 # include "ft/ft_dstr.h"
+# include "ft/ft_list.h"
 # include "ft/ft_out.h"
 # include "ft/getkey.h"
 # include "ft/libft.h"
@@ -37,6 +38,7 @@ struct		s_editor
 	int32_t		cursor;
 	int32_t		sel;
 	t_bst		bindings;
+	t_list		clipboard;
 };
 
 /*
