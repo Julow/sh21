@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/16 16:02:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/16 17:44:44 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include "ft/tokenizer.h"
 
 typedef struct s_syntax			t_syntax;
-typedef int32_t					t_token_t;
 
 typedef struct s_syntax_action	t_syntax_action;
 typedef struct s_syntax_merge	t_syntax_merge;
@@ -27,8 +26,6 @@ typedef struct s_syntax_merge	t_syntax_merge;
 ** ========================================================================== **
 ** Syntax
 */
-
-#define TOKEN_T_UNKNOWN		(-1)
 
 struct			s_syntax_action
 {

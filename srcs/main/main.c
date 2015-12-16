@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/16 16:02:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/16 19:12:21 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "ft/get_next_line.h"
 #include "ft/getkey.h"
 #include "ft/term.h"
+#include "ft/tokenizer.h"
 
 #include "editor.h"
 
@@ -46,9 +47,10 @@ typedef struct s_main		t_main;
 
 struct			s_main
 {
-	t_term			*term;
-	t_editor		*editor;
-	uint32_t		flags;
+	t_term				*term;
+	t_editor			*editor;
+	uint32_t			flags;
+	t_token_map const	*sh_tokens;
 };
 
 /*
@@ -128,6 +130,23 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 	return (true);
 }
 
+static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
+{
+	t_main *const	main = (t_main*)editor->user;
+	t_sub const		line = *(t_sub*)&editor->text;
+	t_sub			token;
+
+	if (line.length == 0)
+		return (false);
+	token = SUB(line.str, 0);
+	while (ft_tokenize(line, &token, NULL, main->sh_tokens))
+	{
+		ft_printf("Token '%ts'%n", token);
+	}
+	return (true);
+	(void)flags;
+}
+
 /*
 ** ========================================================================== **
 ** Init
@@ -144,8 +163,9 @@ static bool		init_main(t_main *main)
 			ft_dprintf(2, WARNING_MSG("Invalid $TERM value: Use default: %s"),
 				TERM_DEFAULT_TERM);
 		main->editor = MAL1(t_editor);
-		editor_bind(main->editor, KEY('C', KEY_MOD_SHIFT), &test_binding, ('a' << 16) | 10); // tmp
 		editor_init(main->editor);
+		editor_bind(main->editor, KEY('C', KEY_MOD_SHIFT), &test_binding, ('a' << 16) | 10); // tmp
+		editor_bind(main->editor, KEY('m', KEY_MOD_CTRL), &binding_test_tokenize, 0); // tmp
 		main->editor->user = main;
 		main->flags |= FLAG_INTERACTIVE;
 	}
@@ -305,6 +325,38 @@ static bool		init_main(t_main *main)
 // 	}
 // }
 
+#define T(STR)		{SUBC(STR), 0}
+
+static t_token_def	g_sh_tokens[] = {
+	T("("),
+	T("$"),
+	T("'"),
+	T("\""),
+	T("\\"),
+	T(")"),
+	T("&"),
+	T("&&"),
+	T("|"),
+	T("||"),
+	T(">"),
+	T(">>"),
+	T("<"),
+	T("<<"),
+	T(" "),
+	T("\t"),
+	T("\n"),
+};
+
+#undef T
+
+t_token_map const	*init_sh_tokens(void)
+{
+	t_token_map *const	token_map = MAL1(t_token_map);
+
+	ft_token_map(token_map, g_sh_tokens, ARRAY_LEN(g_sh_tokens));
+	return (token_map);
+}
+
 /*
 ** ========================================================================== **
 ** Loop
@@ -321,9 +373,9 @@ static void		interactive_loop(t_main *main)
 	{
 		key = ft_getkey(0);
 		ft_tclear(main->term);
-		put_key(&main->term->out, key); // TMP
 		if (!editor_key(main->editor, key))
 			ft_fprintf(&main->term->out, "(Unused key)%n"); // TMP
+		put_key(&main->term->out, key); // TMP
 		if (key.c == 'd' && key.mods == KEY_MOD_CTRL) // TMP
 			main->flags |= FLAG_EXIT; // TMP
 		ft_flush(&main->term->out);
@@ -357,6 +409,7 @@ int				main(void)
 
 	if (!init_main(&main))
 		return (0);
+	main.sh_tokens = init_sh_tokens();
 	if (main.flags & FLAG_INTERACTIVE)
 		interactive_loop(&main);
 	else

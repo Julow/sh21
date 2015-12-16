@@ -1,8 +1,8 @@
 INCLUDE_FLAGS += -I$(O_DIR)/_public
 LINK_FLAGS += -ltermcap
-OBJ_DIR_TREE += $(O_DIR)/srcs/range/ $(O_DIR)/srcs/main/ \
-	$(O_DIR)/srcs/editor/binding/ $(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ \
-	$(O_DIR)/libft/get_next_line/ $(O_DIR)/libft/ft_term/ \
+OBJ_DIR_TREE += $(O_DIR)/srcs/tokenizer/ $(O_DIR)/srcs/range/ \
+	$(O_DIR)/srcs/main/ $(O_DIR)/srcs/editor/binding/ $(O_DIR)/srcs/editor/ \
+	$(O_DIR)/srcs/ $(O_DIR)/libft/get_next_line/ $(O_DIR)/libft/ft_term/ \
 	$(O_DIR)/libft/ft_printf/formats/ $(O_DIR)/libft/ft_printf/ \
 	$(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ $(O_DIR)/libft/ft_getkey/ \
 	$(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ \
@@ -61,7 +61,9 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_term/ft_tclear.o $(O_DIR)/libft/ft_term/ft_tcursor.o \
 	$(O_DIR)/libft/ft_term/ft_tinit.o $(O_DIR)/libft/ft_term/ft_tput.o \
 	$(O_DIR)/libft/ft_term/ft_trestore.o $(O_DIR)/libft/ft_term/ft_tupdate.o \
-	$(O_DIR)/libft/ft_term/term_out_flush.o $(O_DIR)/srcs/main/main.o
+	$(O_DIR)/libft/ft_term/term_out_flush.o \
+	$(O_DIR)/srcs/tokenizer/ft_token_map.o \
+	$(O_DIR)/srcs/tokenizer/ft_tokenize.o $(O_DIR)/srcs/main/main.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_wchar.h \
 	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_bst.h \
@@ -69,7 +71,8 @@ PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/ft_list.h \
 	$(O_DIR)/_public/ft/ft_out.h $(O_DIR)/_public/ft/ft_str_out.h \
 	$(O_DIR)/_public/ft/ft_printf.h $(O_DIR)/_public/ft/ft_vprintf.h \
-	$(O_DIR)/_public/ft/range.h $(O_DIR)/_public/ft/term.h
+	$(O_DIR)/_public/ft/range.h $(O_DIR)/_public/ft/term.h \
+	$(O_DIR)/_public/ft/tokenizer.h
 
 # module editor
 $(O_DIR)/srcs/editor/binding/cursor_move.o: srcs/editor/binding/cursor_move.c \
@@ -410,6 +413,14 @@ $(O_DIR)/libft/ft_term/ft_tinit.o $(O_DIR)/libft/ft_term/ft_tput.o \
 $(O_DIR)/libft/ft_term/ft_trestore.o $(O_DIR)/libft/ft_term/ft_tupdate.o \
 $(O_DIR)/libft/ft_term/term_out_flush.o: INCLUDE_FLAGS += -Ilibft/ft_term
 
+# module ft::tokenizer
+$(O_DIR)/srcs/tokenizer/ft_token_map.o: srcs/tokenizer/ft_token_map.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	srcs/tokenizer/public/tokenizer.h
+$(O_DIR)/srcs/tokenizer/ft_tokenize.o: srcs/tokenizer/ft_tokenize.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	srcs/tokenizer/public/tokenizer.h
+
 # module sh21
 $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
@@ -417,7 +428,7 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
 	libft/ft_printf/public/ft_printf.h libft/ft_term/public/term.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
-	srcs/range/public/range.h
+	srcs/range/public/range.h srcs/tokenizer/public/tokenizer.h
 
 # public links
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h
@@ -437,3 +448,4 @@ $(O_DIR)/_public/ft/getkey.h: libft/ft_getkey/public/getkey.h
 $(O_DIR)/_public/ft/libft.h: libft/ft_base/public/libft.h
 $(O_DIR)/_public/ft/range.h: srcs/range/public/range.h
 $(O_DIR)/_public/ft/term.h: libft/ft_term/public/term.h
+$(O_DIR)/_public/ft/tokenizer.h: srcs/tokenizer/public/tokenizer.h
