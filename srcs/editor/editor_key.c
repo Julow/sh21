@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/15 19:16:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/16 23:28:05 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ bool		editor_key(t_editor *editor, t_key key)
 
 	key.mods |= editor->extra_mods;
 	editor->extra_mods = 0;
-	binding = ft_bst_get(&editor->bindings, &key);
+	binding = ft_bst_get(&editor->bindings, NULL, &key);
 	if (binding != NULL)
 		return (binding->f(editor, binding->flags));
 	if (!IS(key.c, IS_PRINT) || key.mods & ~KEY_MOD_SHIFT)

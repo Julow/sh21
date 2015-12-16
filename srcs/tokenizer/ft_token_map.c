@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:06:57 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/16 19:41:18 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/17 00:42:21 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 
 static int		token_cmp(t_token_def const *a, t_sub const *b)
 {
-	if (a->sub.length != b->length)
-		return (a->sub.length - b->length);
-	return (ft_memcmp(a->sub.str, b->str, a->sub.length));
+	return (ft_memcmp(b->str, a->sub.str, MIN(a->sub.length, b->length)));
 }
 
 void			ft_token_map(t_token_map *map, t_token_def const *tokens,
