@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/15 19:20:35 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/16 16:02:43 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,159 @@ static bool		init_main(t_main *main)
 	}
 	return (true);
 }
+
+// typedef enum s_sh_token		t_sh_token;
+
+// enum s_sh_token
+// {
+// 	SH_TOKEN_ESCAPE,
+// 	SH_TOKEN_AND,
+// 	SH_TOKEN_AMPERSAND,
+// 	SH_TOKEN_PIPE,
+// 	SH_TOKEN_OR,
+// 	SH_TOKEN_REDIR_RIGHT,
+// 	SH_TOKEN_REDIR_RIGHT_APPEND,
+// 	SH_TOKEN_REDIR_LEFT,
+// 	SH_TOKEN_REDIR_HEREDOC,
+// 	SH_TOKEN_DOLLAR,
+// 	SH_TOKEN_QUOTE,
+// 	SH_TOKEN_SINGLE_QUOTE,
+// 	SH_TOKEN_PARENTHESIS_OPEN,
+// 	SH_TOKEN_PARENTHESIS_CLOSE,
+// 	SH_TOKEN_MATH_START,
+// 	SH_TOKEN_MATH_END,
+// 	SH_TOKEN_SPACE,
+// 	SH_TOKEN_NL,
+// };
+
+// #define SH_TOKEN(STR,TOKEN)		{SUBC(STR), SH_TOKEN_#TOKEN, 0}
+// #define SH_TOKEN_F(STR,TOKEN,F)	{SUBC(STR), SH_TOKEN_#TOKEN, F}
+
+// struct
+// {
+// 	t_sub		name;
+// 	t_sh_token	token;
+// 	uint32_t	flags;
+// } const	g_sh_tokens[] = {
+// 	SH_TOKEN("\\", ESCAPE),
+// 	SH_TOKEN("&&", AND),
+// 	SH_TOKEN("&", AMPERSAND),
+// 	SH_TOKEN("|", PIPE),
+// 	SH_TOKEN("||", OR),
+// 	SH_TOKEN(">", REDIR_RIGHT),
+// 	SH_TOKEN(">>", REDIR_RIGHT_APPEND),
+// 	SH_TOKEN("<", REDIR_LEFT),
+// 	SH_TOKEN("<<", REDIR_HEREDOC),
+// 	SH_TOKEN("$", DOLLAR),
+// 	SH_TOKEN("(", PARENTHESIS_OPEN),
+// 	SH_TOKEN(")", PARENTHESIS_CLOSE),
+// 	SH_TOKEN("((", MATH_START),
+// 	SH_TOKEN("))", MATH_END),
+// 	SH_TOKEN("\"", QUOTE),
+// 	SH_TOKEN("'", SINGLE_QUOTE),
+// 	SH_TOKEN_F(" ", SPACE, TOKEN_F_REPEAT),
+// 	SH_TOKEN_F("\t", SPACE, TOKEN_F_REPEAT),
+// 	SH_TOKEN_F("\n", NL, TOKEN_F_REPEAT),
+// };
+
+// static void		init_sh_token(t_token_map *map)
+// {
+// 	uint32_t		i;
+
+// 	i = 0;
+// 	while (i < ARRAY_LEN(g_sh_tokens))
+// 	{
+// 		ft_token_add(map, g_sh_tokens[i].name, g_sh_tokens[i].token, 0);
+// 		i++;
+// 	}
+// }
+
+// {
+// 	"sh": {
+// 		tokens: {
+// 			"\\": ESCAPE,
+// 			"\"": QUOTE,
+// 			"$": DOLLAR,
+// 			"((": MATH_START_P,
+// 			"(": PARENTHESIS_OPEN,
+// 			")": PARENTHESIS_CLOSE,
+// 			" ": SPACE,
+// 		},
+// 		end: PARENTHESIS_CLOSE,
+// 		token_unmatch: {},
+// 		token_merge: {
+// 			[ESCAPE, QUOTE]: ESCAPED,
+// 			[ESCAPE, DOLLAR]: ESCAPED,
+// 			[DOLLAR, MATH_START_P]: MATH_START,
+// 			[DOLLAR, TEXT]: VAR,
+// 		},
+// 		tokens_action: {
+// 			MATH_START_P: {
+// 				scope: "math",
+// 				syntax: "sh-math",
+// 			},
+// 			PARENTHESIS_OPEN: {
+// 				scope: "sub-shell",
+// 				syntax: "sh",
+// 			},
+// 			QUOTE: {
+// 				scope: "string",
+// 				syntax: "sh-string",
+// 			},
+// 			VAR: {
+// 				scope: "var"
+// 			},
+// 			ESCAPED: {
+// 				scope: "escaped"
+// 			},
+// 		}
+// 	}
+// 	"sh-string": {
+// 		tokens: {
+// 			"\"": QUOTE,
+// 			"\\t": ESCAPED,
+// 			"\\n": ESCAPED,
+// 			"\\e": ESCAPED,
+// 		},
+// 		end: QUOTE,
+// 		token_unmatch: {},
+// 		token_merge: {
+// 			[ESCAPE, QUOTE]: ESCAPED,
+// 		},
+// 		tokens_action: {
+// 			ESCAPED: {
+// 				scope: "escaped"
+// 			}
+// 		},
+// 	},
+// 	"sh-math": {
+// 		tokens: {
+// 			"+": OPERATOR,
+// 			"-": OPERATOR,
+// 			"*": OPERATOR,
+// 			"/": OPERATOR,
+// 			"%": OPERATOR,
+// 			"$": DOLLAR,
+// 			" ": SPACE,
+// 			"))": MATH_END_P,
+// 		},
+// 		end: MATH_END_P,
+// 		token_unmatch: {
+// 			IS_DIGIT: NUMBER,
+// 		},
+// 		token_merge: {
+// 			[DOLLAR, UNMATCHED]: VAR
+// 		},
+// 		token_actions: {
+// 			OPERATOR: {
+// 				scope: "op"
+// 			},
+// 			VAR: {
+// 				scope: "var"
+// 			}
+// 		}
+// 	}
+// }
 
 /*
 ** ========================================================================== **

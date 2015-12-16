@@ -1,0 +1,4 @@
+module syntax:
+	public include public/
+
+	public require ft::tokenizer
