@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/17 00:42:41 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/17 18:08:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,14 +134,18 @@ static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
 {
 	t_main *const	main = (t_main*)editor->user;
 	t_sub const		line = *(t_sub*)&editor->text;
+	t_token_t		t;
 	t_sub			token;
 
 	if (line.length == 0)
 		return (false);
 	token = SUB(line.str, 0);
-	while (ft_tokenize(line, &token, NULL, main->sh_tokens))
+	while (ft_tokenize(line, &token, &t, main->sh_tokens))
 	{
-		ft_printf("Token '%ts'%n", token);
+		if (t == TOKEN_T_UNKNOWN)
+			ft_printf(C_RED "Token" C_RESET " (unknown) '%ts'%n", token);
+		else
+			ft_printf(C_RED "Token" C_RESET " (%d) '%ts'%n", t, token);
 	}
 	return (true);
 	(void)flags;
@@ -340,7 +344,8 @@ static t_token_def	g_sh_tokens[] = {
 	T("$"),
 	T("("),
 	T(")"),
-	T("(("),
+	T("$(("),
+	T("<<&&<<"),
 	T("))"),
 	T("\""),
 	T("'"),

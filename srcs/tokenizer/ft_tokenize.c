@@ -6,30 +6,35 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 17:15:24 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/17 00:41:56 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/17 18:09:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/tokenizer.h"
 
+static bool		find_max_t(t_token_def const *def, t_sub const *match,
+					t_token_def const **token)
+{
+	if ((*token == NULL || (*token)->sub.length < def->sub.length)
+		&& ft_memcmp(match->str, def->sub.str, def->sub.length) == 0)
+		*token = def;
+	return (true);
+}
+
 static bool		tokenize_from_map(t_sub match, t_sub *token, t_token_t *type,
 					t_token_map const *token_map)
 {
 	t_token_def			*t;
-	t_token_def			*max_t;
 
 	t = NULL;
-	max_t = NULL;
-	while ((t = ft_bst_get(&token_map->tokens, t, &match)) != NULL)
-		if (max_t == NULL || t->sub.length > max_t->sub.length)
-			max_t = t;
-	if (max_t == NULL)
+	ft_bst_getall(&token_map->tokens, &match, &find_max_t, &t);
+	if (t == NULL)
 		return (false);
 	if (token->length > 0)
 		return (true);
-	token->length = max_t->sub.length;
+	token->length = t->sub.length;
 	if (type != NULL)
-		*type = max_t->type;
+		*type = t->type;
 	return (true);
 }
 
