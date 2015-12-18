@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/17 18:08:37 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/18 02:33:57 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,92 +242,137 @@ static bool		init_main(t_main *main)
 // 	}
 // }
 
-// {
-// 	"sh": {
-// 		tokens: {
-// 			"\\": ESCAPE,
-// 			"\"": QUOTE,
-// 			"$": DOLLAR,
-// 			"((": MATH_START_P,
-// 			"(": PARENTHESIS_OPEN,
-// 			")": PARENTHESIS_CLOSE,
-// 			" ": SPACE,
-// 		},
-// 		end: PARENTHESIS_CLOSE,
-// 		token_unmatch: {},
-// 		token_merge: {
-// 			[ESCAPE, QUOTE]: ESCAPED,
-// 			[ESCAPE, DOLLAR]: ESCAPED,
-// 			[DOLLAR, MATH_START_P]: MATH_START,
-// 			[DOLLAR, TEXT]: VAR,
-// 		},
-// 		tokens_action: {
-// 			MATH_START_P: {
-// 				scope: "math",
-// 				syntax: "sh-math",
-// 			},
-// 			PARENTHESIS_OPEN: {
-// 				scope: "sub-shell",
-// 				syntax: "sh",
-// 			},
-// 			QUOTE: {
-// 				scope: "string",
-// 				syntax: "sh-string",
-// 			},
-// 			VAR: {
-// 				scope: "var"
-// 			},
-// 			ESCAPED: {
-// 				scope: "escaped"
-// 			},
-// 		}
-// 	}
-// 	"sh-string": {
-// 		tokens: {
-// 			"\"": QUOTE,
-// 			"\\t": ESCAPED,
-// 			"\\n": ESCAPED,
-// 			"\\e": ESCAPED,
-// 		},
-// 		end: QUOTE,
-// 		token_unmatch: {},
-// 		token_merge: {
-// 			[ESCAPE, QUOTE]: ESCAPED,
-// 		},
-// 		tokens_action: {
-// 			ESCAPED: {
-// 				scope: "escaped"
-// 			}
-// 		},
-// 	},
-// 	"sh-math": {
-// 		tokens: {
-// 			"+": OPERATOR,
-// 			"-": OPERATOR,
-// 			"*": OPERATOR,
-// 			"/": OPERATOR,
-// 			"%": OPERATOR,
-// 			"$": DOLLAR,
-// 			" ": SPACE,
-// 			"))": MATH_END_P,
-// 		},
-// 		end: MATH_END_P,
-// 		token_unmatch: {
-// 			IS_DIGIT: NUMBER,
-// 		},
-// 		token_merge: {
-// 			[DOLLAR, UNMATCHED]: VAR
-// 		},
-// 		token_actions: {
-// 			OPERATOR: {
-// 				scope: "op"
-// 			},
-// 			VAR: {
-// 				scope: "var"
-// 			}
-// 		}
-// 	}
-// }
+typedef struct s_syntax			t_syntax;
+typedef struct s_syntax_def		t_syntax_def;
+typedef struct s_syntax_def_t	t_syntax_def_t;
+
+struct		s_syntax_def
+{
+	char const		*name;
+	char const		*end; // end should be a scope to allow regex end
+	char const		*inherit;
+	t_syntax_def_t	*tokens;
+	// t_syntax_def_t	*match;
+};
+
+struct		s_syntax_def_t
+{
+	char const	*token;
+	char const	*scope;
+	char const	*syntax;
+};
+
+struct		s_syntax
+{
+	t_sub		*scopes;
+	t_syntax	*syntaxes;
+	uint32_t	end_token;
+	t_token_map	*token_map;
+};
+
+t_syntax_def const		g_syntaxes[] = {
+	{"sh", ")",
+		.tokens = (t_syntax_def_t[]){
+			{"\\\"", "escaped.string", NULL},
+			{"\\\'", "escaped.string.simple", NULL},
+			{"\\$", "escaped.dollar", NULL},
+			{"(", "sub", "sh"},
+			{"$(", "sub", "sh"},
+			{"`", "sub.backquote", "sh-backquote"},
+			{"$((", "math", "sh-math"},
+			{"${", "expr", "sh-expr"},
+			{"!", "op.not", NULL},
+			{";", "op.semicolon", NULL},
+			{"\"", "string", "sh-string"},
+			{"'", "string.simple", "sh-string-simple"},
+			{"#", "comment", "sh-comment"},
+			{"&&", "op.and", NULL},
+			{"&", "op.async", NULL},
+			{"|", "op.pipe", NULL},
+			{"||", "op.or", NULL},
+			{"<", "redir.left", NULL},
+			{"<<", "redir.heredoc", NULL},
+			{">", "redir.right", NULL},
+			{">>", "redir.right.double", NULL},
+			{" ", NULL, NULL},
+			{"\t", NULL, NULL},
+			{"\n", NULL, NULL},
+		},
+		// .match = (t_syntax_def_t[]){
+		// 	{"$[a-zA-Z_][a-zA-Z0-9_]*", "var"},
+		// 	{"if", "if", "sh-if"},
+		// 	{"then", "keyword.then"},
+		// 	{"do", "keyword.do"},
+		// 	{"done", "keyword.done"},
+		// 	{"fi", "keyword.fi"},
+		// 	{"else", "keyword.else"},
+		// 	{"elif", "keyword.elif"},
+		// 	{"while", "keyword.while"},
+		// 	{"until", "keyword.until"},
+		// 	{"for", "keyword.for"},
+		// 	{"in", "keyword.in"},
+		// },
+	},
+	// {"sh-backquote", "`", .inherit = "sh"},
+	// {"sh-if", ";",
+	// 	.inherit = "sh",
+	// 	.tokens = (t_syntax_def_t[]){
+	// 		{"[", "op.test", "sh-test"},
+	// 		{"[[", "op.test.double", "sh-test-double"},
+	// 	},
+	// },
+	// {"sh-test", "]",
+	// 	.inherit = "sh",
+	// 	.tokens = (t_syntax_def_t[]){
+	// 		{"=", "op"}
+	// 		{"==", "op"}
+	// 		{"!=", "op"}
+	// 		{"<", "op"}
+	// 		{">", "op"}
+	// 	},
+	// 	.match = (t_syntax_def_f[]){
+	// 		{"-[a-zA-Z]{1,2}", "test"},
+	// 	},
+	// },
+	// {"sh-test-double", "]]", .inherit = "sh-test"},
+	{"sh-string", "\"",
+		.tokens = (t_syntax_def_t[]){
+			{"\"", "escaped.quote", NULL},
+			{"\\n", "escaped.char", NULL},
+			{"\\e", "escaped.char", NULL},
+			{"\\t", "escaped.char", NULL},
+			{"`", "sub.backquote", "sh-sub"},
+			{"$(", "sub.sh", "sh"},
+		},
+	},
+	{"sh-string-simple", "'", NULL, NULL},
+	{"sh-comment", "\n", NULL, NULL},
+	{"sh-expr", "}",
+		.tokens = (t_syntax_def_t[]){
+			{"%", "op", NULL},
+			{"%%", "op", NULL},
+			{"#", "op", NULL},
+		},
+	},
+	{"sh-math", "))",
+		.tokens = (t_syntax_def_t[]){
+			{"(", "brace", "sh-math-sub"},
+			{"+", "op.plus", NULL},
+			{"-", "op.minus", NULL},
+			{"*", "op.mult", NULL},
+			{"/", "op.div", NULL},
+			{"%", "op.mod", NULL},
+			{" ", "op.space", NULL},
+			{"\t", "op.space", NULL},
+			{"\n", "op.plus", NULL},
+		},
+		// .match = (t_syntax_def_t[]){
+		// 	{"$[a-zA-Z_][a-zA-Z0-9_]*", "var"},
+		// 	{"[0-9]+\\.?[0-9]*", "number"},
+		// },
+	},
+	{"sh-math-sub", ")", .inherit = "sh-math"},
+};
 
 #define T(STR)		{SUBC(STR), 0}
 
