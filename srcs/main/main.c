@@ -6,11 +6,12 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/18 02:33:57 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/19 15:44:05 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/ft_colors.h"
+#include "ft/ft_hmap.h"
 #include "ft/ft_printf.h"
 #include "ft/get_next_line.h"
 #include "ft/getkey.h"
@@ -18,6 +19,8 @@
 #include "ft/tokenizer.h"
 
 #include "editor.h"
+#include "syntax.h"
+#include "syntax_def.h"
 
 #include <termios.h>
 #include <unistd.h>
@@ -50,7 +53,8 @@ struct			s_main
 	t_term				*term;
 	t_editor			*editor;
 	uint32_t			flags;
-	t_token_map const	*sh_tokens;
+	t_hmap				*syntaxes;
+	t_syntax			*curr_syntax;
 };
 
 /*
@@ -132,21 +136,21 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 
 static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
 {
-	t_main *const	main = (t_main*)editor->user;
-	t_sub const		line = *(t_sub*)&editor->text;
-	t_token_t		t;
-	t_sub			token;
+	// t_main *const	main = (t_main*)editor->user;
+	// t_sub const		line = *(t_sub*)&editor->text;
+	// t_token_t		t;
+	// t_sub			token;
 
-	if (line.length == 0)
-		return (false);
-	token = SUB(line.str, 0);
-	while (ft_tokenize(line, &token, &t, main->sh_tokens))
-	{
-		if (t == TOKEN_T_UNKNOWN)
-			ft_printf(C_RED "Token" C_RESET " (unknown) '%ts'%n", token);
-		else
-			ft_printf(C_RED "Token" C_RESET " (%d) '%ts'%n", t, token);
-	}
+	// if (line.length == 0)
+	// 	return (false);
+	// token = SUB(line.str, 0);
+	// while (ft_tokenize(line, &token, &t, main->sh_tokens))
+	// {
+	// 	if (t == TOKEN_T_UNKNOWN)
+	// 		ft_printf(C_RED "Token" C_RESET " (unknown) '%ts'%n", token);
+	// 	else
+	// 		ft_printf(C_RED "Token" C_RESET " (%d) '%ts'%n", t, token);
+	// }
 	return (true);
 	(void)flags;
 }
@@ -176,128 +180,34 @@ static bool		init_main(t_main *main)
 	return (true);
 }
 
-// typedef enum s_sh_token		t_sh_token;
-
-// enum s_sh_token
-// {
-// 	SH_TOKEN_ESCAPE,
-// 	SH_TOKEN_AND,
-// 	SH_TOKEN_AMPERSAND,
-// 	SH_TOKEN_PIPE,
-// 	SH_TOKEN_OR,
-// 	SH_TOKEN_REDIR_RIGHT,
-// 	SH_TOKEN_REDIR_RIGHT_APPEND,
-// 	SH_TOKEN_REDIR_LEFT,
-// 	SH_TOKEN_REDIR_HEREDOC,
-// 	SH_TOKEN_DOLLAR,
-// 	SH_TOKEN_QUOTE,
-// 	SH_TOKEN_SINGLE_QUOTE,
-// 	SH_TOKEN_PARENTHESIS_OPEN,
-// 	SH_TOKEN_PARENTHESIS_CLOSE,
-// 	SH_TOKEN_MATH_START,
-// 	SH_TOKEN_MATH_END,
-// 	SH_TOKEN_SPACE,
-// 	SH_TOKEN_NL,
-// };
-
-// #define SH_TOKEN(STR,TOKEN)		{SUBC(STR), SH_TOKEN_#TOKEN, 0}
-// #define SH_TOKEN_F(STR,TOKEN,F)	{SUBC(STR), SH_TOKEN_#TOKEN, F}
-
-// struct
-// {
-// 	t_sub		name;
-// 	t_sh_token	token;
-// 	uint32_t	flags;
-// } const	g_sh_tokens[] = {
-// 	SH_TOKEN("\\", ESCAPE),
-// 	SH_TOKEN("&&", AND),
-// 	SH_TOKEN("&", AMPERSAND),
-// 	SH_TOKEN("|", PIPE),
-// 	SH_TOKEN("||", OR),
-// 	SH_TOKEN(">", REDIR_RIGHT),
-// 	SH_TOKEN(">>", REDIR_RIGHT_APPEND),
-// 	SH_TOKEN("<", REDIR_LEFT),
-// 	SH_TOKEN("<<", REDIR_HEREDOC),
-// 	SH_TOKEN("$", DOLLAR),
-// 	SH_TOKEN("(", PARENTHESIS_OPEN),
-// 	SH_TOKEN(")", PARENTHESIS_CLOSE),
-// 	SH_TOKEN("((", MATH_START),
-// 	SH_TOKEN("))", MATH_END),
-// 	SH_TOKEN("\"", QUOTE),
-// 	SH_TOKEN("'", SINGLE_QUOTE),
-// 	SH_TOKEN_F(" ", SPACE, TOKEN_F_REPEAT),
-// 	SH_TOKEN_F("\t", SPACE, TOKEN_F_REPEAT),
-// 	SH_TOKEN_F("\n", NL, TOKEN_F_REPEAT),
-// };
-
-// static void		init_sh_token(t_token_map *map)
-// {
-// 	uint32_t		i;
-
-// 	i = 0;
-// 	while (i < ARRAY_LEN(g_sh_tokens))
-// 	{
-// 		ft_token_add(map, g_sh_tokens[i].name, g_sh_tokens[i].token, 0);
-// 		i++;
-// 	}
-// }
-
-typedef struct s_syntax			t_syntax;
-typedef struct s_syntax_def		t_syntax_def;
-typedef struct s_syntax_def_t	t_syntax_def_t;
-
-struct		s_syntax_def
-{
-	char const		*name;
-	char const		*end; // end should be a scope to allow regex end
-	char const		*inherit;
-	t_syntax_def_t	*tokens;
-	// t_syntax_def_t	*match;
-};
-
-struct		s_syntax_def_t
-{
-	char const	*token;
-	char const	*scope;
-	char const	*syntax;
-};
-
-struct		s_syntax
-{
-	t_sub		*scopes;
-	t_syntax	*syntaxes;
-	uint32_t	end_token;
-	t_token_map	*token_map;
-};
-
 t_syntax_def const		g_syntaxes[] = {
-	{"sh", ")",
-		.tokens = (t_syntax_def_t[]){
-			{"\\\"", "escaped.string", NULL},
-			{"\\\'", "escaped.string.simple", NULL},
-			{"\\$", "escaped.dollar", NULL},
-			{"(", "sub", "sh"},
-			{"$(", "sub", "sh"},
-			{"`", "sub.backquote", "sh-backquote"},
-			{"$((", "math", "sh-math"},
-			{"${", "expr", "sh-expr"},
-			{"!", "op.not", NULL},
-			{";", "op.semicolon", NULL},
-			{"\"", "string", "sh-string"},
-			{"'", "string.simple", "sh-string-simple"},
-			{"#", "comment", "sh-comment"},
-			{"&&", "op.and", NULL},
-			{"&", "op.async", NULL},
-			{"|", "op.pipe", NULL},
-			{"||", "op.or", NULL},
-			{"<", "redir.left", NULL},
-			{"<<", "redir.heredoc", NULL},
-			{">", "redir.right", NULL},
-			{">>", "redir.right.double", NULL},
-			{" ", NULL, NULL},
-			{"\t", NULL, NULL},
-			{"\n", NULL, NULL},
-		},
+	SYNTAX_DEF("sh", "",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\\\"", "escaped.string"),
+			SYNTAX_T("\\\'", "escaped.string.simple"),
+			SYNTAX_T("\\$", "escaped.dollar"),
+			SYNTAX_T("(", "sub", "sh-sub"),
+			SYNTAX_T("$(", "sub", "sh-sub"),
+			SYNTAX_T("`", "sub.backquote", "sh-backquote"),
+			SYNTAX_T("$((", "math", "sh-math"),
+			SYNTAX_T("${", "expr", "sh-expr"),
+			SYNTAX_T("!", "op.not"),
+			SYNTAX_T(";", "op.semicolon"),
+			SYNTAX_T("\"", "string", "sh-string"),
+			SYNTAX_T("'", "string.simple", "sh-string-simple"),
+			SYNTAX_T("#", "comment", "sh-comment"),
+			SYNTAX_T("&&", "op.and"),
+			SYNTAX_T("&", "op.async"),
+			SYNTAX_T("|", "op.pipe"),
+			SYNTAX_T("||", "op.or"),
+			SYNTAX_T("<", "redir.left"),
+			SYNTAX_T("<<", "redir.heredoc"),
+			SYNTAX_T(">", "redir.right"),
+			SYNTAX_T(">>", "redir.right.double"),
+			SYNTAX_T(" ", "space"),
+			SYNTAX_T("\t", "space"),
+			SYNTAX_T("\n", "space"),
+		),
 		// .match = (t_syntax_def_t[]){
 		// 	{"$[a-zA-Z_][a-zA-Z0-9_]*", "var"},
 		// 	{"if", "if", "sh-if"},
@@ -312,8 +222,19 @@ t_syntax_def const		g_syntaxes[] = {
 		// 	{"for", "keyword.for"},
 		// 	{"in", "keyword.in"},
 		// },
-	},
-	// {"sh-backquote", "`", .inherit = "sh"},
+	),
+	SYNTAX_DEF("sh-sub", "end",
+		.inherit = SUBC("sh"),
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T(")", "end"),
+		),
+	),
+	SYNTAX_DEF("sh-backquote", "end",
+		.inherit = SUBC("sh"),
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("`", "end"),
+		),
+	),
 	// {"sh-if", ";",
 	// 	.inherit = "sh",
 	// 	.tokens = (t_syntax_def_t[]){
@@ -335,78 +256,66 @@ t_syntax_def const		g_syntaxes[] = {
 	// 	},
 	// },
 	// {"sh-test-double", "]]", .inherit = "sh-test"},
-	{"sh-string", "\"",
-		.tokens = (t_syntax_def_t[]){
-			{"\"", "escaped.quote", NULL},
-			{"\\n", "escaped.char", NULL},
-			{"\\e", "escaped.char", NULL},
-			{"\\t", "escaped.char", NULL},
-			{"`", "sub.backquote", "sh-sub"},
-			{"$(", "sub.sh", "sh"},
-		},
-	},
-	{"sh-string-simple", "'", NULL, NULL},
-	{"sh-comment", "\n", NULL, NULL},
-	{"sh-expr", "}",
-		.tokens = (t_syntax_def_t[]){
-			{"%", "op", NULL},
-			{"%%", "op", NULL},
-			{"#", "op", NULL},
-		},
-	},
-	{"sh-math", "))",
-		.tokens = (t_syntax_def_t[]){
-			{"(", "brace", "sh-math-sub"},
-			{"+", "op.plus", NULL},
-			{"-", "op.minus", NULL},
-			{"*", "op.mult", NULL},
-			{"/", "op.div", NULL},
-			{"%", "op.mod", NULL},
-			{" ", "op.space", NULL},
-			{"\t", "op.space", NULL},
-			{"\n", "op.plus", NULL},
-		},
+	SYNTAX_DEF("sh-string", "quote",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\"", "quote"),
+			SYNTAX_T("\\\"", "escaped.quote"),
+			SYNTAX_T("\\n", "escaped.char"),
+			SYNTAX_T("\\e", "escaped.char"),
+			SYNTAX_T("\\t", "escaped.char"),
+			SYNTAX_T("`", "sub.backquote", "sh-sub"),
+			SYNTAX_T("$(", "sub.sh", "sh"),
+		),
+	),
+	SYNTAX_DEF("sh-string-simple", "quote.simple",
+		.tokens = SYNTAX_DEF_T(SYNTAX_T("'", "quote.simple")),
+	),
+	SYNTAX_DEF("sh-comment", "endl",
+		.tokens = SYNTAX_DEF_T(SYNTAX_T("\n", "endl")),
+	),
+	SYNTAX_DEF("sh-expr", "end",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("}", "end"),
+			SYNTAX_T("%", "op"),
+			SYNTAX_T("%%", "op"),
+			SYNTAX_T("#", "op"),
+		),
+	),
+	SYNTAX_DEF("sh-math", "end",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("))", "end"),
+			SYNTAX_T("(", "brace", "sh-math-sub"),
+			SYNTAX_T("+", "op.plus"),
+			SYNTAX_T("-", "op.minus"),
+			SYNTAX_T("*", "op.mult"),
+			SYNTAX_T("/", "op.div"),
+			SYNTAX_T("%", "op.mod"),
+			SYNTAX_T(" ", "op.space"),
+			SYNTAX_T("\t", "op.space"),
+			SYNTAX_T("\n", "op.plus"),
+		),
 		// .match = (t_syntax_def_t[]){
 		// 	{"$[a-zA-Z_][a-zA-Z0-9_]*", "var"},
 		// 	{"[0-9]+\\.?[0-9]*", "number"},
 		// },
-	},
-	{"sh-math-sub", ")", .inherit = "sh-math"},
+	),
+	SYNTAX_DEF("sh-math-sub", "brace.close",
+		.inherit = SUBC("sh-math"),
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T(")", "brace.close"),
+		),
+	),
 };
 
-#define T(STR)		{SUBC(STR), 0}
-
-static t_token_def	g_sh_tokens[] = {
-	T("\\"),
-	T("&&"),
-	T("&"),
-	T("|"),
-	T("||"),
-	T(">"),
-	T(">>"),
-	T("<"),
-	T("<<"),
-	T("$"),
-	T("("),
-	T(")"),
-	T("$(("),
-	T("<<&&<<"),
-	T("))"),
-	T("\""),
-	T("'"),
-	T(" "),
-	T("\t"),
-	T("\n"),
-};
-
-#undef T
-
-t_token_map const	*init_sh_tokens(void)
+static bool		init_syntaxes(t_main *main)
 {
-	t_token_map *const	token_map = MAL1(t_token_map);
-
-	ft_token_map(token_map, g_sh_tokens, ARRAY_LEN(g_sh_tokens));
-	return (token_map);
+	main->syntaxes = ft_hmapnew(10, &ft_djb2);
+	if (!build_syntax(main->syntaxes, &VECTORC(g_syntaxes)))
+		return (false);
+	if ((main->curr_syntax
+		= ft_hmapget(main->syntaxes, SUBC("sh")).value) == NULL)
+		return (false);
+	return (true);
 }
 
 /*
@@ -459,9 +368,8 @@ int				main(void)
 {
 	t_main			main;
 
-	if (!init_main(&main))
-		return (0);
-	main.sh_tokens = init_sh_tokens();
+	if (!init_main(&main) || !init_syntaxes(&main))
+		return (1);
 	if (main.flags & FLAG_INTERACTIVE)
 		interactive_loop(&main);
 	else

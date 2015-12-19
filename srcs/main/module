@@ -1,8 +1,10 @@
 main module sh21:
 	require ft::term
+	require ft::hmap
 	require ft::getkey
 	require ft::base
 	require ft::printf
 	require ft::get_next_line
 	require ft::tokenizer
 	require editor
+	require syntax

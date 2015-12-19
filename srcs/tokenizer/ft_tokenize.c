@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 17:15:24 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/17 18:09:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2015/12/19 01:15:16 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static bool		find_max_t(t_token_def const *def, t_sub const *match,
 	return (true);
 }
 
-static bool		tokenize_from_map(t_sub match, t_sub *token, t_token_t *type,
+static bool		tokenize_from_map(t_sub match, t_sub *token, void **data,
 					t_token_map const *token_map)
 {
 	t_token_def			*t;
@@ -33,25 +33,25 @@ static bool		tokenize_from_map(t_sub match, t_sub *token, t_token_t *type,
 	if (token->length > 0)
 		return (true);
 	token->length = t->sub.length;
-	if (type != NULL)
-		*type = t->type;
+	if (data != NULL)
+		*data = t->data;
 	return (true);
 }
 
-bool			ft_tokenize(t_sub line, t_sub *token, t_token_t *type,
+bool			ft_tokenize(t_sub line, t_sub *token, void **data,
 					t_token_map const *token_map)
 {
 	char const *const	end = line.str + line.length;
 
 	token->str += token->length;
 	token->length = 0;
-	if (type != NULL)
-		*type = TOKEN_T_UNKNOWN;
+	if (data != NULL)
+		*data = NULL;
 	while (token->str + token->length < end)
 	{
 		if (BITARRAY_GET(token_map->token_starts, token->str[token->length])
 			&& tokenize_from_map(SUB(token->str + token->length,
-				end - token->str - token->length), token, type, token_map))
+				end - token->str - token->length), token, data, token_map))
 			return (true);
 		token->length++;
 	}
