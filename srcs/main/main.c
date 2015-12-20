@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/19 15:44:05 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/20 00:12:53 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,23 +134,23 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 	return (true);
 }
 
+/*
+** ========================================================================== **
+** Debug syntax
+*/
+
+static void		token_callback(t_sub token, t_sub scope, void *env)
+{
+	ft_printf("TOKEN '%ts' " C_GRAY "%ts" C_RESET "%n", token, scope);
+	(void)env;
+}
+
 static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
 {
-	// t_main *const	main = (t_main*)editor->user;
-	// t_sub const		line = *(t_sub*)&editor->text;
-	// t_token_t		t;
-	// t_sub			token;
+	t_main *const	main = (t_main*)editor->user;
+	t_sub const		line = *(t_sub*)&editor->text;
 
-	// if (line.length == 0)
-	// 	return (false);
-	// token = SUB(line.str, 0);
-	// while (ft_tokenize(line, &token, &t, main->sh_tokens))
-	// {
-	// 	if (t == TOKEN_T_UNKNOWN)
-	// 		ft_printf(C_RED "Token" C_RESET " (unknown) '%ts'%n", token);
-	// 	else
-	// 		ft_printf(C_RED "Token" C_RESET " (%d) '%ts'%n", t, token);
-	// }
+	exec_syntax(line, &token_callback, main->curr_syntax, NULL);
 	return (true);
 	(void)flags;
 }
@@ -181,21 +181,20 @@ static bool		init_main(t_main *main)
 }
 
 t_syntax_def const		g_syntaxes[] = {
-	SYNTAX_DEF("sh", "",
+	SYNTAX_DEF("sh", "sh", "",
 		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("\\\"", "escaped.string"),
-			SYNTAX_T("\\\'", "escaped.string.simple"),
+			SYNTAX_T("\\\"", "escaped.quote"),
+			SYNTAX_T("\\\'", "escaped.quote.simple"),
 			SYNTAX_T("\\$", "escaped.dollar"),
-			SYNTAX_T("(", "sub", "sh-sub"),
-			SYNTAX_T("$(", "sub", "sh-sub"),
-			SYNTAX_T("`", "sub.backquote", "sh-backquote"),
-			SYNTAX_T("$((", "math", "sh-math"),
-			SYNTAX_T("${", "expr", "sh-expr"),
-			SYNTAX_T("!", "op.not"),
+			SYNTAX_T("(", "start", "sh-sub"),
+			SYNTAX_T("$(", "start", "sh-sub"),
+			SYNTAX_T("`", "start", "sh-backquote"),
+			SYNTAX_T("$((", "start", "sh-math"),
+			SYNTAX_T("${", "start", "sh-expr"),
 			SYNTAX_T(";", "op.semicolon"),
-			SYNTAX_T("\"", "string", "sh-string"),
-			SYNTAX_T("'", "string.simple", "sh-string-simple"),
-			SYNTAX_T("#", "comment", "sh-comment"),
+			SYNTAX_T("\"", "start", "sh-string"),
+			SYNTAX_T("'", "start", "sh-string-simple"),
+			SYNTAX_T("#", "start", "sh-comment"),
 			SYNTAX_T("&&", "op.and"),
 			SYNTAX_T("&", "op.async"),
 			SYNTAX_T("|", "op.pipe"),
@@ -223,13 +222,13 @@ t_syntax_def const		g_syntaxes[] = {
 		// 	{"in", "keyword.in"},
 		// },
 	),
-	SYNTAX_DEF("sh-sub", "end",
+	SYNTAX_DEF("sh-sub", "sub", "end",
 		.inherit = SUBC("sh"),
 		.tokens = SYNTAX_DEF_T(
 			SYNTAX_T(")", "end"),
 		),
 	),
-	SYNTAX_DEF("sh-backquote", "end",
+	SYNTAX_DEF("sh-backquote", "backquote", "end",
 		.inherit = SUBC("sh"),
 		.tokens = SYNTAX_DEF_T(
 			SYNTAX_T("`", "end"),
@@ -256,24 +255,25 @@ t_syntax_def const		g_syntaxes[] = {
 	// 	},
 	// },
 	// {"sh-test-double", "]]", .inherit = "sh-test"},
-	SYNTAX_DEF("sh-string", "quote",
+	SYNTAX_DEF("sh-string", "string", "end",
 		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("\"", "quote"),
+			SYNTAX_T("\"", "end"),
 			SYNTAX_T("\\\"", "escaped.quote"),
 			SYNTAX_T("\\n", "escaped.char"),
 			SYNTAX_T("\\e", "escaped.char"),
 			SYNTAX_T("\\t", "escaped.char"),
-			SYNTAX_T("`", "sub.backquote", "sh-sub"),
-			SYNTAX_T("$(", "sub.sh", "sh"),
+			SYNTAX_T("`", "start", "sh-backquote"),
+			SYNTAX_T("$(", "start", "sh"),
+			SYNTAX_T("$((", "start", "sh-math"),
 		),
 	),
-	SYNTAX_DEF("sh-string-simple", "quote.simple",
-		.tokens = SYNTAX_DEF_T(SYNTAX_T("'", "quote.simple")),
+	SYNTAX_DEF("sh-string-simple", "string.simple", "end",
+		.tokens = SYNTAX_DEF_T(SYNTAX_T("'", "end")),
 	),
-	SYNTAX_DEF("sh-comment", "endl",
+	SYNTAX_DEF("sh-comment", "comment", "endl",
 		.tokens = SYNTAX_DEF_T(SYNTAX_T("\n", "endl")),
 	),
-	SYNTAX_DEF("sh-expr", "end",
+	SYNTAX_DEF("sh-expr", "expr", "end",
 		.tokens = SYNTAX_DEF_T(
 			SYNTAX_T("}", "end"),
 			SYNTAX_T("%", "op"),
@@ -281,28 +281,33 @@ t_syntax_def const		g_syntaxes[] = {
 			SYNTAX_T("#", "op"),
 		),
 	),
-	SYNTAX_DEF("sh-math", "end",
+	SYNTAX_DEF("sh-math", "math", "end",
+		.inherit = SUBC("math"),
 		.tokens = SYNTAX_DEF_T(
 			SYNTAX_T("))", "end"),
-			SYNTAX_T("(", "brace", "sh-math-sub"),
+		),
+	),
+	SYNTAX_DEF("math", "math", "",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("(", "brace", "math-brace"),
 			SYNTAX_T("+", "op.plus"),
 			SYNTAX_T("-", "op.minus"),
 			SYNTAX_T("*", "op.mult"),
 			SYNTAX_T("/", "op.div"),
 			SYNTAX_T("%", "op.mod"),
-			SYNTAX_T(" ", "op.space"),
-			SYNTAX_T("\t", "op.space"),
-			SYNTAX_T("\n", "op.plus"),
+			SYNTAX_T(" ", "space"),
+			SYNTAX_T("\t", "space"),
+			SYNTAX_T("\n", "space"),
 		),
 		// .match = (t_syntax_def_t[]){
 		// 	{"$[a-zA-Z_][a-zA-Z0-9_]*", "var"},
 		// 	{"[0-9]+\\.?[0-9]*", "number"},
 		// },
 	),
-	SYNTAX_DEF("sh-math-sub", "brace.close",
-		.inherit = SUBC("sh-math"),
+	SYNTAX_DEF("math-brace", "math", "close",
+		.inherit = SUBC("math"),
 		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T(")", "brace.close"),
+			SYNTAX_T(")", "close"),
 		),
 	),
 };

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 21:02:47 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/19 15:07:25 by juloo            ###   ########.fr       */
+/*   Updated: 2015/12/19 23:56:14 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef struct s_syntax_def_t	t_syntax_def_t;
 struct		s_syntax_def
 {
 	t_sub			name;
+	t_sub			scope;
 	t_sub			end;
 	t_sub			inherit;
 	t_vector		tokens;
@@ -44,8 +45,8 @@ struct		s_syntax_def_t
 };
 
 # define SYNTAX_DEF_T(...)			VECTORC(((t_syntax_def_t[]){__VA_ARGS__}))
-# define SYNTAX_T(N,S,...)			{SUBC(N), SUBC(S), SUBC("" __VA_ARGS__)}
-# define SYNTAX_DEF(NAME, END, ...)	{SUBC(NAME), .end = SUBC(END), __VA_ARGS__}
+# define SYNTAX_T(N,S,...)			{SUBC(N),SUBC(S),SUBC(""__VA_ARGS__)}
+# define SYNTAX_DEF(N,S,E,...)		{SUBC(N),SUBC(S),.end=SUBC(E),__VA_ARGS__}
 
 bool		build_syntax(t_hmap *dst, t_vector const *syntaxes);
 

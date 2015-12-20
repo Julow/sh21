@@ -75,7 +75,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_vector/ft_vpush_back.o \
 	$(O_DIR)/libft/ft_vector/ft_vremove.o \
 	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/srcs/main/main.o \
-	$(O_DIR)/srcs/syntax/build_syntax.o
+	$(O_DIR)/srcs/syntax/build_syntax.o $(O_DIR)/srcs/syntax/exec_syntax.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor_bindings.h $(O_DIR)/_public/editor.h \
 	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_colors.h \
 	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/ft_bst.h \
@@ -505,6 +505,10 @@ $(O_DIR)/srcs/syntax/build_syntax.o: srcs/syntax/build_syntax.c \
 	libft/ft_hmap/public/ft_hmap.h libft/ft_vector/public/ft_vector.h \
 	srcs/syntax/public/syntax.h srcs/syntax/public/syntax_def.h \
 	srcs/tokenizer/public/tokenizer.h
+$(O_DIR)/srcs/syntax/exec_syntax.o: srcs/syntax/exec_syntax.c \
+	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
+	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	srcs/syntax/public/syntax.h srcs/tokenizer/public/tokenizer.h
 
 # public links
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h
