@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/08 01:33:48 by juloo            ###   ########.fr       */
+/*   Updated: 2016/01/08 17:04:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,8 +158,11 @@ bool			ft_match(t_sub str, t_sub pattern)
 		if (pattern.str[i] == '*')
 		{
 			tmp = i + 1;
-			while (tmp < pattern.length && pattern.str[tmp] == '*')
-				;
+			while (tmp < pattern.length)
+				if (pattern.str[tmp] == '?')
+					i++;
+				else if (!(pattern.str[tmp] == '*'))
+					break ;
 			if (tmp >= pattern.length)
 				return (true);
 			while (i < str.length)
@@ -197,18 +200,18 @@ static void		token_callback(t_sub token, t_sub scope, void *env)
 	// }
 	// ft_printf("%.*c'%ts' " C_GRAY "%ts" C_RESET "%n",
 	// 	count * 4 - 3, ' ', token, scope);
-	// ft_printf(C_GRAY "%ts" C_RESET " '%ts'%n", scope, token);
-	if (ft_match(scope, SUBC("*.escaped:*")) || ft_match(scope, SUBC("*.var")))
-		color = C_BLUE;
-	else if (ft_match(scope, SUBC("*.string:simple.*")))
-		color = C_YELLOW;
-	else if (ft_match(scope, SUBC("*.math.*")))
-		color = BG_BLUE;
-	else if (ft_match(scope, SUBC("*.string.*")))
-		color = C_RED;
-	else
-		color = "";
-	ft_printf("%s%ts" C_RESET BG_RESET, color, token);
+	ft_printf(C_GRAY "%ts" C_RESET " '%ts'%n", scope, token);
+	// if (ft_match(scope, SUBC("*.escaped:*")) || ft_match(scope, SUBC("*.var")))
+	// 	color = C_BLUE;
+	// else if (ft_match(scope, SUBC("*.string:simple.*")))
+	// 	color = C_YELLOW;
+	// else if (ft_match(scope, SUBC("*.math.*")))
+	// 	color = BG_BLUE;
+	// else if (ft_match(scope, SUBC("*.string.*")))
+	// 	color = C_RED;
+	// else
+	// 	color = "";
+	// ft_printf("%s%ts" C_RESET BG_RESET, color, token);
 	(void)env;
 }
 
@@ -249,107 +252,107 @@ static bool		init_main(t_main *main)
 }
 
 t_syntax_def const		g_syntaxes[] = {
-	SYNTAX_DEF("sh", "sh", "",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("\\\"", "escaped:quote"),
-			SYNTAX_T("\\\'", "escaped:quote:simple"),
-			SYNTAX_T("\\$", "escaped:dollar"),
-			SYNTAX_T("(", "start", "sh-sub"),
-			SYNTAX_T("$(", "start", "sh-sub"),
-			SYNTAX_T("`", "start", "sh-backquote"),
-			SYNTAX_T("$((", "start", "sh-math"),
-			SYNTAX_T("${", "start", "sh-expr"),
-			SYNTAX_T(";", "op:semicolon"),
-			SYNTAX_T("\"", "start", "sh-string"),
-			SYNTAX_T("'", "start", "sh-string-simple"),
-			SYNTAX_T("#", "start", "sh-comment"),
-			SYNTAX_T("&&", "op:and"),
-			SYNTAX_T("&", "op:async"),
-			SYNTAX_T("|", "op:pipe"),
-			SYNTAX_T("||", "op:or"),
-			SYNTAX_T("<", "redir:left"),
-			SYNTAX_T("<<", "redir:heredoc"),
-			SYNTAX_T(">", "redir:right"),
-			SYNTAX_T(">>", "redir:right.double"),
-			SYNTAX_T(" ", "space"),
-			SYNTAX_T("\t", "space"),
-			SYNTAX_T("\n", "space"),
-		),
-		.match = SYNTAX_DEF_T(
-			SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
-			SYNTAX_T("$?.", "var"),
-		),
-	),
-	SYNTAX_DEF("sh-sub", "sub", "end",
-		.inherit = SUBC("sh"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T(")", "end"),
-		),
-	),
-	SYNTAX_DEF("sh-backquote", "backquote", "end",
-		.inherit = SUBC("sh"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("`", "end"),
-		),
-	),
-	SYNTAX_DEF("sh-string", "string", "end",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("\"", "end"),
-			SYNTAX_T("\\\"", "escaped:quote"),
-			SYNTAX_T("\\n", "escaped:char"),
-			SYNTAX_T("\\e", "escaped:char"),
-			SYNTAX_T("\\t", "escaped:char"),
-			SYNTAX_T("`", "start", "sh-backquote"),
-			SYNTAX_T("$(", "start", "sh-sub"),
-			SYNTAX_T("$((", "start", "sh-math"),
-		),
-		.match = SYNTAX_DEF_T(
-			SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
-		),
-	),
-	SYNTAX_DEF("sh-string-simple", "string:simple", "end",
-		.tokens = SYNTAX_DEF_T(SYNTAX_T("'", "end")),
-	),
-	SYNTAX_DEF("sh-comment", "comment", "endl",
-		.tokens = SYNTAX_DEF_T(SYNTAX_T("\n", "endl")),
-	),
-	SYNTAX_DEF("sh-expr", "expr", "end",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("}", "end"),
-			SYNTAX_T("%", "op"),
-			SYNTAX_T("%%", "op"),
-			SYNTAX_T("#", "op"),
-		),
-	),
-	SYNTAX_DEF("sh-math", "math", "end",
-		.inherit = SUBC("math"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("))", "end"),
-		),
-	),
-	SYNTAX_DEF("math", "math", "",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("(", "brace", "math-brace"),
-			SYNTAX_T("+", "op:plus"),
-			SYNTAX_T("-", "op:minus"),
-			SYNTAX_T("*", "op:mult"),
-			SYNTAX_T("/", "op:div"),
-			SYNTAX_T("%", "op:mod"),
-			SYNTAX_T(" ", "space"),
-			SYNTAX_T("\t", "space"),
-			SYNTAX_T("\n", "space"),
-		),
-		.match = SYNTAX_DEF_T(
-			SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
-			SYNTAX_T("?b?+d?\?(.?*d?\?'f')?b", "number"),
-		),
-	),
-	SYNTAX_DEF("math-brace", "math", "close",
-		.inherit = SUBC("math"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T(")", "close"),
-		),
-	),
+	// SYNTAX_DEF("sh", "sh", "",
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T("\\\"", "escaped:quote"),
+	// 		SYNTAX_T("\\\'", "escaped:quote:simple"),
+	// 		SYNTAX_T("\\$", "escaped:dollar"),
+	// 		SYNTAX_T("(", "start", "sh-sub"),
+	// 		SYNTAX_T("$(", "start", "sh-sub"),
+	// 		SYNTAX_T("`", "start", "sh-backquote"),
+	// 		SYNTAX_T("$((", "start", "sh-math"),
+	// 		SYNTAX_T("${", "start", "sh-expr"),
+	// 		SYNTAX_T(";", "op:semicolon"),
+	// 		SYNTAX_T("\"", "start", "sh-string"),
+	// 		SYNTAX_T("'", "start", "sh-string-simple"),
+	// 		SYNTAX_T("#", "start", "sh-comment"),
+	// 		SYNTAX_T("&&", "op:and"),
+	// 		SYNTAX_T("&", "op:async"),
+	// 		SYNTAX_T("|", "op:pipe"),
+	// 		SYNTAX_T("||", "op:or"),
+	// 		SYNTAX_T("<", "redir:left"),
+	// 		SYNTAX_T("<<", "redir:heredoc"),
+	// 		SYNTAX_T(">", "redir:right"),
+	// 		SYNTAX_T(">>", "redir:right.double"),
+	// 		SYNTAX_T(" ", "space"),
+	// 		SYNTAX_T("\t", "space"),
+	// 		SYNTAX_T("\n", "space"),
+	// 	),
+	// 	.match = SYNTAX_DEF_T(
+	// 		SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
+	// 		SYNTAX_T("$?.", "var"),
+	// 	),
+	// ),
+	// SYNTAX_DEF("sh-sub", "sub", "end",
+	// 	.inherit = SUBC("sh"),
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T(")", "end"),
+	// 	),
+	// ),
+	// SYNTAX_DEF("sh-backquote", "backquote", "end",
+	// 	.inherit = SUBC("sh"),
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T("`", "end"),
+	// 	),
+	// ),
+	// SYNTAX_DEF("sh-string", "string", "end",
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T("\"", "end"),
+	// 		SYNTAX_T("\\\"", "escaped:quote"),
+	// 		SYNTAX_T("\\n", "escaped:char"),
+	// 		SYNTAX_T("\\e", "escaped:char"),
+	// 		SYNTAX_T("\\t", "escaped:char"),
+	// 		SYNTAX_T("`", "start", "sh-backquote"),
+	// 		SYNTAX_T("$(", "start", "sh-sub"),
+	// 		SYNTAX_T("$((", "start", "sh-math"),
+	// 	),
+	// 	.match = SYNTAX_DEF_T(
+	// 		SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
+	// 	),
+	// ),
+	// SYNTAX_DEF("sh-string-simple", "string:simple", "end",
+	// 	.tokens = SYNTAX_DEF_T(SYNTAX_T("'", "end")),
+	// ),
+	// SYNTAX_DEF("sh-comment", "comment", "endl",
+	// 	.tokens = SYNTAX_DEF_T(SYNTAX_T("\n", "endl")),
+	// ),
+	// SYNTAX_DEF("sh-expr", "expr", "end",
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T("}", "end"),
+	// 		SYNTAX_T("%", "op"),
+	// 		SYNTAX_T("%%", "op"),
+	// 		SYNTAX_T("#", "op"),
+	// 	),
+	// ),
+	// SYNTAX_DEF("sh-math", "math", "end",
+	// 	.inherit = SUBC("math"),
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T("))", "end"),
+	// 	),
+	// ),
+	// SYNTAX_DEF("math", "math", "",
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T("(", "brace", "math-brace"),
+	// 		SYNTAX_T("+", "op:plus"),
+	// 		SYNTAX_T("-", "op:minus"),
+	// 		SYNTAX_T("*", "op:mult"),
+	// 		SYNTAX_T("/", "op:div"),
+	// 		SYNTAX_T("%", "op:mod"),
+	// 		SYNTAX_T(" ", "space"),
+	// 		SYNTAX_T("\t", "space"),
+	// 		SYNTAX_T("\n", "space"),
+	// 	),
+	// 	.match = SYNTAX_DEF_T(
+	// 		SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
+	// 		SYNTAX_T("?b?+d?\?(.?*d?\?'f')?b", "number"),
+	// 	),
+	// ),
+	// SYNTAX_DEF("math-brace", "math", "close",
+	// 	.inherit = SUBC("math"),
+	// 	.tokens = SYNTAX_DEF_T(
+	// 		SYNTAX_T(")", "close"),
+	// 	),
+	// ),
 };
 
 static bool		init_syntaxes(t_main *main)
@@ -406,11 +409,120 @@ static void		loop(t_main *main)
 
 /*
 ** ========================================================================== **
+** TEST
+*/
+
+t_syntax_def const		g_test_syntax[] = {
+	SYNTAX_DEF("c", "c",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T(";", "semicolon"),
+			SYNTAX_T("//", "begin", .syntax="c-comment"),
+			SYNTAX_T("/*", "begin", .syntax="c-comment:block"),
+			SYNTAX_T("\"", "quote", .syntax="string"),
+			SYNTAX_T("'", "quote", .syntax="string-simple"),
+			SYNTAX_T("#", "begin", .syntax="c-preprocessor"),
+		),
+	),
+	SYNTAX_DEF("c-comment:block", "comment.block",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("*/", "end", .end=true),
+		),
+	),
+	SYNTAX_DEF("c-comment", "comment",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\n", "newline", .end=true),
+		),
+	),
+	SYNTAX_DEF("c-preprocessor", "preprocessor",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\n", "newline", .end=true),
+			SYNTAX_T("\\\n", "nl"),
+			SYNTAX_T(" ", "space"),
+		),
+		.match = SYNTAX_DEF_T(
+			SYNTAX_T("?binclude?b", "directive", .syntax="c-preprocessor-include", .end=true),
+		),
+	),
+	SYNTAX_DEF("c-preprocessor-include", "include",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\n", "newline", .end=true),
+			SYNTAX_T("\"", "quote", .syntax="string"),
+			SYNTAX_T("<", "angle", .syntax="string-angle"),
+		),
+	),
+	SYNTAX_DEF("string", "string",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\\\"", "escaped.quote"),
+			SYNTAX_T("\"", "quote", .end=true),
+		),
+	),
+	SYNTAX_DEF("string-angle", "string",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\\>", "escaped.quote"),
+			SYNTAX_T(">", "angle.end", .end=true),
+		),
+	),
+	SYNTAX_DEF("string-simple", "string",
+		.tokens = SYNTAX_DEF_T(
+			SYNTAX_T("\\'", "escaped.quote"),
+			SYNTAX_T("'", "quote", .end=true),
+		),
+	),
+};
+
+static void		test_token_callback(t_sub token, t_sub scope, void *env)
+{
+	// ft_printf("TOKEN '%ts' '%ts'%n", token, scope);
+	char const		*color;
+
+	color = "";
+	if (ft_match(scope, SUBC("*.error.*")))
+		color = BG_RED;
+	else if (ft_match(scope, SUBC("*.comment.*")))
+		color = C_BLUE;
+	else if (ft_match(scope, SUBC("*.string.*")))
+		color = C_YELLOW;
+	else if (ft_match(scope, SUBC("*.preprocessor.code.*")))
+		color = C_RESET;
+	else if (ft_match(scope, SUBC("*.preprocessor.*")))
+		color = C_RED;
+	ft_printf("%s%ts" C_RESET BG_RESET, color, token);
+}
+#include <fcntl.h>
+#include <unistd.h>
+
+void			test(char const *file)
+{
+	t_hmap *const	syntax_map = ft_hmapnew(50, &ft_djb2);
+
+	if (!build_syntax(syntax_map, &VECTORC(g_test_syntax)))
+		return ;
+
+	t_syntax		*syntax = ft_hmapget(syntax_map, SUBC("c")).value;
+
+	int const		fd = open(file, O_RDONLY);
+	t_dstr			code;
+	char const		buff[512];
+	int32_t			len;
+
+	if (fd < 0)
+		return ;
+	code = DSTR0();
+	while ((len = read(fd, buff, 512)) > 0)
+		ft_dstradd(&code, SUB(buff, len));
+	exec_syntax(SUB(code.str, code.length), &test_token_callback, syntax, NULL);
+	ft_printf("%n");
+}
+
+/*
+** ========================================================================== **
 ** Main
 */
 
-int				main(void)
+int				main(int argc, char **argv)
 {
+	if (argc > 1)
+		return (test(argv[1]), 0);
 	t_main			main;
 
 	if (!init_main(&main) || !init_syntaxes(&main))

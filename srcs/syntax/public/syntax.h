@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/07 22:01:04 by juloo            ###   ########.fr       */
+/*   Updated: 2016/01/08 16:40:48 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ struct			s_syntax_scope
 {
 	t_sub			name;
 	t_syntax		*syntax;
+	bool			end;
 };
 
 struct			s_syntax_match
@@ -42,7 +43,6 @@ struct			s_syntax_match
 struct			s_syntax
 {
 	t_sub			scope;
-	t_syntax_scope	*end_token; // should be a scope name
 	t_token_map		token_map;
 	t_vector		match;
 };

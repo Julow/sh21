@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/07 23:08:14 by juloo            ###   ########.fr       */
+/*   Updated: 2016/01/08 17:03:29 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,24 @@
 
 static t_syntax	*get_syntax(t_sub name, t_hmap *map, t_vector const *syntaxes);
 
+static t_syntax_scope	*get_scope(t_sub name, t_syntax *syntax, bool end)
+{
+	t_syntax_scope			*scope;
+
+	scope = ft_emalloc(sizeof(t_syntax_scope) + name.length);
+	ft_memcpy(ENDOF(scope), name.str, name.length);
+	*scope = (t_syntax_scope){SUB(ENDOF(scope), name.length), syntax, end};
+	return (scope);
+}
+
 static void		add_token(t_syntax *syntax, t_sub token, t_sub scope_def,
 					t_syntax *sub_syntax, bool end_token)
 {
 	t_token_def		token_def;
-	t_syntax_scope	*scope;
 
-	scope = ft_emalloc(sizeof(t_syntax_scope) + scope_def.length);
-	ft_memcpy(ENDOF(scope), scope_def.str, scope_def.length);
-	scope->name = SUB(ENDOF(scope), scope_def.length);
-	scope->syntax = sub_syntax;
 	token_def.sub = token;
-	token_def.data = scope;
+	token_def.data = get_scope(scope_def, sub_syntax, end_token);
 	ft_token_map(&syntax->token_map, &token_def);
-	if (end_token)
-		syntax->end_token = scope;
 }
 
 static void		add_match(t_syntax *syntax, t_sub pattern, t_sub scope_def,
@@ -44,13 +47,8 @@ static void		add_match(t_syntax *syntax, t_sub pattern, t_sub scope_def,
 			err.str, pattern, err.str.length + 3, ' ');
 		return ;
 	}
-	match.scope = ft_emalloc(sizeof(t_syntax_scope) + scope_def.length);
-	ft_memcpy(ENDOF(match.scope), scope_def.str, scope_def.length);
-	match.scope->name = SUB(ENDOF(match.scope), scope_def.length);
-	match.scope->syntax = sub_syntax;
+	match.scope = get_scope(scope_def, sub_syntax, end_token);
 	ft_vpush_back(&syntax->match, &match, 1);
-	if (end_token)
-		syntax->end_token = match.scope;
 }
 
 static inline bool	ft_subequ(t_sub a, t_sub b)
@@ -59,8 +57,8 @@ static inline bool	ft_subequ(t_sub a, t_sub b)
 		&& ft_memcmp(a.str, b.str, b.length) == 0));
 }
 
-static bool		dupplicate_token(t_token_def const *token, t_sub const *name,
-					void *env)
+static bool		has_dupplicated_token(t_token_def const *token,
+					t_sub const *name, void *env)
 {
 	if (ft_subequ(token->sub, *name))
 		return (false);
@@ -68,14 +66,31 @@ static bool		dupplicate_token(t_token_def const *token, t_sub const *name,
 	(void)env;
 }
 
-static bool		syntax_inherit(t_token_def const *token, t_syntax *syntax)
+static bool		inherit_tokens(t_token_def const *token, t_syntax *syntax)
 {
 	t_syntax_scope *const	p_scope = token->data;
 
-	if (ft_bst_getall(&syntax->token_map.tokens, &token->sub, &dupplicate_token,
-			NULL))
+	if (ft_bst_getall(&syntax->token_map.tokens, &token->sub,
+			&has_dupplicated_token, NULL))
 		add_token(syntax, token->sub, p_scope->name, p_scope->syntax, false);
 	return (true);
+}
+
+static void		inherit_match(t_syntax *syntax, t_syntax const *parent)
+{
+	uint32_t				i;
+	t_syntax_match			match;
+	t_syntax_match const	*m;
+
+	i = 0;
+	while (i < parent->match.length)
+	{
+		m = VECTOR_GET(parent->match, i);
+		match.regex = m->regex; // TODO: dup regex
+		match.scope = get_scope(m->scope->name, m->scope->syntax, false);
+		ft_vpush_back(&syntax->match, &match, 1);
+		i++;
+	}
 }
 
 static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
@@ -96,7 +111,6 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 		sizeof(t_syntax) + def->scope.length).value;
 	ft_memcpy(ENDOF(syntax), def->scope.str, def->scope.length);
 	syntax->scope = SUB(ENDOF(syntax), def->scope.length);
-	syntax->end_token = NULL;
 	syntax->token_map = TOKEN_MAP();
 	syntax->match = VECTOR(t_syntax_match);
 	i = 0;
@@ -104,11 +118,10 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 	{
 		token = VECTOR_GET(def->tokens, i);
 		sub_syntax = NULL;
-		if (token->syntax.length > 0
-			&& (sub_syntax = get_syntax(token->syntax, map, syntaxes)) == NULL)
+		if (token->syntax != NULL && (sub_syntax =
+			get_syntax(ft_sub(token->syntax, 0, -1), map, syntaxes)) == NULL)
 			return (NULL);
-		add_token(syntax, token->token, token->scope, sub_syntax,
-			BOOL_OF(def->end.length > 0 && ft_subequ(def->end, token->scope)));
+		add_token(syntax, token->token, token->scope, sub_syntax, token->end);
 		i++;
 	}
 	i = 0;
@@ -116,19 +129,16 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 	{
 		token = VECTOR_GET(def->match, i);
 		sub_syntax = NULL;
-		if (token->syntax.length > 0
-			&& (sub_syntax = get_syntax(token->syntax, map, syntaxes)) == NULL)
+		if (token->syntax != NULL && (sub_syntax =
+			get_syntax(ft_sub(token->syntax, 0, -1), map, syntaxes)) == NULL)
 			return (NULL);
-		add_match(syntax, token->token, token->scope, sub_syntax,
-			BOOL_OF(def->end.length > 0 && ft_subequ(def->end, token->scope)));
+		add_match(syntax, token->token, token->scope, sub_syntax, token->end);
 		i++;
 	}
 	if (parent != NULL)
-		ft_bst_iter(&parent->token_map.tokens, &syntax_inherit, syntax);
-	if (def->end.length > 0 && syntax->end_token == NULL)
 	{
-		ft_dprintf(2, "Missing end token: '%ts' (%ts)%n", def->end, def->name);
-		return (NULL);
+		ft_bst_iter(&parent->token_map.tokens, &inherit_tokens, syntax);
+		inherit_match(syntax, parent);
 	}
 	return (syntax);
 }
