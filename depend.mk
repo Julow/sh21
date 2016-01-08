@@ -3,12 +3,13 @@ LINK_FLAGS += -ltermcap
 OBJ_DIR_TREE += $(O_DIR)/srcs/tokenizer/ $(O_DIR)/srcs/syntax/ \
 	$(O_DIR)/srcs/range/ $(O_DIR)/srcs/main/ $(O_DIR)/srcs/editor/binding/ \
 	$(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ $(O_DIR)/libft/get_next_line/ \
-	$(O_DIR)/libft/ft_vector/ $(O_DIR)/libft/ft_term/ \
-	$(O_DIR)/libft/ft_printf/formats/ $(O_DIR)/libft/ft_printf/ \
-	$(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ $(O_DIR)/libft/ft_hmap/ \
-	$(O_DIR)/libft/ft_getkey/ $(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ \
-	$(O_DIR)/libft/ft_base/ $(O_DIR)/libft/ $(O_DIR)/_public/ft/ \
-	$(O_DIR)/_public/ $(O_DIR)/
+	$(O_DIR)/libft/ft_vector/ $(O_DIR)/libft/ft_term/ $(O_DIR)/libft/ft_sub/ \
+	$(O_DIR)/libft/ft_regex/parse_regs/ $(O_DIR)/libft/ft_regex/exec_regs/ \
+	$(O_DIR)/libft/ft_regex/ $(O_DIR)/libft/ft_printf/formats/ \
+	$(O_DIR)/libft/ft_printf/ $(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ \
+	$(O_DIR)/libft/ft_hmap/ $(O_DIR)/libft/ft_getkey/ $(O_DIR)/libft/ft_dstr/ \
+	$(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ $(O_DIR)/libft/ \
+	$(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
 O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/delete.o \
 	$(O_DIR)/srcs/editor/binding/extra_mod.o \
@@ -17,8 +18,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_put.o \
 	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_base/ft_abs.o \
 	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
-	$(O_DIR)/libft/ft_base/ft_bzero.o $(O_DIR)/libft/ft_base/ft_clock.o \
-	$(O_DIR)/libft/ft_base/ft_clock_stack.o \
+	$(O_DIR)/libft/ft_base/ft_bitset.o $(O_DIR)/libft/ft_base/ft_bzero.o \
+	$(O_DIR)/libft/ft_base/ft_clock.o $(O_DIR)/libft/ft_base/ft_clock_stack.o \
 	$(O_DIR)/libft/ft_base/ft_emalloc.o $(O_DIR)/libft/ft_base/ft_escape.o \
 	$(O_DIR)/libft/ft_base/ft_getenv.o $(O_DIR)/libft/ft_base/ft_is.o \
 	$(O_DIR)/libft/ft_base/ft_max.o $(O_DIR)/libft/ft_base/ft_memcmp.o \
@@ -32,11 +33,12 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_base/ft_sub.o $(O_DIR)/libft/ft_base/ft_unescape.o \
 	$(O_DIR)/libft/ft_base/ft_widetoa.o $(O_DIR)/libft/ft_base/ft_wstrconv.o \
 	$(O_DIR)/libft/ft_base/ft_wstrlen.o $(O_DIR)/libft/ft_base/ft_wstrnconv.o \
-	$(O_DIR)/libft/ft_bst/bst_balance.o $(O_DIR)/libft/ft_bst/ft_bstdel.o \
-	$(O_DIR)/libft/ft_bst/ft_bstget.o $(O_DIR)/libft/ft_bst/ft_bstgetall.o \
-	$(O_DIR)/libft/ft_bst/ft_bstiter.o $(O_DIR)/libft/ft_bst/ft_bstmax.o \
-	$(O_DIR)/libft/ft_bst/ft_bstmin.o $(O_DIR)/libft/ft_bst/ft_bstput.o \
-	$(O_DIR)/libft/ft_dstr/ft_dstradd.o $(O_DIR)/libft/ft_dstr/ft_dstrclear.o \
+	$(O_DIR)/libft/ft_bst/bst_balance.o $(O_DIR)/libft/ft_bst/ft_bst_destroy.o \
+	$(O_DIR)/libft/ft_bst/ft_bstdel.o $(O_DIR)/libft/ft_bst/ft_bstget.o \
+	$(O_DIR)/libft/ft_bst/ft_bstgetall.o $(O_DIR)/libft/ft_bst/ft_bstiter.o \
+	$(O_DIR)/libft/ft_bst/ft_bstmax.o $(O_DIR)/libft/ft_bst/ft_bstmin.o \
+	$(O_DIR)/libft/ft_bst/ft_bstput.o $(O_DIR)/libft/ft_dstr/ft_dstradd.o \
+	$(O_DIR)/libft/ft_dstr/ft_dstrclear.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstrextend.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstrspan.o \
 	$(O_DIR)/libft/get_next_line/get_next_line.o \
@@ -66,6 +68,29 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_printf/formats/str.o $(O_DIR)/libft/ft_printf/ft_out.o \
 	$(O_DIR)/libft/ft_printf/ft_printf.o $(O_DIR)/libft/ft_printf/ft_putf.o \
 	$(O_DIR)/libft/ft_printf/ft_vprintf.o $(O_DIR)/srcs/range/ft_range.o \
+	$(O_DIR)/libft/ft_regex/exec_reg.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/cstr.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/eol.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/group.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/set.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/str.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/wbound.o \
+	$(O_DIR)/libft/ft_regex/ft_rcompile.o \
+	$(O_DIR)/libft/ft_regex/ft_rdestroy.o $(O_DIR)/libft/ft_regex/ft_rmatch.o \
+	$(O_DIR)/libft/ft_regex/parse_reg.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/block.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/eol.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/group.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/set.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/str.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/wbound.o \
+	$(O_DIR)/libft/ft_regex/parse_utils.o $(O_DIR)/libft/ft_sub/ft_subchr.o \
+	$(O_DIR)/libft/ft_sub/ft_subcount.o $(O_DIR)/libft/ft_sub/ft_subequ.o \
+	$(O_DIR)/libft/ft_sub/ft_subextract.o $(O_DIR)/libft/ft_sub/ft_subfloat.o \
+	$(O_DIR)/libft/ft_sub/ft_subindex.o $(O_DIR)/libft/ft_sub/ft_subint.o \
+	$(O_DIR)/libft/ft_sub/ft_subnext.o $(O_DIR)/libft/ft_sub/ft_subnextc.o \
+	$(O_DIR)/libft/ft_sub/ft_subsub.o $(O_DIR)/libft/ft_sub/ft_subtrim.o \
+	$(O_DIR)/libft/ft_sub/ft_subtriml.o $(O_DIR)/libft/ft_sub/ft_subtrimr.o \
 	$(O_DIR)/libft/ft_term/ft_tclear.o $(O_DIR)/libft/ft_term/ft_tcursor.o \
 	$(O_DIR)/libft/ft_term/ft_tinit.o $(O_DIR)/libft/ft_term/ft_tput.o \
 	$(O_DIR)/libft/ft_term/ft_trestore.o $(O_DIR)/libft/ft_term/ft_tupdate.o \
@@ -84,6 +109,7 @@ PUBLIC_LINKS += $(O_DIR)/_public/editor_bindings.h $(O_DIR)/_public/editor.h \
 	$(O_DIR)/_public/ft/ft_list.h $(O_DIR)/_public/ft/ft_out.h \
 	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/ft_printf.h \
 	$(O_DIR)/_public/ft/ft_vprintf.h $(O_DIR)/_public/ft/range.h \
+	$(O_DIR)/_public/ft/regex.h $(O_DIR)/_public/ft/ft_sub.h \
 	$(O_DIR)/_public/ft/term.h $(O_DIR)/_public/ft/tokenizer.h \
 	$(O_DIR)/_public/ft/ft_vector.h $(O_DIR)/_public/syntax.h \
 	$(O_DIR)/_public/syntax_def.h
@@ -163,6 +189,8 @@ $(O_DIR)/libft/ft_base/ft_assert.o: libft/ft_base/ft_assert.c \
 	libft/ft_base/public/libft.h
 $(O_DIR)/libft/ft_base/ft_atoib.o: libft/ft_base/ft_atoib.c \
 	libft/ft_base/public/libft.h
+$(O_DIR)/libft/ft_base/ft_bitset.o: libft/ft_base/ft_bitset.c \
+	libft/ft_base/public/libft.h
 $(O_DIR)/libft/ft_base/ft_bzero.o: libft/ft_base/ft_bzero.c \
 	libft/ft_base/public/libft.h
 $(O_DIR)/libft/ft_base/ft_clock.o: libft/ft_base/ft_clock.c \
@@ -226,6 +254,8 @@ $(O_DIR)/libft/ft_base/ft_wstrnconv.o: libft/ft_base/ft_wstrnconv.c \
 $(O_DIR)/libft/ft_bst/bst_balance.o: libft/ft_bst/bst_balance.c \
 	libft/ft_base/public/libft.h libft/ft_bst/bst_internal.h \
 	libft/ft_bst/public/ft_bst.h
+$(O_DIR)/libft/ft_bst/ft_bst_destroy.o: libft/ft_bst/ft_bst_destroy.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h
 $(O_DIR)/libft/ft_bst/ft_bstdel.o: libft/ft_bst/ft_bstdel.c \
 	libft/ft_base/public/libft.h libft/ft_bst/bst_internal.h \
 	libft/ft_bst/public/ft_bst.h
@@ -244,11 +274,11 @@ $(O_DIR)/libft/ft_bst/ft_bstput.o: libft/ft_bst/ft_bstput.c \
 	libft/ft_base/public/libft.h libft/ft_bst/bst_internal.h \
 	libft/ft_bst/public/ft_bst.h
 
-$(O_DIR)/libft/ft_bst/bst_balance.o $(O_DIR)/libft/ft_bst/ft_bstdel.o \
-$(O_DIR)/libft/ft_bst/ft_bstget.o $(O_DIR)/libft/ft_bst/ft_bstgetall.o \
-$(O_DIR)/libft/ft_bst/ft_bstiter.o $(O_DIR)/libft/ft_bst/ft_bstmax.o \
-$(O_DIR)/libft/ft_bst/ft_bstmin.o $(O_DIR)/libft/ft_bst/ft_bstput.o: \
-	INCLUDE_FLAGS += -Ilibft/ft_bst
+$(O_DIR)/libft/ft_bst/bst_balance.o $(O_DIR)/libft/ft_bst/ft_bst_destroy.o \
+$(O_DIR)/libft/ft_bst/ft_bstdel.o $(O_DIR)/libft/ft_bst/ft_bstget.o \
+$(O_DIR)/libft/ft_bst/ft_bstgetall.o $(O_DIR)/libft/ft_bst/ft_bstiter.o \
+$(O_DIR)/libft/ft_bst/ft_bstmax.o $(O_DIR)/libft/ft_bst/ft_bstmin.o \
+$(O_DIR)/libft/ft_bst/ft_bstput.o: INCLUDE_FLAGS += -Ilibft/ft_bst
 
 # module ft::dstr
 $(O_DIR)/libft/ft_dstr/ft_dstradd.o: libft/ft_dstr/ft_dstradd.c \
@@ -441,6 +471,106 @@ $(O_DIR)/libft/ft_printf/ft_putf.o $(O_DIR)/libft/ft_printf/ft_vprintf.o: \
 $(O_DIR)/srcs/range/ft_range.o: srcs/range/ft_range.c \
 	libft/ft_base/public/libft.h srcs/range/public/range.h
 
+# module ft::regex
+$(O_DIR)/libft/ft_regex/exec_reg.o: libft/ft_regex/exec_reg.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/exec_regs/cstr.o: libft/ft_regex/exec_regs/cstr.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/exec_regs/eol.o: libft/ft_regex/exec_regs/eol.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/exec_regs/group.o: libft/ft_regex/exec_regs/group.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/exec_regs/set.o: libft/ft_regex/exec_regs/set.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/exec_regs/str.o: libft/ft_regex/exec_regs/str.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/exec_regs/wbound.o: libft/ft_regex/exec_regs/wbound.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/ft_rcompile.o: libft/ft_regex/ft_rcompile.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/ft_rdestroy.o: libft/ft_regex/ft_rdestroy.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/ft_rmatch.o: libft/ft_regex/ft_rmatch.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/parse_reg.o: libft/ft_regex/parse_reg.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_regex/parse_regs/block.o: libft/ft_regex/parse_regs/block.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_regex/parse_regs/eol.o: libft/ft_regex/parse_regs/eol.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/parse_regs/group.o: libft/ft_regex/parse_regs/group.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/parse_regs/set.o: libft/ft_regex/parse_regs/set.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/parse_regs/str.o: libft/ft_regex/parse_regs/str.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/parse_regs/wbound.o: \
+	libft/ft_regex/parse_regs/wbound.c libft/ft_base/public/libft.h \
+	libft/ft_regex/public/regex.h libft/ft_regex/regex_internal.h
+$(O_DIR)/libft/ft_regex/parse_utils.o: libft/ft_regex/parse_utils.c \
+	libft/ft_base/public/libft.h libft/ft_regex/public/regex.h \
+	libft/ft_regex/regex_internal.h
+
+$(O_DIR)/libft/ft_regex/exec_reg.o $(O_DIR)/libft/ft_regex/exec_regs/cstr.o \
+$(O_DIR)/libft/ft_regex/exec_regs/eol.o \
+$(O_DIR)/libft/ft_regex/exec_regs/group.o \
+$(O_DIR)/libft/ft_regex/exec_regs/set.o \
+$(O_DIR)/libft/ft_regex/exec_regs/str.o \
+$(O_DIR)/libft/ft_regex/exec_regs/wbound.o \
+$(O_DIR)/libft/ft_regex/ft_rcompile.o $(O_DIR)/libft/ft_regex/ft_rdestroy.o \
+$(O_DIR)/libft/ft_regex/ft_rmatch.o $(O_DIR)/libft/ft_regex/parse_reg.o \
+$(O_DIR)/libft/ft_regex/parse_regs/block.o \
+$(O_DIR)/libft/ft_regex/parse_regs/eol.o \
+$(O_DIR)/libft/ft_regex/parse_regs/group.o \
+$(O_DIR)/libft/ft_regex/parse_regs/set.o \
+$(O_DIR)/libft/ft_regex/parse_regs/str.o \
+$(O_DIR)/libft/ft_regex/parse_regs/wbound.o \
+$(O_DIR)/libft/ft_regex/parse_utils.o: INCLUDE_FLAGS += -Ilibft/ft_regex
+
+# module ft::sub
+$(O_DIR)/libft/ft_sub/ft_subchr.o: libft/ft_sub/ft_subchr.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subcount.o: libft/ft_sub/ft_subcount.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subequ.o: libft/ft_sub/ft_subequ.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subextract.o: libft/ft_sub/ft_subextract.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subfloat.o: libft/ft_sub/ft_subfloat.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subindex.o: libft/ft_sub/ft_subindex.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subint.o: libft/ft_sub/ft_subint.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subnext.o: libft/ft_sub/ft_subnext.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subnextc.o: libft/ft_sub/ft_subnextc.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subsub.o: libft/ft_sub/ft_subsub.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subtrim.o: libft/ft_sub/ft_subtrim.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subtriml.o: libft/ft_sub/ft_subtriml.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+$(O_DIR)/libft/ft_sub/ft_subtrimr.o: libft/ft_sub/ft_subtrimr.c \
+	libft/ft_base/public/libft.h libft/ft_sub/public/ft_sub.h
+
 # module ft::term
 $(O_DIR)/libft/ft_term/ft_tclear.o: libft/ft_term/ft_tclear.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
@@ -494,7 +624,8 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_hmap/public/ft_hmap.h libft/ft_list/public/ft_list.h \
 	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
-	libft/ft_term/public/term.h libft/ft_vector/public/ft_vector.h \
+	libft/ft_regex/public/regex.h libft/ft_term/public/term.h \
+	libft/ft_vector/public/ft_vector.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
 	srcs/range/public/range.h srcs/syntax/public/syntax.h \
 	srcs/syntax/public/syntax_def.h srcs/tokenizer/public/tokenizer.h
@@ -502,12 +633,13 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 # module syntax
 $(O_DIR)/srcs/syntax/build_syntax.o: srcs/syntax/build_syntax.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_hmap/public/ft_hmap.h libft/ft_vector/public/ft_vector.h \
-	srcs/syntax/public/syntax.h srcs/syntax/public/syntax_def.h \
-	srcs/tokenizer/public/tokenizer.h
+	libft/ft_hmap/public/ft_hmap.h libft/ft_regex/public/regex.h \
+	libft/ft_vector/public/ft_vector.h srcs/syntax/public/syntax.h \
+	srcs/syntax/public/syntax_def.h srcs/tokenizer/public/tokenizer.h
 $(O_DIR)/srcs/syntax/exec_syntax.o: srcs/syntax/exec_syntax.c \
 	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
 	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_regex/public/regex.h libft/ft_vector/public/ft_vector.h \
 	srcs/syntax/public/syntax.h srcs/tokenizer/public/tokenizer.h
 
 # public links
@@ -521,6 +653,7 @@ $(O_DIR)/_public/ft/ft_list.h: libft/ft_list/public/ft_list.h
 $(O_DIR)/_public/ft/ft_out.h: libft/ft_out/public/ft_out.h
 $(O_DIR)/_public/ft/ft_printf.h: libft/ft_printf/public/ft_printf.h
 $(O_DIR)/_public/ft/ft_str_out.h: libft/ft_out/public/ft_str_out.h
+$(O_DIR)/_public/ft/ft_sub.h: libft/ft_sub/public/ft_sub.h
 $(O_DIR)/_public/ft/ft_vector.h: libft/ft_vector/public/ft_vector.h
 $(O_DIR)/_public/ft/ft_vprintf.h: libft/ft_printf/public/ft_vprintf.h
 $(O_DIR)/_public/ft/ft_wchar.h: libft/ft_base/public/ft_wchar.h
@@ -529,6 +662,7 @@ libft/get_next_line/public/get_next_line.h
 $(O_DIR)/_public/ft/getkey.h: libft/ft_getkey/public/getkey.h
 $(O_DIR)/_public/ft/libft.h: libft/ft_base/public/libft.h
 $(O_DIR)/_public/ft/range.h: srcs/range/public/range.h
+$(O_DIR)/_public/ft/regex.h: libft/ft_regex/public/regex.h
 $(O_DIR)/_public/ft/term.h: libft/ft_term/public/term.h
 $(O_DIR)/_public/ft/tokenizer.h: srcs/tokenizer/public/tokenizer.h
 $(O_DIR)/_public/syntax.h: srcs/syntax/public/syntax.h

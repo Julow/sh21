@@ -6,18 +6,21 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/20 00:05:42 by juloo            ###   ########.fr       */
+/*   Updated: 2016/01/07 22:01:04 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SYNTAX_H
 # define SYNTAX_H
 
+# include "ft/ft_vector.h"
 # include "ft/libft.h"
+# include "ft/regex.h"
 # include "ft/tokenizer.h"
 
 typedef struct s_syntax			t_syntax;
 typedef struct s_syntax_scope	t_syntax_scope;
+typedef struct s_syntax_match	t_syntax_match;
 
 /*
 ** ========================================================================== **
@@ -30,11 +33,18 @@ struct			s_syntax_scope
 	t_syntax		*syntax;
 };
 
+struct			s_syntax_match
+{
+	t_regex			regex;
+	t_syntax_scope	*scope;
+};
+
 struct			s_syntax
 {
 	t_sub			scope;
 	t_syntax_scope	*end_token; // should be a scope name
 	t_token_map		token_map;
+	t_vector		match;
 };
 
 /*

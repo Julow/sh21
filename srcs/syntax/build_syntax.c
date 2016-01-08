@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/20 00:13:39 by juloo            ###   ########.fr       */
+/*   Updated: 2016/01/07 23:08:14 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,27 @@ static void		add_token(t_syntax *syntax, t_sub token, t_sub scope_def,
 	ft_token_map(&syntax->token_map, &token_def);
 	if (end_token)
 		syntax->end_token = scope;
+}
+
+static void		add_match(t_syntax *syntax, t_sub pattern, t_sub scope_def,
+					t_syntax *sub_syntax, bool end_token)
+{
+	t_syntax_match	match;
+	t_regex_err		err;
+
+	if (!ft_rcompile(&match.regex, pattern, &err))
+	{
+		ft_printf("%ts: '%ts'\n%.*c^%n",
+			err.str, pattern, err.str.length + 3, ' ');
+		return ;
+	}
+	match.scope = ft_emalloc(sizeof(t_syntax_scope) + scope_def.length);
+	ft_memcpy(ENDOF(match.scope), scope_def.str, scope_def.length);
+	match.scope->name = SUB(ENDOF(match.scope), scope_def.length);
+	match.scope->syntax = sub_syntax;
+	ft_vpush_back(&syntax->match, &match, 1);
+	if (end_token)
+		syntax->end_token = match.scope;
 }
 
 static inline bool	ft_subequ(t_sub a, t_sub b)
@@ -77,6 +98,7 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 	syntax->scope = SUB(ENDOF(syntax), def->scope.length);
 	syntax->end_token = NULL;
 	syntax->token_map = TOKEN_MAP();
+	syntax->match = VECTOR(t_syntax_match);
 	i = 0;
 	while (i < def->tokens.length)
 	{
@@ -86,6 +108,18 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 			&& (sub_syntax = get_syntax(token->syntax, map, syntaxes)) == NULL)
 			return (NULL);
 		add_token(syntax, token->token, token->scope, sub_syntax,
+			BOOL_OF(def->end.length > 0 && ft_subequ(def->end, token->scope)));
+		i++;
+	}
+	i = 0;
+	while (i < def->match.length)
+	{
+		token = VECTOR_GET(def->match, i);
+		sub_syntax = NULL;
+		if (token->syntax.length > 0
+			&& (sub_syntax = get_syntax(token->syntax, map, syntaxes)) == NULL)
+			return (NULL);
+		add_match(syntax, token->token, token->scope, sub_syntax,
 			BOOL_OF(def->end.length > 0 && ft_subequ(def->end, token->scope)));
 		i++;
 	}

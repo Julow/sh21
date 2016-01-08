@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 21:02:47 by juloo             #+#    #+#             */
-/*   Updated: 2015/12/19 23:56:14 by juloo            ###   ########.fr       */
+/*   Updated: 2016/01/07 21:43:32 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ struct		s_syntax_def
 	t_sub			end;
 	t_sub			inherit;
 	t_vector		tokens;
-	// t_syntax_def_t	*match;
+	t_vector		match;
 };
 
 struct		s_syntax_def_t

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/15 17:19:33 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/19 01:21:37 by juloo            ###   ########.fr       */
+/*   Updated: 2016/01/07 22:00:53 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ struct			s_token_def
 struct			s_token_map
 {
 	t_bst			tokens;
-	t_bitarray		token_starts[BITARRAY((uint8_t)-1)];
+	t_bits			token_starts[BITARRAY((uint8_t)-1)];
 };
 
 /*
