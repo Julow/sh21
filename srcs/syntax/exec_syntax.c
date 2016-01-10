@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/08 17:32:00 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/10 00:03:11 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,11 @@ static bool		exec_token(struct s_exec_syntax *s, t_syntax_scope const *scope)
 	ft_dstradd(&s->scope, scope->name);
 	if (s->token.length > 0)
 		s->callback(s->token, SUB(s->scope.str, s->scope.length), s->env);
+	s->scope.length = top;
 	if (scope->syntax != NULL)
 		exec(s, scope->syntax);
 	s->scope.length = top;
-	if (scope->end)
-		return (false);
-	return (true);
+	return (scope->end);
 }
 
 static bool		exec_match(struct s_exec_syntax *s, t_syntax const *syntax)
@@ -63,15 +62,10 @@ static bool		exec_match(struct s_exec_syntax *s, t_syntax const *syntax)
 			if (match.str > s->token.str)
 				s->callback(SUB(s->token.str, match.str - s->token.str),
 					SUB(s->scope.str, s->scope.length), s->env);
-			if (exec_token(s, m->scope))
-				return (true);
-			s->token = SUB(match.str + match.length, s->token.length - (match.str - s->token.str));
-			if (s->token.length == 0)
-				break ;
-			i = 0;
+			s->token = match;
+			return (exec_token(s, m->scope));
 		}
-		else
-			i++;
+		i++;
 	}
 	if (s->token.length > 0)
 		s->callback(s->token, SUB(s->scope.str, s->scope.length), s->env);
@@ -85,15 +79,8 @@ static void		exec(struct s_exec_syntax *s, t_syntax const *syntax)
 	ft_dstradd(&s->scope, syntax->scope);
 	ft_dstradd(&s->scope, SUBC("."));
 	while (ft_tokenize(s->line, &s->token, (void**)&scope, &syntax->token_map))
-	{
-		if (scope == NULL)
-		{
-			if (exec_match(s, syntax))
-				break ;
-		}
-		else if (exec_token(s, scope))
+		if ((scope == NULL) ? exec_match(s, syntax) : exec_token(s, scope))
 			break ;
-	}
 }
 
 void			exec_syntax(t_sub line, void (*callback)(),
