@@ -1,4 +1,4 @@
-module syntax:
+module ft::parser:
 	public include public/
 
 	public require ft::base
@@ -6,4 +6,3 @@ module syntax:
 	public require ft::vector
 	public require ft::regex
 	public require ft::hmap
-	private require ft::dstr

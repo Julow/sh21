@@ -7,4 +7,4 @@ main module sh21:
 	require ft::get_next_line
 	require ft::tokenizer
 	require editor
-	require syntax
+	require ft::parser

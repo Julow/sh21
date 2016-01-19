@@ -1,7 +1,7 @@
 INCLUDE_FLAGS += -I$(O_DIR)/_public
 LINK_FLAGS += -ltermcap
-OBJ_DIR_TREE += $(O_DIR)/srcs/tokenizer/ $(O_DIR)/srcs/syntax/ \
-	$(O_DIR)/srcs/range/ $(O_DIR)/srcs/main/ $(O_DIR)/srcs/editor/binding/ \
+OBJ_DIR_TREE += $(O_DIR)/srcs/tokenizer/ $(O_DIR)/srcs/range/ \
+	$(O_DIR)/srcs/parser/ $(O_DIR)/srcs/main/ $(O_DIR)/srcs/editor/binding/ \
 	$(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ $(O_DIR)/libft/get_next_line/ \
 	$(O_DIR)/libft/ft_vector/ $(O_DIR)/libft/ft_term/ \
 	$(O_DIR)/libft/ft_regex/parse_regs/ $(O_DIR)/libft/ft_regex/exec_regs/ \
@@ -60,6 +60,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_out/ft_str_out.o $(O_DIR)/libft/ft_out/ft_write.o \
 	$(O_DIR)/libft/ft_out/ft_write_char.o \
 	$(O_DIR)/libft/ft_out/ft_write_nchar.o $(O_DIR)/libft/ft_out/out_formats.o \
+	$(O_DIR)/srcs/parser/build_parser.o $(O_DIR)/srcs/parser/exec_parser.o \
 	$(O_DIR)/libft/ft_printf/args_utils.o \
 	$(O_DIR)/libft/ft_printf/exec_format.o \
 	$(O_DIR)/libft/ft_printf/exec_subformat.o \
@@ -93,19 +94,18 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/tokenizer/ft_token_map.o \
 	$(O_DIR)/srcs/tokenizer/ft_tokenize.o $(O_DIR)/libft/ft_vector/ft_vclear.o \
 	$(O_DIR)/libft/ft_vector/ft_vpush.o $(O_DIR)/libft/ft_vector/ft_vremove.o \
-	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/srcs/main/main.o \
-	$(O_DIR)/srcs/syntax/build_syntax.o $(O_DIR)/srcs/syntax/exec_syntax.o
+	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/srcs/main/main.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_wchar.h \
 	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_bst.h \
 	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/get_next_line.h \
 	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/ft_hmap.h \
 	$(O_DIR)/_public/ft/ft_list.h $(O_DIR)/_public/ft/ft_out.h \
-	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/ft_printf.h \
+	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/parser.h \
+	$(O_DIR)/_public/ft/parser_def.h $(O_DIR)/_public/ft/ft_printf.h \
 	$(O_DIR)/_public/ft/ft_vprintf.h $(O_DIR)/_public/ft/range.h \
 	$(O_DIR)/_public/ft/regex.h $(O_DIR)/_public/ft/term.h \
-	$(O_DIR)/_public/ft/tokenizer.h $(O_DIR)/_public/ft/ft_vector.h \
-	$(O_DIR)/_public/syntax.h $(O_DIR)/_public/syntax_def.h
+	$(O_DIR)/_public/ft/tokenizer.h $(O_DIR)/_public/ft/ft_vector.h
 
 # module editor
 $(O_DIR)/srcs/editor/binding/cursor_move.o: srcs/editor/binding/cursor_move.c \
@@ -412,6 +412,18 @@ $(O_DIR)/libft/ft_out/ft_write.o $(O_DIR)/libft/ft_out/ft_write_char.o \
 $(O_DIR)/libft/ft_out/ft_write_nchar.o $(O_DIR)/libft/ft_out/out_formats.o: \
 	INCLUDE_FLAGS += -Ilibft/ft_out
 
+# module ft::parser
+$(O_DIR)/srcs/parser/build_parser.o: srcs/parser/build_parser.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_hmap/public/ft_hmap.h libft/ft_regex/public/regex.h \
+	libft/ft_vector/public/ft_vector.h srcs/parser/public/parser.h \
+	srcs/parser/public/parser_def.h srcs/tokenizer/public/tokenizer.h
+$(O_DIR)/srcs/parser/exec_parser.o: srcs/parser/exec_parser.c \
+	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
+	libft/ft_bst/public/ft_bst.h libft/ft_regex/public/regex.h \
+	libft/ft_vector/public/ft_vector.h srcs/parser/public/parser.h \
+	srcs/tokenizer/public/tokenizer.h
+
 # module ft::printf
 $(O_DIR)/libft/ft_printf/args_utils.o: libft/ft_printf/args_utils.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
@@ -598,20 +610,8 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_regex/public/regex.h libft/ft_term/public/term.h \
 	libft/ft_vector/public/ft_vector.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
-	srcs/range/public/range.h srcs/syntax/public/syntax.h \
-	srcs/syntax/public/syntax_def.h srcs/tokenizer/public/tokenizer.h
-
-# module syntax
-$(O_DIR)/srcs/syntax/build_syntax.o: srcs/syntax/build_syntax.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_hmap/public/ft_hmap.h libft/ft_regex/public/regex.h \
-	libft/ft_vector/public/ft_vector.h srcs/syntax/public/syntax.h \
-	srcs/syntax/public/syntax_def.h srcs/tokenizer/public/tokenizer.h
-$(O_DIR)/srcs/syntax/exec_syntax.o: srcs/syntax/exec_syntax.c \
-	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
-	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_regex/public/regex.h libft/ft_vector/public/ft_vector.h \
-	srcs/syntax/public/syntax.h srcs/tokenizer/public/tokenizer.h
+	srcs/parser/public/parser.h srcs/parser/public/parser_def.h \
+	srcs/range/public/range.h srcs/tokenizer/public/tokenizer.h
 
 # public links
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h
@@ -631,9 +631,9 @@ $(O_DIR)/_public/ft/get_next_line.h: \
 libft/get_next_line/public/get_next_line.h
 $(O_DIR)/_public/ft/getkey.h: libft/ft_getkey/public/getkey.h
 $(O_DIR)/_public/ft/libft.h: libft/ft_base/public/libft.h
+$(O_DIR)/_public/ft/parser.h: srcs/parser/public/parser.h
+$(O_DIR)/_public/ft/parser_def.h: srcs/parser/public/parser_def.h
 $(O_DIR)/_public/ft/range.h: srcs/range/public/range.h
 $(O_DIR)/_public/ft/regex.h: libft/ft_regex/public/regex.h
 $(O_DIR)/_public/ft/term.h: libft/ft_term/public/term.h
 $(O_DIR)/_public/ft/tokenizer.h: srcs/tokenizer/public/tokenizer.h
-$(O_DIR)/_public/syntax.h: srcs/syntax/public/syntax.h
-$(O_DIR)/_public/syntax_def.h: srcs/syntax/public/syntax_def.h

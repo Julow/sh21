@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   syntax_def.h                                       :+:      :+:    :+:   */
+/*   parser_def.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 21:02:47 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/19 15:18:58 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/19 16:57:28 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,17 @@
 # include "ft/ft_vector.h"
 # include "ft/libft.h"
 
-typedef struct s_syntax_def		t_syntax_def;
-typedef struct s_syntax_def_t	t_syntax_def_t;
+typedef struct s_parser_def		t_parser_def;
+typedef struct s_parser_def_t	t_parser_def_t;
 
 /*
 ** ========================================================================== **
-** Syntax def
+** Parser def
 ** -
-** Struct used to declare a syntax
+** Struct used to declare a parser
 */
 
-struct		s_syntax_def
+struct			s_parser_def
 {
 	t_sub			name;
 	void			*data;
@@ -36,18 +36,18 @@ struct		s_syntax_def
 	t_vector		match;
 };
 
-struct		s_syntax_def_t
+struct			s_parser_def_t
 {
 	t_sub			token;
 	void			*data;
-	char const		*syntax;
+	char const		*parser;
 	bool			end;
 };
 
-# define SYNTAX_DEF_T(...)			VECTORC(((t_syntax_def_t[]){__VA_ARGS__}))
-# define SYNTAX_T(N,DATA,...)		{.token=SUBC(N),DATA,##__VA_ARGS__}
-# define SYNTAX_DEF(N,DATA,...)		{SUBC(N),DATA,__VA_ARGS__}
+# define PARSER_DEF_T(...)			VECTORC(((t_parser_def_t[]){__VA_ARGS__}))
+# define PARSER_T(N,DATA,...)		{.token=SUBC(N),DATA,##__VA_ARGS__}
+# define PARSER_DEF(N,DATA,...)		{SUBC(N),DATA,__VA_ARGS__}
 
-bool		build_syntax(t_hmap *dst, t_vector const *syntaxes);
+bool			build_parser(t_hmap *dst, t_vector const *parsers);
 
 #endif

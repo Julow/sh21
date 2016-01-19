@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/19 16:15:31 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/19 16:59:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,12 @@
 #include "ft/ft_printf.h"
 #include "ft/get_next_line.h"
 #include "ft/getkey.h"
+#include "ft/parser.h"
+#include "ft/parser_def.h"
 #include "ft/term.h"
 #include "ft/tokenizer.h"
 
 #include "editor.h"
-#include "syntax.h"
-#include "syntax_def.h"
 
 #include <termios.h>
 #include <unistd.h>
@@ -53,8 +53,8 @@ struct			s_main
 	t_term				*term;
 	t_editor			*editor;
 	uint32_t			flags;
-	t_hmap				*syntaxes;
-	t_syntax			*curr_syntax;
+	t_hmap				*parsers;
+	t_parser			*curr_parser;
 };
 
 /*
@@ -136,13 +136,13 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 
 /*
 ** ========================================================================== **
-** Debug syntax
+** Debug parser
 */
 // mdr (truc "loool''" 'xd" $LOL $(mdr)' $(( 5 + 4/(8.0-3.f))) "$(xd "mdr$A" '$lol')$LOL") lol
 
 /*
 ** Check if 'str' match 'pattern'
-** Pattern syntax:
+** Pattern parser:
 **   '*'	match 0 or more of any char
 **   '?'	match any char
 ** If 'match' is NULL, check the whole string
@@ -259,7 +259,7 @@ static uint32_t	scope_match(t_sub scope, t_sub match)
 	return (score);
 }
 
-static void		token_callback(t_sub token, t_syntax_data *data, void *env)
+static void		token_callback(t_sub token, t_parser_data *data, void *env)
 {
 	ft_printf("'%ts' " C_GRAY, token);
 	while (data != NULL)
@@ -276,7 +276,7 @@ static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
 	t_main *const	main = (t_main*)editor->user;
 	t_sub const		line = *(t_sub*)&editor->text;
 
-	exec_syntax(line, &token_callback, main->curr_syntax, NULL);
+	exec_parser(line, &token_callback, main->curr_parser, NULL);
 	ft_printf("%n");
 	return (true);
 	(void)flags;
@@ -307,118 +307,118 @@ static bool		init_main(t_main *main)
 	return (true);
 }
 
-t_syntax_def const		g_syntaxes[] = {
-	SYNTAX_DEF("sh", "sh",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("\\\"", "escaped.quote"),
-			SYNTAX_T("\\#", "escaped.comment"),
-			SYNTAX_T("\\\'", "escaped.quote.simple"),
-			SYNTAX_T("\\$", "escaped.dollar"),
-			SYNTAX_T("(", "start", .syntax="sh-sub"),
-			SYNTAX_T("$(", "start", .syntax="sh-sub"),
-			SYNTAX_T("`", "start", .syntax="sh-backquote"),
-			SYNTAX_T("$((", "start", .syntax="sh-math"),
-			SYNTAX_T("${", "start", .syntax="sh-expr"),
-			SYNTAX_T(";", "op.semicolon"),
-			SYNTAX_T("\"", "start", .syntax="sh-string"),
-			SYNTAX_T("'", "start", .syntax="sh-string-simple"),
-			SYNTAX_T("#", "start", .syntax="sh-comment"),
-			SYNTAX_T("&&", "op.and"),
-			SYNTAX_T("&", "op.async"),
-			SYNTAX_T("|", "op.pipe"),
-			SYNTAX_T("||", "op.or"),
-			SYNTAX_T("<", "redir.left"),
-			SYNTAX_T("<<", "redir.heredoc"),
-			SYNTAX_T(">", "redir.right"),
-			SYNTAX_T(">>", "redir.right.double"),
-			SYNTAX_T(" ", "space"),
-			SYNTAX_T("\t", "space"),
-			SYNTAX_T("\n", "space"),
+t_parser_def const		g_parsers[] = {
+	PARSER_DEF("sh", "sh",
+		.tokens = PARSER_DEF_T(
+			PARSER_T("\\\"", "escaped.quote"),
+			PARSER_T("\\#", "escaped.comment"),
+			PARSER_T("\\\'", "escaped.quote.simple"),
+			PARSER_T("\\$", "escaped.dollar"),
+			PARSER_T("(", "start", .parser="sh-sub"),
+			PARSER_T("$(", "start", .parser="sh-sub"),
+			PARSER_T("`", "start", .parser="sh-backquote"),
+			PARSER_T("$((", "start", .parser="sh-math"),
+			PARSER_T("${", "start", .parser="sh-expr"),
+			PARSER_T(";", "op.semicolon"),
+			PARSER_T("\"", "start", .parser="sh-string"),
+			PARSER_T("'", "start", .parser="sh-string-simple"),
+			PARSER_T("#", "start", .parser="sh-comment"),
+			PARSER_T("&&", "op.and"),
+			PARSER_T("&", "op.async"),
+			PARSER_T("|", "op.pipe"),
+			PARSER_T("||", "op.or"),
+			PARSER_T("<", "redir.left"),
+			PARSER_T("<<", "redir.heredoc"),
+			PARSER_T(">", "redir.right"),
+			PARSER_T(">>", "redir.right.double"),
+			PARSER_T(" ", "space"),
+			PARSER_T("\t", "space"),
+			PARSER_T("\n", "space"),
 		),
-		.match = SYNTAX_DEF_T(
-			SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
-			SYNTAX_T("$?.", "var"),
+		.match = PARSER_DEF_T(
+			PARSER_T("$?[a-zA-Z_]?*w", "var"),
+			PARSER_T("$?.", "var"),
 		),
 	),
-	SYNTAX_DEF("sh-sub", "sub",
+	PARSER_DEF("sh-sub", "sub",
 		.inherit = SUBC("sh"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T(")", "end", .end=true),
+		.tokens = PARSER_DEF_T(
+			PARSER_T(")", "end", .end=true),
 		),
 	),
-	SYNTAX_DEF("sh-backquote", "backquote",
+	PARSER_DEF("sh-backquote", "backquote",
 		.inherit = SUBC("sh"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("`", "end", .end=true),
+		.tokens = PARSER_DEF_T(
+			PARSER_T("`", "end", .end=true),
 		),
 	),
-	SYNTAX_DEF("sh-string", "string",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("\"", "end", .end=true),
-			SYNTAX_T("\\\"", "escaped.quote"),
-			SYNTAX_T("\\n", "escaped.char"),
-			SYNTAX_T("\\e", "escaped.char"),
-			SYNTAX_T("\\t", "escaped.char"),
-			SYNTAX_T("`", "start", .syntax="sh-backquote"),
-			SYNTAX_T("$(", "start", .syntax="sh-sub"),
-			SYNTAX_T("$((", "start", .syntax="sh-math"),
+	PARSER_DEF("sh-string", "string",
+		.tokens = PARSER_DEF_T(
+			PARSER_T("\"", "end", .end=true),
+			PARSER_T("\\\"", "escaped.quote"),
+			PARSER_T("\\n", "escaped.char"),
+			PARSER_T("\\e", "escaped.char"),
+			PARSER_T("\\t", "escaped.char"),
+			PARSER_T("`", "start", .parser="sh-backquote"),
+			PARSER_T("$(", "start", .parser="sh-sub"),
+			PARSER_T("$((", "start", .parser="sh-math"),
 		),
-		.match = SYNTAX_DEF_T(
-			SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
-		),
-	),
-	SYNTAX_DEF("sh-string-simple", "string.simple",
-		.tokens = SYNTAX_DEF_T(SYNTAX_T("'", "end", .end=true)),
-	),
-	SYNTAX_DEF("sh-comment", "comment",
-		.tokens = SYNTAX_DEF_T(SYNTAX_T("\n", "endl", .end=true)),
-	),
-	SYNTAX_DEF("sh-expr", "expr",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("}", "end", .end=true),
-			SYNTAX_T("%", "op"),
-			SYNTAX_T("%%", "op"),
-			SYNTAX_T("#", "op"),
+		.match = PARSER_DEF_T(
+			PARSER_T("$?[a-zA-Z_]?*w", "var"),
 		),
 	),
-	SYNTAX_DEF("sh-math", "math",
+	PARSER_DEF("sh-string-simple", "string.simple",
+		.tokens = PARSER_DEF_T(PARSER_T("'", "end", .end=true)),
+	),
+	PARSER_DEF("sh-comment", "comment",
+		.tokens = PARSER_DEF_T(PARSER_T("\n", "endl", .end=true)),
+	),
+	PARSER_DEF("sh-expr", "expr",
+		.tokens = PARSER_DEF_T(
+			PARSER_T("}", "end", .end=true),
+			PARSER_T("%", "op"),
+			PARSER_T("%%", "op"),
+			PARSER_T("#", "op"),
+		),
+	),
+	PARSER_DEF("sh-math", "math",
 		.inherit = SUBC("math"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("))", "end", .end=true),
+		.tokens = PARSER_DEF_T(
+			PARSER_T("))", "end", .end=true),
 		),
 	),
-	SYNTAX_DEF("math", "math",
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T("(", "brace", .syntax="math-brace"),
-			SYNTAX_T("+", "op.plus"),
-			SYNTAX_T("-", "op.minus"),
-			SYNTAX_T("*", "op.mult"),
-			SYNTAX_T("/", "op.div"),
-			SYNTAX_T("%", "op.mod"),
-			SYNTAX_T(" ", "space"),
-			SYNTAX_T("\t", "space"),
-			SYNTAX_T("\n", "space"),
+	PARSER_DEF("math", "math",
+		.tokens = PARSER_DEF_T(
+			PARSER_T("(", "brace", .parser="math-brace"),
+			PARSER_T("+", "op.plus"),
+			PARSER_T("-", "op.minus"),
+			PARSER_T("*", "op.mult"),
+			PARSER_T("/", "op.div"),
+			PARSER_T("%", "op.mod"),
+			PARSER_T(" ", "space"),
+			PARSER_T("\t", "space"),
+			PARSER_T("\n", "space"),
 		),
-		.match = SYNTAX_DEF_T(
-			SYNTAX_T("$?[a-zA-Z_]?*w", "var"),
-			SYNTAX_T("?b?+d?\?(.?*d?\?'f')?b", "number"),
+		.match = PARSER_DEF_T(
+			PARSER_T("$?[a-zA-Z_]?*w", "var"),
+			PARSER_T("?b?+d?\?(.?*d?\?'f')?b", "number"),
 		),
 	),
-	SYNTAX_DEF("math-brace", "math",
+	PARSER_DEF("math-brace", "math",
 		.inherit = SUBC("math"),
-		.tokens = SYNTAX_DEF_T(
-			SYNTAX_T(")", "close", .end=true),
+		.tokens = PARSER_DEF_T(
+			PARSER_T(")", "close", .end=true),
 		),
 	),
 };
 
-static bool		init_syntaxes(t_main *main)
+static bool		init_parsers(t_main *main)
 {
-	main->syntaxes = ft_hmapnew(10, &ft_djb2);
-	if (!build_syntax(main->syntaxes, &VECTORC(g_syntaxes)))
+	main->parsers = ft_hmapnew(10, &ft_djb2);
+	if (!build_parser(main->parsers, &VECTORC(g_parsers)))
 		return (false);
-	main->curr_syntax = ft_hmapget(main->syntaxes, SUBC("sh")).value;
-	if (main->curr_syntax == NULL)
+	main->curr_parser = ft_hmapget(main->parsers, SUBC("sh")).value;
+	if (main->curr_parser == NULL)
 		return (false);
 	return (true);
 }
@@ -473,7 +473,7 @@ int				main(void)
 {
 	t_main			main;
 
-	if (!init_main(&main) || !init_syntaxes(&main))
+	if (!init_main(&main) || !init_parsers(&main))
 		return (1);
 	if (main.flags & FLAG_INTERACTIVE)
 		interactive_loop(&main);
