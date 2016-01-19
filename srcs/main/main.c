@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/18 20:11:24 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/19 16:15:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,44 +259,15 @@ static uint32_t	scope_match(t_sub scope, t_sub match)
 	return (score);
 }
 
-static void		token_callback(t_sub token, t_sub scope, void *env)
+static void		token_callback(t_sub token, t_syntax_data *data, void *env)
 {
-	uint32_t		i;
-	uint32_t		score;
-
-	i = 0;
-	while (i < ARRAY_LEN(g_colors))
+	ft_printf("'%ts' " C_GRAY, token);
+	while (data != NULL)
 	{
-		score = scope_match(scope, g_colors[i].scope);
-		ft_printf("SCORE '%ts'*'%ts' : %u%n", scope, g_colors[i].scope, score);
-		i++;
+		ft_printf(".%s", data->data);
+		data = data->prev;
 	}
-	// char const		*color;
-	// uint32_t		i;
-	// uint32_t		count;
-
-	// count = 0;
-	// i = 0;
-	// while (i < scope.length)
-	// {
-	// 	if (scope.str[i] == '.')
-	// 		count++;
-	// 	i++;
-	// }
-	// ft_printf("%.*c'%ts' " C_GRAY "%ts" C_RESET "%n",
-	// 	count * 4 - 3, ' ', token, scope);
-	ft_printf(C_GRAY "%ts" C_RESET " '%ts'%n", scope, token);
-	// if (ft_match(scope, SUBC("*.escaped:*")) || ft_match(scope, SUBC("*.var")))
-	// 	color = C_BLUE;
-	// else if (ft_match(scope, SUBC("*.string:simple.*")))
-	// 	color = C_YELLOW;
-	// else if (ft_match(scope, SUBC("*.math.*")))
-	// 	color = BG_BLUE;
-	// else if (ft_match(scope, SUBC("*.string.*")))
-	// 	color = C_RED;
-	// else
-	// 	color = "";
-	// ft_printf("%s%ts" C_RESET BG_RESET, color, token);
+	ft_printf(C_RESET "%n");
 	(void)env;
 }
 
@@ -326,7 +297,7 @@ static bool		init_main(t_main *main)
 		if (main->term->flags & TERM_USE_DEFAULT)
 			ft_dprintf(2, WARNING_MSG("Invalid $TERM value: Use default: %s"),
 				TERM_DEFAULT_TERM);
-		main->editor = MAL1(t_editor);
+		main->editor = NEW(t_editor);
 		editor_init(main->editor);
 		editor_bind(main->editor, KEY('C', KEY_MOD_SHIFT), &test_binding, ('a' << 16) | 10); // tmp
 		editor_bind(main->editor, KEY('m', KEY_MOD_CTRL), &binding_test_tokenize, 0); // tmp

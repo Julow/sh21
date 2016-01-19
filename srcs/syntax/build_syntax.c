@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/18 18:23:19 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/19 16:12:58 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,27 +15,20 @@
 
 static t_syntax	*get_syntax(t_sub name, t_hmap *map, t_vector const *syntaxes);
 
-static t_syntax_scope	*get_scope(t_sub name, t_syntax *syntax, bool end)
-{
-	t_syntax_scope			*scope;
-
-	scope = ft_emalloc(sizeof(t_syntax_scope) + name.length);
-	ft_memcpy(ENDOF(scope), name.str, name.length);
-	*scope = (t_syntax_scope){SUB(ENDOF(scope), name.length), syntax, end};
-	return (scope);
-}
-
-static void		add_token(t_syntax *syntax, t_sub token, t_sub scope_def,
+static void		add_token(t_syntax *syntax, t_sub token_str, void *data,
 					t_syntax *sub_syntax, bool end_token)
 {
 	t_token_def		token_def;
+	t_syntax_token	*token;
 
-	token_def.sub = token;
-	token_def.data = get_scope(scope_def, sub_syntax, end_token);
+	token = NEW(t_syntax_token);
+	*token = (t_syntax_token){data, sub_syntax, end_token};
+	token_def.sub = token_str;
+	token_def.data = token;
 	ft_token_map(&syntax->token_map, &token_def);
 }
 
-static void		add_match(t_syntax *syntax, t_sub pattern, t_sub scope_def,
+static void		add_match(t_syntax *syntax, t_sub pattern, void *data,
 					t_syntax *sub_syntax, bool end_token)
 {
 	t_syntax_match	match;
@@ -47,7 +40,7 @@ static void		add_match(t_syntax *syntax, t_sub pattern, t_sub scope_def,
 			err.str, pattern, err.str.length + 3, ' ');
 		return ;
 	}
-	match.scope = get_scope(scope_def, sub_syntax, end_token);
+	match.token = (t_syntax_token){data, sub_syntax, end_token};
 	ft_vpush(&syntax->match, &match, 1);
 }
 
@@ -62,11 +55,11 @@ static bool		has_dupplicated_token(t_token_def const *token,
 
 static bool		inherit_tokens(t_token_def const *token, t_syntax *syntax)
 {
-	t_syntax_scope *const	p_scope = token->data;
+	t_syntax_token *const	p_token = token->data;
 
 	if (ft_bst_getall(&syntax->token_map.tokens, &token->sub,
 			&has_dupplicated_token, NULL))
-		add_token(syntax, token->sub, p_scope->name, p_scope->syntax, false);
+		add_token(syntax, token->sub, p_token->data, p_token->syntax, false);
 	return (true);
 }
 
@@ -81,7 +74,7 @@ static void		inherit_match(t_syntax *syntax, t_syntax const *parent)
 	{
 		m = VECTOR_GET(parent->match, i);
 		match.regex = m->regex; // TODO: dup regex
-		match.scope = get_scope(m->scope->name, m->scope->syntax, false);
+		match.token = (t_syntax_token){m->token.data, m->token.syntax, false};
 		ft_vpush(&syntax->match, &match, 1);
 		i++;
 	}
@@ -101,10 +94,8 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 	if (def->inherit.length > 0
 		&& (parent = get_syntax(def->inherit, map, syntaxes)) == NULL)
 		return (NULL);
-	syntax = ft_hmapput(map, def->name, NULL,
-		sizeof(t_syntax) + def->scope.length).value;
-	ft_memcpy(ENDOF(syntax), def->scope.str, def->scope.length);
-	syntax->scope = SUB(ENDOF(syntax), def->scope.length);
+	syntax = ft_hmapput(map, def->name, NULL, sizeof(t_syntax)).value;
+	syntax->data = def->data;
 	syntax->token_map = TOKEN_MAP();
 	syntax->match = VECTOR(t_syntax_match);
 	i = 0;
@@ -115,7 +106,7 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 		if (token->syntax != NULL && (sub_syntax =
 			get_syntax(ft_sub(token->syntax, 0, -1), map, syntaxes)) == NULL)
 			return (NULL);
-		add_token(syntax, token->token, token->scope, sub_syntax, token->end);
+		add_token(syntax, token->token, token->data, sub_syntax, token->end);
 		i++;
 	}
 	i = 0;
@@ -126,7 +117,7 @@ static t_syntax	*build(t_hmap *map, t_vector const *syntaxes,
 		if (token->syntax != NULL && (sub_syntax =
 			get_syntax(ft_sub(token->syntax, 0, -1), map, syntaxes)) == NULL)
 			return (NULL);
-		add_match(syntax, token->token, token->scope, sub_syntax, token->end);
+		add_match(syntax, token->token, token->data, sub_syntax, token->end);
 		i++;
 	}
 	if (parent != NULL)
