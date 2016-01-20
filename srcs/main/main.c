@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/19 16:59:31 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/20 01:44:07 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,112 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 // 	return (BOOL_OF(tmp > 0));
 // }
 
+/*
+** ========================================================================== **
+*/
+
+typedef struct s_spantree		t_spantree;
+typedef struct s_spantree_node	t_spantree_node;
+typedef struct s_spantree_data	t_spantree_data;
+
+struct			s_spantree_node
+{
+	int32_t			from;
+	int32_t			to;
+	void			*data;
+	t_spantree_node	*childs;
+	t_spantree_node	*next;
+};
+
+struct			s_spantree
+{
+	t_spantree_node	*spans;
+	t_spantree_node	*unused;
+	uint32_t		unused_count;
+};
+
+struct			s_spantree_data
+{
+	void			*data;
+	t_spantree_data	*prev;
+};
+
+/*
+** Add a span
+*/
+static t_spantree_node	*spantree_new_node(t_spantree *tree, int32_t from, int32_t to, void *data, t_spantree_node *next)
+{
+	t_spantree_node	*span;
+
+	if ((span = tree->unused) != NULL)
+	{
+		tree->unused = span->next;
+		tree->unused_count--;
+	}
+	else
+	{
+		span = NEW(t_spantree_node);
+	}
+	*span = (t_spantree_node){from, to, data, NULL, next};
+	return (span);
+}
+
+static void		spantree_add(t_spantree *tree, t_spantree_node **span,
+					int32_t from, int32_t to, void *data)
+{
+	if (*span == NULL || (*span)->from > to)
+	{
+		*span = spantree_new_node(tree, from, to, data, *span);
+		return ;
+	}
+	while (true)
+	{
+		if ((*span)->from > from)
+		{
+			*span = spantree_new_node(tree, from, (*span)->from, data, *span);
+			from = (*span)->from;
+		}
+		else if ((*span)->to > from)
+		{
+			spantree_add(tree, &(*span)->childs, from, (*span)->to, data);
+			from = (*span)->to;
+		}
+		if (from >= to || (*span)->from >= to)
+			break ;
+		if ((*span)->next == NULL)
+		{
+			if (from < to)
+				(*span)->next = spantree_new_node(tree, from, to, data, NULL);
+			break ;
+		}
+		span = &(*span)->next;
+	}
+}
+
+void			ft_spantree_add(t_spantree *tree, int32_t from, int32_t to, void *data)
+{
+	spantree_add(tree, &tree->spans, from, to, data);
+}
+
+/*
+** 'callback' is of type:
+**  void (*)(void *self, int32_t from, int32_t to, t_spantree_data *data)
+*/
+void			ft_spantree_iter(t_spantree const *tree,
+					int32_t from, int32_t to, t_callback callback);
+
+/*
+** 'callback' is of type:
+**  bool (*)(void *self, int32_t from, int32_t to, t_spantree_data *data)
+** remove span when callback return true
+*/
+void			ft_spantree_clear(t_spantree *tree, int32_t from, int32_t to,
+					t_callback callback);
+
+/*
+** ========================================================================== **
+*/
+
 #define SCOPE(S,C)	{SUBC(S), SUBC(C)}
 
 static struct {
@@ -234,30 +340,6 @@ static struct {
 	SCOPE("start", C_WHITE),
 	SCOPE("end", C_WHITE),
 };
-
-static uint32_t	scope_match(t_sub scope, t_sub match)
-{
-	uint32_t		score;
-	t_sub			s;
-	t_sub			tmp;
-
-	score = 0;
-	s = SUB_START(scope);
-	while (ft_subnext_c(scope, &s, '.'))
-	{
-		tmp = SUB_START(match);
-		while (ft_subnext_c(match, &tmp, '.'))
-		{
-			if (SUB_EQU(s, tmp))
-			{
-				match = SUB_FOR(match, tmp.str - match.str);
-				score++;
-				break ;
-			}
-		}
-	}
-	return (score);
-}
 
 static void		token_callback(t_sub token, t_parser_data *data, void *env)
 {
