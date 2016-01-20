@@ -89,6 +89,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_regex/parse_regs/wbound.o \
 	$(O_DIR)/libft/ft_regex/parse_utils.o \
 	$(O_DIR)/srcs/spantree/ft_spantree_add.o \
+	$(O_DIR)/srcs/spantree/ft_spantree_at.o \
 	$(O_DIR)/srcs/spantree/ft_spantree_iter.o \
 	$(O_DIR)/libft/ft_term/ft_tclear.o $(O_DIR)/libft/ft_term/ft_tcursor.o \
 	$(O_DIR)/libft/ft_term/ft_tinit.o $(O_DIR)/libft/ft_term/ft_tput.o \
@@ -560,6 +561,8 @@ $(O_DIR)/libft/ft_regex/parse_utils.o: INCLUDE_FLAGS += -Ilibft/ft_regex
 
 # module ft::spantree
 $(O_DIR)/srcs/spantree/ft_spantree_add.o: srcs/spantree/ft_spantree_add.c \
+	libft/ft_base/public/libft.h srcs/spantree/public/spantree.h
+$(O_DIR)/srcs/spantree/ft_spantree_at.o: srcs/spantree/ft_spantree_at.c \
 	libft/ft_base/public/libft.h srcs/spantree/public/spantree.h
 $(O_DIR)/srcs/spantree/ft_spantree_iter.o: srcs/spantree/ft_spantree_iter.c \
 	libft/ft_base/public/libft.h srcs/spantree/public/spantree.h

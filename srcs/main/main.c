@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/20 17:01:30 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/20 19:30:57 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -481,6 +481,14 @@ static void		loop(t_main *main)
 // 	ft_spantree_add(tree, VEC2I(from, to), str);
 // }
 
+// static void		test_print(t_spantree_node const *span)
+// {
+// 	if (span == NULL)
+// 		ft_printf("SPAN NULL%n");
+// 	else
+// 		ft_printf("SPAN [%d -> %d] '%s'%n", span->from, span->to, span->data);
+// }
+
 // static void		test(void)
 // {
 // 	t_spantree		tree;
@@ -495,6 +503,12 @@ static void		loop(t_main *main)
 // 	test_add(&tree, 1, 2, "1-2");
 // 	test_add(&tree, 1, 1, "1-1");
 // 	ft_spantree_iter(&tree, VEC2I(0, 20), CALLBACK(test_iter, NULL));
+// 	test_print(ft_spantree_at(&tree, 1, 0));
+// 	test_print(ft_spantree_at(&tree, 1, 1));
+// 	test_print(ft_spantree_at(&tree, 1, 2));
+// 	test_print(ft_spantree_at(&tree, 1, 3));
+// 	test_print(ft_spantree_at(&tree, 1, 4));
+// 	test_print(ft_spantree_at(&tree, 1, 5));
 // }
 
 int				main(void)

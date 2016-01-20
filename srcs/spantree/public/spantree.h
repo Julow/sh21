@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/20 15:52:55 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/20 16:02:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/20 18:57:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,10 @@ void			ft_spantree_iter(t_spantree const *tree, t_vec2i range,
 					t_callback callback);
 
 /*
-** NOT IMPLEMENTED
-** Return span's data at 'index'
+** Return span the span at 'index'
 */
-void			*ft_spantree_at(t_spantree const *tree, int32_t index, uint32_t depth);
+t_spantree_node	*ft_spantree_at(t_spantree *tree, int32_t index,
+					uint32_t depth);
 
 /*
 ** NOT IMPLEMENTED
