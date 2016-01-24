@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/19 16:57:14 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/24 21:47:03 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,14 +52,19 @@ struct			s_parser_data
 {
 	void			*data;
 	t_parser_data	*prev;
+	t_parser_data	*next;
 };
 
 /*
 ** Execute parser on 'line'
-** 'callback' is called after each token
-** 'callback' is of type: void (*)(t_sub token, t_parser_data *data, void *env)
+** callbacks[0]:
+**  void (*)(void *env, t_parser_data *data, void const *parser_data)
+** callbacks[1]:
+**  void (*)(void *env, t_parser_data *data, void const *parser_data)
+** callbacks[2]:
+**  void (*)(void *env, t_parser_data *parent, t_sub token, void const *data)
 */
-void			exec_parser(t_sub line, void (*callback)(),
-					t_parser const *parser, void *env);
+void			exec_parser(t_sub line, t_parser const *parser,
+					t_callback callbacks[3], uint32_t data_size);
 
 #endif

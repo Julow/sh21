@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/20 19:30:57 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/24 21:54:25 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,30 +225,61 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 ** ========================================================================== **
 */
 
-// #define SCOPE(S,C)	{SUBC(S), SUBC(C)}
+#define SCOPE(S,C)	{SUBC(S), SUBC(C)}
 
-// static struct {
-// 	t_sub			scope;
-// 	t_sub			color;
-// } const			g_colors[] = {
-// 	SCOPE("string.simple", C_YELLOW),
-// 	SCOPE("string", C_LYELLOW),
-// 	SCOPE("escaped", C_LRED),
-// 	SCOPE("math", BG_LGREEN),
-// 	SCOPE("comment", C_BLUE),
-// 	SCOPE("start", C_WHITE),
-// 	SCOPE("end", C_WHITE),
-// };
+static struct {
+	t_sub			scope;
+	t_sub			color;
+} const			g_colors[] = {
+	SCOPE("string.simple", C_YELLOW),
+	SCOPE("string", C_LYELLOW),
+	SCOPE("escaped", C_LRED),
+	SCOPE("number", C_YELLOW),
+	SCOPE("comment", C_BLUE),
+	SCOPE("op", C_WHITE),
+};
 
-static void		token_callback(t_sub token, t_parser_data *data, void *env)
+static void		on_parser_start(void *env, t_parser_data *data, void const *p)
 {
-	ft_printf("'%ts' " C_GRAY, token);
+	data->data = p;
+	(void)env;
+}
+
+static void		on_parser_end(void *env, t_parser_data *data, void const *p)
+{
+	(void)env;
+	(void)data;
+	(void)p;
+}
+
+static t_sub	get_color(t_parser_data *data)
+{
+	uint32_t		i;
+	t_sub			sub;
+
 	while (data != NULL)
 	{
-		ft_printf(".%s", data->data);
+		sub = ft_sub(data->data, 0, -1);
+		i = 0;
+		while (i < ARRAY_LEN(g_colors))
+		{
+			if (ft_subfind(sub, g_colors[i].scope, 0) < sub.length)
+				return (g_colors[i].color);
+			i++;
+		}
 		data = data->prev;
 	}
-	ft_printf(C_RESET "%n");
+	return (SUB0());
+}
+
+static void		on_token(void *env, t_parser_data *parent, t_sub token,
+					void const *data)
+{
+	t_parser_data	color_data;
+
+	color_data = (t_parser_data){data, parent, NULL};
+	parent->next = &color_data;
+	ft_printf("%ts%ts" C_RESET, get_color(&color_data), token);
 	(void)env;
 }
 
@@ -257,7 +288,11 @@ static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
 	t_main *const	main = (t_main*)editor->user;
 	t_sub const		line = *(t_sub*)&editor->text;
 
-	exec_parser(line, &token_callback, main->curr_parser, NULL);
+	exec_parser(line, main->curr_parser, (t_callback[]){
+		CALLBACK(on_parser_start, NULL),
+		CALLBACK(on_parser_end, NULL),
+		CALLBACK(on_token, NULL)
+	}, 0);
 	ft_printf("%n");
 	return (true);
 	(void)flags;

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/19 16:56:56 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/24 21:46:57 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,46 +17,43 @@ struct			s_exec_parser // TODO: move
 {
 	t_sub			line;
 	t_sub			token;
-	void			(*callback)(t_sub, t_parser_data*, void*);
-	void			*env;
+	t_callback		on_parser_start;
+	t_callback		on_parser_end;
+	t_callback		on_token;
+	uint32_t		data_size;
 };
 
 static void		exec(struct s_exec_parser *s, t_parser const *parser,
 					t_parser_data *data);
 
 static bool		exec_token(struct s_exec_parser *s, t_parser_token const *token,
-					t_parser_data *prev_data)
+					t_parser_data *parent_data)
 {
-	t_parser_data	data;
 	t_parser_data	parser_data;
+	uint8_t			data[s->data_size];
 
 	if (token->parser != NULL)
 	{
-		parser_data = (t_parser_data){token->parser->data, prev_data};
-		if (s->token.length > 0)
-		{
-			data = (t_parser_data){token->data, &parser_data};
-			s->callback(s->token, &data, s->env);
-		}
+		parser_data = (t_parser_data){data, parent_data, NULL};
+		parent_data->next = &parser_data;
+		CALL(void, s->on_parser_start, &parser_data, token->parser->data);
+		CALL(void, s->on_token, &parser_data, s->token, token->data);
 		exec(s, token->parser, &parser_data);
+		CALL(void, s->on_parser_end, &parser_data, token->parser->data);
+		parent_data->next = NULL;
 	}
-	else if (s->token.length > 0)
-	{
-		data = (t_parser_data){token->data, prev_data};
-		s->callback(s->token, &data, s->env);
-	}
+	else
+		CALL(void, s->on_token, parent_data, s->token, token->data);
 	return (token->end);
 }
 
 static bool		exec_match(struct s_exec_parser *s, t_parser const *parser,
-					t_parser_data *prev_data)
+					t_parser_data *parent_data)
 {
 	t_sub			match;
-	t_parser_data	nomatch_data;
 	t_parser_match	*m;
 	uint32_t		i;
 
-	nomatch_data = (t_parser_data){NULL, prev_data};
 	i = 0;
 	while (i < parser->match.length)
 	{
@@ -65,14 +62,15 @@ static bool		exec_match(struct s_exec_parser *s, t_parser const *parser,
 		if (ft_rsearch(s->token, &match, &m->regex, NULL))
 		{
 			if (SUB_OFF(s->token, match) > 0)
-				s->callback(SUB_BEF(s->token, match), &nomatch_data, s->env);
+				CALL(void, s->on_token, parent_data,
+					SUB_BEF(s->token, match), NULL);
 			s->token = match;
-			return (exec_token(s, &m->token, prev_data));
+			return (exec_token(s, &m->token, parent_data));
 		}
 		i++;
 	}
 	if (s->token.length > 0)
-		s->callback(s->token, &nomatch_data, s->env);
+		CALL(void, s->on_token, parent_data, s->token, NULL);
 	return (false);
 }
 
@@ -88,18 +86,23 @@ static void		exec(struct s_exec_parser *s, t_parser const *parser,
 			break ;
 }
 
-void			exec_parser(t_sub line, void (*callback)(),
-					t_parser const *parser, void *env)
+void			exec_parser(t_sub line, t_parser const *parser,
+					t_callback callbacks[3], uint32_t data_size)
 {
 	struct s_exec_parser	s;
-	t_parser_data			data;
+	t_parser_data			parser_data;
+	uint8_t					data[data_size];
 
 	s = (struct s_exec_parser){
 		line,
 		SUB(line.str, 0),
-		callback,
-		env
+		callbacks[0],
+		callbacks[1],
+		callbacks[2],
+		data_size
 	};
-	data = (t_parser_data){parser->data, NULL};
-	exec(&s, parser, &data);
+	parser_data = (t_parser_data){data, NULL, NULL};
+	CALL(void, s.on_parser_start, &parser_data, parser->data);
+	exec(&s, parser, &parser_data);
+	CALL(void, s.on_parser_end, &parser_data, parser->data);
 }
