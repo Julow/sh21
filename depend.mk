@@ -108,70 +108,80 @@ PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/parser.h \
 	$(O_DIR)/_public/ft/parser_def.h $(O_DIR)/_public/ft/ft_printf.h \
 	$(O_DIR)/_public/ft/ft_vprintf.h $(O_DIR)/_public/ft/range.h \
-	$(O_DIR)/_public/ft/regex.h $(O_DIR)/_public/ft/spantree.h \
-	$(O_DIR)/_public/ft/term.h $(O_DIR)/_public/ft/tokenizer.h \
-	$(O_DIR)/_public/ft/ft_vector.h
+	$(O_DIR)/_public/ft/regex.h $(O_DIR)/_public/ft/spanlist.h \
+	$(O_DIR)/_public/ft/spantree.h $(O_DIR)/_public/ft/term.h \
+	$(O_DIR)/_public/ft/tokenizer.h $(O_DIR)/_public/ft/ft_vector.h
 
 # module editor
 $(O_DIR)/srcs/editor/binding/cursor_move.o: srcs/editor/binding/cursor_move.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding/delete.o: srcs/editor/binding/delete.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding/extra_mod.o: srcs/editor/binding/extra_mod.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
-	srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/public/editor.h \
+	srcs/editor/public/editor_bindings.h srcs/range/public/range.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding/paste.o: srcs/editor/binding/paste.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding_utils.o: srcs/editor/binding_utils.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_bind.o: srcs/editor/editor_bind.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/range/public/range.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_init.o: srcs/editor/editor_init.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_key.o: srcs/editor/editor_key.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/range/public/range.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_put.o: srcs/editor/editor_put.c \
 	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
 	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_getkey/public/getkey.h libft/ft_list/public/ft_list.h \
-	libft/ft_out/public/ft_out.h srcs/editor/editor_internal.h \
-	srcs/editor/public/editor.h srcs/range/public/range.h
+	libft/ft_out/public/ft_out.h libft/ft_vector/public/ft_vector.h \
+	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/word_range.o: srcs/editor/word_range.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/public/editor.h srcs/range/public/range.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/public/editor.h \
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h
 
 $(O_DIR)/srcs/editor/binding/cursor_move.o \
 $(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/srcs/editor/binding/extra_mod.o \
@@ -559,6 +569,8 @@ $(O_DIR)/libft/ft_regex/parse_regs/str.o \
 $(O_DIR)/libft/ft_regex/parse_regs/wbound.o \
 $(O_DIR)/libft/ft_regex/parse_utils.o: INCLUDE_FLAGS += -Ilibft/ft_regex
 
+# module ft::spanlist
+
 # module ft::spantree
 $(O_DIR)/srcs/spantree/ft_spantree_add.o: srcs/spantree/ft_spantree_add.c \
 	libft/ft_base/public/libft.h srcs/spantree/public/spantree.h
@@ -624,8 +636,8 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_vector/public/ft_vector.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
 	srcs/parser/public/parser.h srcs/parser/public/parser_def.h \
-	srcs/range/public/range.h srcs/spantree/public/spantree.h \
-	srcs/tokenizer/public/tokenizer.h
+	srcs/range/public/range.h srcs/spanlist/public/spanlist.h \
+	srcs/spantree/public/spantree.h srcs/tokenizer/public/tokenizer.h
 
 # public links
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h
@@ -649,6 +661,7 @@ $(O_DIR)/_public/ft/parser.h: srcs/parser/public/parser.h
 $(O_DIR)/_public/ft/parser_def.h: srcs/parser/public/parser_def.h
 $(O_DIR)/_public/ft/range.h: srcs/range/public/range.h
 $(O_DIR)/_public/ft/regex.h: libft/ft_regex/public/regex.h
+$(O_DIR)/_public/ft/spanlist.h: srcs/spanlist/public/spanlist.h
 $(O_DIR)/_public/ft/spantree.h: srcs/spantree/public/spantree.h
 $(O_DIR)/_public/ft/term.h: libft/ft_term/public/term.h
 $(O_DIR)/_public/ft/tokenizer.h: srcs/tokenizer/public/tokenizer.h

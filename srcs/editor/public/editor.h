@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/15 18:56:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/25 17:30:42 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "ft/getkey.h"
 # include "ft/libft.h"
 # include "ft/range.h"
+# include "ft/spanlist.h"
 
 typedef struct s_editor			t_editor;
 

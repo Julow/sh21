@@ -8,4 +8,5 @@ module editor:
 	public require ft::out
 	public require ft::range
 	public require ft::list
+	public require ft::spanlist
 	public require ft::dstr
