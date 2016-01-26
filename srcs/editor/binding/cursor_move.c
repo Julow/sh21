@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/12 22:25:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/26 14:26:02 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 19:47:41 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 bool			editor_bind_cursor_move(t_editor *editor, uint32_t flags)
 {
 	int32_t const	move = cursor_move(editor, flags);
-	uint32_t		cursor;
 
 	if (editor->sel != 0 && !(flags & CURSOR_MOVE_SEL))
 	{
@@ -24,9 +23,11 @@ bool			editor_bind_cursor_move(t_editor *editor, uint32_t flags)
 			editor_set_cursor(editor, editor->cursor + move, 0);
 		else if (INT_NORM(editor->sel) == INT_NORM(move))
 			editor_set_cursor(editor, editor->cursor + editor->sel, 0);
+		else
+			editor_set_cursor(editor, editor->cursor, 0);
 		return (true);
 	}
-	if (move == 0 || (editor->cursor + move) < 0
+	if (move == 0 || (((int)editor->cursor) + move) < 0
 		|| (editor->cursor + move) > editor->text.length)
 		return (false);
 	editor_set_cursor(editor, editor->cursor + move,

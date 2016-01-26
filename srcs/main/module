@@ -1,6 +1,6 @@
 main module sh21:
 	require ft::term
-	require ft::spantree
+	require ft::spanlist
 	require ft::hmap
 	require ft::getkey
 	require ft::base

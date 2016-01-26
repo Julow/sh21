@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 18:31:03 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 19:39:15 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 # include "ft/ft_out.h"
 # include "ft/getkey.h"
 # include "ft/libft.h"
-# include "ft/range.h"
 # include "ft/spanlist.h"
 
 typedef struct s_editor			t_editor;
@@ -80,7 +79,7 @@ void		editor_bind(t_editor *editor, t_key key,
 
 void		editor_set_cursor(t_editor *editor, uint32_t cursor, int32_t sel);
 
-t_range		ft_word_range(t_sub sub, int32_t at, bool subword);
+t_vec2u			ft_word_range(t_sub sub, uint32_t at, bool subword);
 
 /*
 ** ========================================================================== **

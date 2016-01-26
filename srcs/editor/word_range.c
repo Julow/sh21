@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/14 15:39:38 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/14 16:40:30 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 19:39:38 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,20 +31,20 @@ static const t_is	g_subword_stops[] = {
 	0
 };
 
-t_range			ft_word_range(t_sub sub, int32_t at, bool subword)
+t_vec2u			ft_word_range(t_sub sub, uint32_t at, bool subword)
 {
 	t_is const *const	stops = subword ? g_subword_stops : g_word_stops;
-	t_range				word;
+	t_vec2u				word;
 	uint32_t			i;
 
-	word = RANGE(at, at);
+	word = VEC2U(at, at);
 	i = 0;
 	while (stops[i] != 0)
 	{
-		while (word.from > 0 && IS(sub.str[word.from], stops[i]))
-			word.from--;
-		while (word.to < sub.length && IS(sub.str[word.to], stops[i]))
-			word.to++;
+		while (word.x > 0 && IS(sub.str[word.x], stops[i]))
+			word.x--;
+		while (word.y < sub.length && IS(sub.str[word.y], stops[i]))
+			word.y++;
 		i++;
 	}
 	return (word);

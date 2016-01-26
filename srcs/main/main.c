@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/26 18:47:29 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 19:45:30 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "ft/getkey.h"
 #include "ft/parser.h"
 #include "ft/parser_def.h"
-#include "ft/spantree.h"
+#include "ft/spanlist.h"
 #include "ft/term.h"
 #include "ft/tokenizer.h"
 
@@ -221,6 +221,7 @@ static struct {
 	SCOPE("string", (S_LIGHT(S_YELLOW), 0, 0)),
 	SCOPE("escaped", (S_RED, 0, 0)),
 	SCOPE("number", (S_YELLOW, 0, 0)),
+	SCOPE("var", (S_RED, 0, 0)),
 	SCOPE("comment", (0, S_BLUE, 0)),
 	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
 };
@@ -465,67 +466,6 @@ static void		loop(t_main *main)
 ** ========================================================================== **
 ** Main
 */
-
-// static void		test_iter(void *self, int32_t from, int32_t to, t_spantree_data *data)
-// {
-// 	t_spantree_data *const	tmp = data;
-
-// 	ft_printf("\t[%d -> %d] ", from, to);
-// 	if (data != NULL)
-// 		while (true)
-// 		{
-// 			ft_printf("%s", data->data);
-// 			if ((data = data->prev) == NULL)
-// 				break ;
-// 			ft_printf("/");
-// 		}
-// 	ft_printf("%n");
-// 	for (; from < to; from++)
-// 	{
-// 		ft_printf("%2d ", from);
-// 		data = tmp;
-// 		for (; data != NULL; data = data->prev)
-// 			ft_printf("|");
-// 		ft_printf("%n");
-// 	}
-// 	(void)self;
-// }
-
-// static void		test_add(t_spantree *tree, int32_t from, int32_t to, char *str)
-// {
-// 	ft_printf("ADD [%d -> %d] '%s'%n", from, to, str);
-// 	ft_spantree_add(tree, VEC2I(from, to), str);
-// }
-
-// static void		test_print(t_spantree_node const *span)
-// {
-// 	if (span == NULL)
-// 		ft_printf("SPAN NULL%n");
-// 	else
-// 		ft_printf("SPAN [%d -> %d] '%s'%n", span->from, span->to, span->data);
-// }
-
-// static void		test(void)
-// {
-// 	t_spantree		tree;
-
-// 	tree = (t_spantree){NULL, NULL, 0};
-// 	test_add(&tree, 4, 17, "4-17");
-// 	test_add(&tree, 5, 10, "5-10");
-// 	test_add(&tree, 9, 15, "10-15");
-// 	test_add(&tree, 1, 6, "1-6");
-// 	test_add(&tree, 4, 17, "4-17");
-// 	test_add(&tree, 4, 9, "4-9");
-// 	test_add(&tree, 1, 2, "1-2");
-// 	test_add(&tree, 1, 1, "1-1");
-// 	ft_spantree_iter(&tree, VEC2I(0, 20), CALLBACK(test_iter, NULL));
-// 	test_print(ft_spantree_at(&tree, 1, 0));
-// 	test_print(ft_spantree_at(&tree, 1, 1));
-// 	test_print(ft_spantree_at(&tree, 1, 2));
-// 	test_print(ft_spantree_at(&tree, 1, 3));
-// 	test_print(ft_spantree_at(&tree, 1, 4));
-// 	test_print(ft_spantree_at(&tree, 1, 5));
-// }
 
 int				main(void)
 {
