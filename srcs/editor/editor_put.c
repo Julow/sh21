@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 18:23:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 18:43:03 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,11 @@ static void	write_span(struct s_put_pair *p, t_vec2u span, t_style const *style)
 			put_color(p->out, style->background, true);
 		if (style->foreground != 0)
 			put_color(p->out, style->foreground, false);
-		if (style->styles & STYLE_F_UNDERLINE)
+		if (style->styles & S_UNDERLINE)
 			ft_putsub(p->out, SUBC("\033[4m"));
-		if (style->styles & STYLE_F_BOLD)
+		if (style->styles & S_BOLD)
 			ft_putsub(p->out, SUBC("\033[1m"));
-		if (style->styles & STYLE_F_REVERSED)
+		if (style->styles & S_REVERSED)
 			ft_putsub(p->out, SUBC("\033[7m"));
 	}
 	ft_putsub(p->out, SUB(p->editor->text.str + span.x, span.y - span.x));
@@ -61,11 +61,11 @@ static void	write_span(struct s_put_pair *p, t_vec2u span, t_style const *style)
 			ft_putsub(p->out, SUBC("\033[39m"));
 		if (style->background != 0)
 			ft_putsub(p->out, SUBC("\033[49m"));
-		if (style->styles & STYLE_F_UNDERLINE)
+		if (style->styles & S_UNDERLINE)
 			ft_putsub(p->out, SUBC("\033[24m"));
-		if (style->styles & STYLE_F_BOLD)
+		if (style->styles & S_BOLD)
 			ft_putsub(p->out, SUBC("\033[22m"));
-		if (style->styles & STYLE_F_REVERSED)
+		if (style->styles & S_REVERSED)
 			ft_putsub(p->out, SUBC("\033[27m"));
 	}
 }
@@ -73,8 +73,6 @@ static void	write_span(struct s_put_pair *p, t_vec2u span, t_style const *style)
 void		editor_put(t_editor const *editor, t_out *out)
 {
 	struct s_put_pair	p;
-	int32_t				from;
-	int32_t				to;
 
 	p = (struct s_put_pair){editor, out};
 	ft_putpad_left(out, editor->text.length);

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/26 17:32:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 18:47:29 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,20 +121,6 @@ static void		put_key(t_out *out, t_key key)
 	ft_putendl(out);
 }
 
-static bool		test_binding(t_editor *editor, uint32_t flags)
-{
-	uint32_t const	c = flags >> 16;
-	uint32_t const	len = flags & 0xFFFF;
-
-	ft_memset(ft_dstrspan(&editor->text, editor->cursor,
-		editor->cursor + editor->sel, len), c, len);
-	if (editor->sel < 0)
-		editor->cursor += editor->sel;
-	editor->cursor += len;
-	editor->sel = 0;
-	return (true);
-}
-
 /*
 ** ========================================================================== **
 ** Debug parser
@@ -225,18 +211,18 @@ static bool		test_binding(t_editor *editor, uint32_t flags)
 ** ========================================================================== **
 */
 
-#define SCOPE(S,C)	{SUBC(S), SUBC(C)}
+#define SCOPE(S,C)	{SUBC(S), STYLE C}
 
 static struct {
 	t_sub			scope;
-	t_sub			color;
+	t_style			style;
 } const			g_colors[] = {
-	SCOPE("string.simple", C_YELLOW),
-	SCOPE("string", C_LYELLOW),
-	SCOPE("escaped", C_LRED),
-	SCOPE("number", C_YELLOW),
-	SCOPE("comment", C_BLUE),
-	SCOPE("op", C_WHITE),
+	SCOPE("string.simple", (S_YELLOW, 0, 0)),
+	SCOPE("string", (S_LIGHT(S_YELLOW), 0, 0)),
+	SCOPE("escaped", (S_RED, 0, 0)),
+	SCOPE("number", (S_YELLOW, 0, 0)),
+	SCOPE("comment", (0, S_BLUE, 0)),
+	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
 };
 
 static void		on_parser_start(void *env, t_parser_data *data, void const *p)
@@ -252,7 +238,7 @@ static void		on_parser_end(void *env, t_parser_data *data, void const *p)
 	(void)p;
 }
 
-static t_sub	get_color(t_parser_data *data)
+static t_style	get_color(t_parser_data *data)
 {
 	uint32_t		i;
 	t_sub			sub;
@@ -264,19 +250,19 @@ static t_sub	get_color(t_parser_data *data)
 		while (i < ARRAY_LEN(g_colors))
 		{
 			if (ft_subfind(sub, g_colors[i].scope, 0) < sub.length)
-				return (g_colors[i].color);
+				return (g_colors[i].style);
 			i++;
 		}
 		data = data->prev;
 	}
-	return (SUB0());
+	return (STYLE(0, 0, 0));
 }
 
 static void		on_token(t_spanlist *spanlist, t_parser_data *parent,
 					t_sub token, void const *data)
 {
 	t_parser_data	color_data;
-	t_sub			*tmp;
+	t_style			*tmp;
 
 	color_data = (t_parser_data){data, parent, NULL};
 	parent->next = &color_data;
@@ -284,19 +270,14 @@ static void		on_token(t_spanlist *spanlist, t_parser_data *parent,
 	*tmp = get_color(&color_data);
 }
 
-static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
+static void		refresh_syntax(t_editor *editor, t_parser const *parser)
 {
-	t_main *const	main = (t_main*)editor->user;
-	t_sub const		line = *(t_sub*)&editor->text;
-
 	ft_spanlist_clear(&editor->spans, 1);
-	exec_parser(line, main->curr_parser, (t_callback[]){
+	exec_parser(*(t_sub*)&editor->text, parser, (t_callback[]){
 		CALLBACK(on_parser_start, NULL),
 		CALLBACK(on_parser_end, NULL),
 		CALLBACK(on_token, &editor->spans)
 	}, 0);
-	return (true);
-	(void)flags;
 }
 
 /*
@@ -316,8 +297,6 @@ static bool		init_main(t_main *main)
 				TERM_DEFAULT_TERM);
 		main->editor = NEW(t_editor);
 		editor_init(main->editor);
-		editor_bind(main->editor, KEY('C', KEY_MOD_SHIFT), &test_binding, ('a' << 16) | 10); // tmp
-		editor_bind(main->editor, KEY('m', KEY_MOD_CTRL), &binding_test_tokenize, 0); // tmp
 		main->editor->user = main;
 		main->flags |= FLAG_INTERACTIVE;
 	}
@@ -464,6 +443,7 @@ static void		interactive_loop(t_main *main)
 		ft_flush(&main->term->out);
 		cursor_x = main->term->cursor_x;
 		cursor_y = main->term->cursor_y;
+		refresh_syntax(main->editor, main->curr_parser);
 		editor_put(main->editor, &main->term->out);
 		ft_flush(&main->term->out);
 		ft_tcursor(main->term, cursor_x + main->editor->cursor, cursor_y);
