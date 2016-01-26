@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/25 17:30:42 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 14:31:43 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,13 @@
 # include "ft/spanlist.h"
 
 typedef struct s_editor			t_editor;
+typedef struct s_style			t_style;
+
+/*
+** Return 1 if N is positive -1 otherwise
+** TODO: move
+*/
+# define INT_NORM(N)	(((N) < 0) ? -1 : 1)
 
 /*
 ** ========================================================================== **
@@ -32,18 +39,14 @@ typedef struct s_editor			t_editor;
 struct		s_editor
 {
 	t_dstr		text;
-	int32_t		cursor;
+	t_spanlist	spans;
+	uint32_t	cursor;
 	int32_t		sel;
 	t_bst		bindings;
 	t_list		clipboard;
 	uint32_t	extra_mods;
 	void		*user;
 };
-
-/*
-** Return 1 if N is positive -1 otherwise
-*/
-# define INT_NORM(N)	(((N) < 0) ? -1 : 1)
 
 /*
 ** Init editor and default bindings
@@ -68,6 +71,31 @@ void		editor_put(t_editor const *editor, t_out *out);
 void		editor_bind(t_editor *editor, t_key key,
 				bool (*f)(t_editor*, uint32_t), uint32_t flags);
 
+/*
+** ========================================================================== **
+** Editor actions
+*/
+
+# define EDITOR_SEL_PRIORITY		128
+
+void		editor_set_cursor(t_editor *editor, uint32_t cursor, int32_t sel);
+
 t_range		ft_word_range(t_sub sub, int32_t at, bool subword);
+
+/*
+** ========================================================================== **
+** Style
+*/
+
+struct		s_style
+{
+	uint32_t	foreground;
+	uint32_t	background;
+	uint32_t	styles;
+};
+
+# define STYLE_F_EXTENDED		(1 << 31)
+# define STYLE_F_UNDERLINE		(1 << 2)
+# define STYLE_F_BOLD			(1 << 3)
 
 #endif

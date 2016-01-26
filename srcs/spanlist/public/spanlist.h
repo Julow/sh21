@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/25 12:20:00 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 12:01:47 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 13:51:56 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ struct			s_spanlist
 	t_list			spans;
 	uint32_t const	data_size;
 };
+// TODO: keep n unused spans
 
 # define SPANLIST(T)		((t_spanlist){LIST(t_spanlist_span), sizeof(T)})
 
@@ -55,10 +56,9 @@ void			ft_spanlist_iter(t_spanlist const *spanlist,
 
 /*
 ** Set a span
-** NOT IMPLEMENTED
 */
-// void			ft_spanlist_set(t_spanlist *spanlist, t_vec2u range,
-					// t_spanlist_type type, uint32_t value, int32_t priority);
+void			*ft_spanlist_set(t_spanlist *spanlist, t_vec2u range,
+					uint32_t priority);
 
 /*
 ** Clear by priority

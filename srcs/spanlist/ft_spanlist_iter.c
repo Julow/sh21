@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/25 18:33:20 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 12:46:38 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 15:02:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@ void			ft_spanlist_iter(t_spanlist const *spanlist,
 
 	span = LIST_NEXT(LIST_IT(&spanlist->spans));
 	while (span != NULL && span->to <= range.x)
-	{
-		ft_printf("skip%n");
 		span = LIST_NEXT(span);
-	}
+	span_range.y = range.x;
+	if (span->from > range.x)
+		CALL(void, callback, VEC2U(range.x, span->from), NULL);
 	while (span != NULL)
 	{
 		next = LIST_NEXT(span);
@@ -42,4 +42,6 @@ void			ft_spanlist_iter(t_spanlist const *spanlist,
 			break ;
 		span = next;
 	}
+	if (span_range.y < range.y)
+		CALL(void, callback, VEC2U(span_range.y, range.y), NULL);
 }
