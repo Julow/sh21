@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/25 12:20:00 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/25 18:29:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 12:01:47 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include "ft/libft.h"
 
 typedef struct s_spanlist		t_spanlist;
-typedef struct e_spanlist_span	t_spanlist_span;
+typedef struct s_spanlist_span	t_spanlist_span;
 
 /*
 ** ========================================================================== **
@@ -62,8 +62,7 @@ void			ft_spanlist_iter(t_spanlist const *spanlist,
 
 /*
 ** Clear by priority
-** NOT IMPLEMENTED
 */
-void			ft_spanlist_clear(int32_t priority);
+void			ft_spanlist_clear(t_spanlist *spanlist, int32_t priority);
 
 #endif

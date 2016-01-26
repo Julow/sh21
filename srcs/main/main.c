@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/25 12:17:41 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 12:47:49 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,23 +276,32 @@ static void		on_token(void *env, t_parser_data *parent, t_sub token,
 					void const *data)
 {
 	t_parser_data	color_data;
+	t_sub			*tmp;
 
 	color_data = (t_parser_data){data, parent, NULL};
 	parent->next = &color_data;
-	ft_printf("%ts%ts" C_RESET, get_color(&color_data), token);
-	(void)env;
+	tmp = ft_spanlist_push(env, token.length, 1);
+	*tmp = get_color(&color_data);
+}
+
+static void		span_print(t_sub const *env, t_vec2u span, t_sub const *data)
+{
+	ft_printf("%ts%ts" C_RESET, *data, SUB(env->str + span.x, span.y - span.x));
 }
 
 static bool		binding_test_tokenize(t_editor *editor, uint32_t flags)
 {
 	t_main *const	main = (t_main*)editor->user;
 	t_sub const		line = *(t_sub*)&editor->text;
+	t_spanlist		spanlist;
 
+	spanlist = SPANLIST(t_sub);
 	exec_parser(line, main->curr_parser, (t_callback[]){
 		CALLBACK(on_parser_start, NULL),
 		CALLBACK(on_parser_end, NULL),
-		CALLBACK(on_token, NULL)
+		CALLBACK(on_token, &spanlist)
 	}, 0);
+	ft_spanlist_iter(&spanlist, CALLBACK(span_print, &line), VEC2U(0, -1));
 	ft_printf("%n");
 	return (true);
 	(void)flags;
