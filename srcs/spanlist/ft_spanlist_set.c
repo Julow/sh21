@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/26 13:52:09 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 14:40:59 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 15:41:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void			*ft_spanlist_set(t_spanlist *spanlist, t_vec2u range,
 		;
 	if (span != NULL)
 		span = LIST_PREV(span);
-	span = ft_listadd(&spanlist->spans, span, 0);
+	span = ft_listadd(&spanlist->spans, span, spanlist->data_size);
 	span->from = range.x;
 	span->to = range.y;
 	span->priority = priority;

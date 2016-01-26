@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/01/25 12:20:00 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 13:51:56 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 17:30:46 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ struct			s_spanlist
 # define SPANLIST(T)		((t_spanlist){LIST(t_spanlist_span), sizeof(T)})
 
 /*
-** Add a span to the end
+** Add a span after the last of the same priority
 */
 void			*ft_spanlist_push(t_spanlist *spanlist, uint32_t length,
 					int32_t priority);

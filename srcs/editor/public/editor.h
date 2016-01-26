@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 14:31:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/01/26 17:47:18 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,9 @@ struct		s_style
 };
 
 # define STYLE_F_EXTENDED		(1 << 31)
-# define STYLE_F_UNDERLINE		(1 << 2)
-# define STYLE_F_BOLD			(1 << 3)
+# define STYLE_F_LIGHT			(1 << 30)
+# define STYLE_F_UNDERLINE		(1 << 0)
+# define STYLE_F_REVERSED		(1 << 1)
+# define STYLE_F_BOLD			(1 << 2)
 
 #endif
