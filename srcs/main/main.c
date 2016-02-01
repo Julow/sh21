@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/26 19:45:30 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/01 19:33:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -445,7 +445,7 @@ static void		interactive_loop(t_main *main)
 		cursor_x = main->term->cursor_x;
 		cursor_y = main->term->cursor_y;
 		refresh_syntax(main->editor, main->curr_parser);
-		editor_put(main->editor, &main->term->out);
+		editor_out(main->editor, &main->term->out);
 		ft_flush(&main->term->out);
 		ft_tcursor(main->term, cursor_x + main->editor->cursor, cursor_y);
 	}

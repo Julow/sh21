@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 19:39:15 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/01 19:34:06 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "ft/ft_dstr.h"
 # include "ft/ft_list.h"
 # include "ft/ft_out.h"
+# include "ft/ft_vector.h"
 # include "ft/getkey.h"
 # include "ft/libft.h"
 # include "ft/spanlist.h"
@@ -38,6 +39,7 @@ typedef struct s_style			t_style;
 struct		s_editor
 {
 	t_dstr		text;
+	t_vector	line_stops;
 	t_spanlist	spans;
 	uint32_t	cursor;
 	int32_t		sel;
@@ -60,7 +62,7 @@ bool		editor_key(t_editor *editor, t_key key);
 /*
 ** Put the editor text to 'out'
 */
-void		editor_put(t_editor const *editor, t_out *out);
+void		editor_out(t_editor const *editor, t_out *out);
 
 /*
 ** Add a key binding
@@ -71,6 +73,16 @@ void		editor_bind(t_editor *editor, t_key key,
 				bool (*f)(t_editor*, uint32_t), uint32_t flags);
 
 /*
+** Return the row/column index for the text index 'index'
+*/
+t_vec2u		editor_rowcol(t_editor *editor, uint32_t index);
+
+/*
+** Return the text index for the row/col rc
+*/
+uint32_t	editor_index(t_editor *editor, t_vec2u rc);
+
+/*
 ** ========================================================================== **
 ** Editor actions
 */
@@ -79,7 +91,7 @@ void		editor_bind(t_editor *editor, t_key key,
 
 void		editor_set_cursor(t_editor *editor, uint32_t cursor, int32_t sel);
 
-t_vec2u			ft_word_range(t_sub sub, uint32_t at, bool subword);
+t_vec2u		ft_word_range(t_sub sub, uint32_t at, bool subword);
 
 /*
 ** ========================================================================== **

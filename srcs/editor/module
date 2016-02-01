@@ -3,6 +3,7 @@ module editor:
 	private include ./
 
 	public require ft::base
+	public require ft::vector
 	public require ft::bst
 	public require ft::getkey
 	public require ft::out

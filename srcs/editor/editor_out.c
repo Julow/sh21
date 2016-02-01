@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 18:43:03 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/01 19:33:27 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ static void	write_span(struct s_put_pair *p, t_vec2u span, t_style const *style)
 	}
 }
 
-void		editor_put(t_editor const *editor, t_out *out)
+void		editor_out(t_editor const *editor, t_out *out)
 {
 	struct s_put_pair	p;
 

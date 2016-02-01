@@ -15,12 +15,12 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/extra_mod.o \
 	$(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding_utils.o \
 	$(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
-	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_put.o \
-	$(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/word_range.o \
-	$(O_DIR)/libft/ft_base/ft_abs.o $(O_DIR)/libft/ft_base/ft_assert.o \
-	$(O_DIR)/libft/ft_base/ft_atoib.o $(O_DIR)/libft/ft_base/ft_bitset.o \
-	$(O_DIR)/libft/ft_base/ft_bzero.o $(O_DIR)/libft/ft_base/ft_clock.o \
-	$(O_DIR)/libft/ft_base/ft_clock_stack.o \
+	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
+	$(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/text_index.o \
+	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_base/ft_abs.o \
+	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
+	$(O_DIR)/libft/ft_base/ft_bitset.o $(O_DIR)/libft/ft_base/ft_bzero.o \
+	$(O_DIR)/libft/ft_base/ft_clock.o $(O_DIR)/libft/ft_base/ft_clock_stack.o \
 	$(O_DIR)/libft/ft_base/ft_emalloc.o $(O_DIR)/libft/ft_base/ft_escape.o \
 	$(O_DIR)/libft/ft_base/ft_getenv.o $(O_DIR)/libft/ft_base/ft_is.o \
 	$(O_DIR)/libft/ft_base/ft_max.o $(O_DIR)/libft/ft_base/ft_memcmp.o \
@@ -116,74 +116,88 @@ $(O_DIR)/srcs/editor/binding/cursor_move.o: srcs/editor/binding/cursor_move.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding/delete.o: srcs/editor/binding/delete.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding/extra_mod.o: srcs/editor/binding/extra_mod.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
-	srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/public/editor.h \
+	srcs/editor/public/editor_bindings.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding/paste.o: srcs/editor/binding/paste.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding_utils.o: srcs/editor/binding_utils.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_bind.o: srcs/editor/editor_bind.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_init.o: srcs/editor/editor_init.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/editor/public/editor_bindings.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_key.o: srcs/editor/editor_key.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
-	srcs/spanlist/public/spanlist.h
-$(O_DIR)/srcs/editor/editor_put.o: srcs/editor/editor_put.c \
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
+$(O_DIR)/srcs/editor/editor_out.o: srcs/editor/editor_out.c \
 	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
 	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_getkey/public/getkey.h libft/ft_list/public/ft_list.h \
-	libft/ft_out/public/ft_out.h srcs/editor/editor_internal.h \
-	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
+	libft/ft_out/public/ft_out.h libft/ft_vector/public/ft_vector.h \
+	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
+	srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_set_cursor.o: srcs/editor/editor_set_cursor.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
+	libft/ft_vector/public/ft_vector.h srcs/editor/public/editor.h \
+	srcs/spanlist/public/spanlist.h
+$(O_DIR)/srcs/editor/text_index.o: srcs/editor/text_index.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
+	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
 	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/word_range.o: srcs/editor/word_range.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
-	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
+	libft/ft_vector/public/ft_vector.h srcs/editor/public/editor.h \
+	srcs/spanlist/public/spanlist.h
 
 $(O_DIR)/srcs/editor/binding/cursor_move.o \
 $(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/srcs/editor/binding/extra_mod.o \
 $(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding_utils.o \
 $(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
-$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_put.o \
-$(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/word_range.o: \
-	INCLUDE_FLAGS += -Isrcs/editor
+$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
+$(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/text_index.o \
+$(O_DIR)/srcs/editor/word_range.o: INCLUDE_FLAGS += -Isrcs/editor
 
 # module ft::base
 $(O_DIR)/libft/ft_base/ft_abs.o: libft/ft_base/ft_abs.c \

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/26 14:05:45 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/01 19:14:56 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ void		editor_init(t_editor *editor)
 
 	*editor = (t_editor){
 		DSTR0(),
+		VECTOR(uint32_t),
 		SPANLIST(t_style),
 		0,
 		0,
