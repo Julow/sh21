@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/01 19:33:37 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/02 00:36:46 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,6 +286,13 @@ static void		refresh_syntax(t_editor *editor, t_parser const *parser)
 ** Init
 */
 
+static bool		binding_newline(t_editor *editor, uint32_t flags)
+{
+	editor_put(editor, SUBC("\n"));
+	(void)flags;
+	return (true);
+}
+
 static bool		init_main(t_main *main)
 {
 	ft_bzero(main, sizeof(t_main));
@@ -298,6 +305,7 @@ static bool		init_main(t_main *main)
 				TERM_DEFAULT_TERM);
 		main->editor = NEW(t_editor);
 		editor_init(main->editor);
+		editor_bind(main->editor, KEY('m', KEY_MOD_CTRL), &binding_newline, 0);
 		main->editor->user = main;
 		main->flags |= FLAG_INTERACTIVE;
 	}

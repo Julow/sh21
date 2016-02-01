@@ -16,11 +16,12 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding_utils.o \
 	$(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
 	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
-	$(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/text_index.o \
-	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_base/ft_abs.o \
-	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
-	$(O_DIR)/libft/ft_base/ft_bitset.o $(O_DIR)/libft/ft_base/ft_bzero.o \
-	$(O_DIR)/libft/ft_base/ft_clock.o $(O_DIR)/libft/ft_base/ft_clock_stack.o \
+	$(O_DIR)/srcs/editor/editor_put.o $(O_DIR)/srcs/editor/editor_set_cursor.o \
+	$(O_DIR)/srcs/editor/text_index.o $(O_DIR)/srcs/editor/word_range.o \
+	$(O_DIR)/libft/ft_base/ft_abs.o $(O_DIR)/libft/ft_base/ft_assert.o \
+	$(O_DIR)/libft/ft_base/ft_atoib.o $(O_DIR)/libft/ft_base/ft_bitset.o \
+	$(O_DIR)/libft/ft_base/ft_bzero.o $(O_DIR)/libft/ft_base/ft_clock.o \
+	$(O_DIR)/libft/ft_base/ft_clock_stack.o \
 	$(O_DIR)/libft/ft_base/ft_emalloc.o $(O_DIR)/libft/ft_base/ft_escape.o \
 	$(O_DIR)/libft/ft_base/ft_getenv.o $(O_DIR)/libft/ft_base/ft_is.o \
 	$(O_DIR)/libft/ft_base/ft_max.o $(O_DIR)/libft/ft_base/ft_memcmp.o \
@@ -97,11 +98,11 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_term/term_out_flush.o \
 	$(O_DIR)/srcs/tokenizer/ft_token_map.o \
 	$(O_DIR)/srcs/tokenizer/ft_tokenize.o $(O_DIR)/libft/ft_vector/ft_vclear.o \
-	$(O_DIR)/libft/ft_vector/ft_vpush.o $(O_DIR)/libft/ft_vector/ft_vremove.o \
-	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/srcs/main/main.o
-PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
-	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_wchar.h \
-	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_bst.h \
+	$(O_DIR)/libft/ft_vector/ft_vpush.o $(O_DIR)/libft/ft_vector/ft_vreserve.o \
+	$(O_DIR)/libft/ft_vector/ft_vspan.o $(O_DIR)/srcs/main/main.o
+PUBLIC_LINKS += $(O_DIR)/_public/editor_bindings.h $(O_DIR)/_public/editor.h \
+	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_colors.h \
+	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/ft_bst.h \
 	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/get_next_line.h \
 	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/ft_hmap.h \
 	$(O_DIR)/_public/ft/ft_list.h $(O_DIR)/_public/ft/ft_out.h \
@@ -172,6 +173,12 @@ $(O_DIR)/srcs/editor/editor_out.o: srcs/editor/editor_out.c \
 	libft/ft_out/public/ft_out.h libft/ft_vector/public/ft_vector.h \
 	srcs/editor/editor_internal.h srcs/editor/public/editor.h \
 	srcs/spanlist/public/spanlist.h
+$(O_DIR)/srcs/editor/editor_put.o: srcs/editor/editor_put.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
+	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/editor_set_cursor.o: srcs/editor/editor_set_cursor.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
@@ -196,8 +203,9 @@ $(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/srcs/editor/binding/extra_mod.o \
 $(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding_utils.o \
 $(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
 $(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
-$(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/text_index.o \
-$(O_DIR)/srcs/editor/word_range.o: INCLUDE_FLAGS += -Isrcs/editor
+$(O_DIR)/srcs/editor/editor_put.o $(O_DIR)/srcs/editor/editor_set_cursor.o \
+$(O_DIR)/srcs/editor/text_index.o $(O_DIR)/srcs/editor/word_range.o: \
+	INCLUDE_FLAGS += -Isrcs/editor
 
 # module ft::base
 $(O_DIR)/libft/ft_base/ft_abs.o: libft/ft_base/ft_abs.c \
@@ -630,9 +638,9 @@ $(O_DIR)/libft/ft_vector/ft_vclear.o: libft/ft_vector/ft_vclear.c \
 	libft/ft_base/public/libft.h libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_vector/ft_vpush.o: libft/ft_vector/ft_vpush.c \
 	libft/ft_base/public/libft.h libft/ft_vector/public/ft_vector.h
-$(O_DIR)/libft/ft_vector/ft_vremove.o: libft/ft_vector/ft_vremove.c \
-	libft/ft_base/public/libft.h libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_vector/ft_vreserve.o: libft/ft_vector/ft_vreserve.c \
+	libft/ft_base/public/libft.h libft/ft_vector/public/ft_vector.h
+$(O_DIR)/libft/ft_vector/ft_vspan.o: libft/ft_vector/ft_vspan.c \
 	libft/ft_base/public/libft.h libft/ft_vector/public/ft_vector.h
 
 # module sh21

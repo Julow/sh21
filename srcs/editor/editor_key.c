@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/16 23:28:05 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/01 23:43:13 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 bool		editor_key(t_editor *editor, t_key key)
 {
 	t_binding	*binding;
+	char		c;
 
 	key.mods |= editor->extra_mods;
 	editor->extra_mods = 0;
@@ -23,12 +24,7 @@ bool		editor_key(t_editor *editor, t_key key)
 		return (binding->f(editor, binding->flags));
 	if (!IS(key.c, IS_PRINT) || key.mods & ~KEY_MOD_SHIFT)
 		return (false);
-	*ft_dstrspan(&editor->text, editor->cursor,
-		editor->cursor + editor->sel, 1) = key.c;
-	if (editor->sel < 0)
-		editor += editor->sel;
-	else
-		editor->cursor++;
-	editor->sel = 0;
+	c = key.c;
+	editor_put(editor, SUB(&c, 1));
 	return (true);
 }

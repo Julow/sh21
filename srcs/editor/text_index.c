@@ -6,13 +6,13 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/01 19:13:58 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/01 19:30:54 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/01 23:37:03 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "editor_internal.h"
 
-t_vec2u		editor_rowcol(t_editor *editor, uint32_t index)
+t_vec2u		editor_rowcol(t_editor const *editor, uint32_t index)
 {
 	uint32_t const *const	stops = editor->line_stops.data;
 	t_vec2u					rc;
@@ -30,7 +30,7 @@ t_vec2u		editor_rowcol(t_editor *editor, uint32_t index)
 	return (rc);
 }
 
-uint32_t	editor_index(t_editor *editor, t_vec2u rc)
+uint32_t	editor_index(t_editor const *editor, t_vec2u rc)
 {
 	uint32_t const *const	stops = editor->line_stops.data;
 	uint32_t				y;

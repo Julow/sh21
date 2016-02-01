@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/01 19:34:06 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/01 23:26:08 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,12 +75,17 @@ void		editor_bind(t_editor *editor, t_key key,
 /*
 ** Return the row/column index for the text index 'index'
 */
-t_vec2u		editor_rowcol(t_editor *editor, uint32_t index);
+t_vec2u		editor_rowcol(t_editor const *editor, uint32_t index);
 
 /*
 ** Return the text index for the row/col rc
 */
-uint32_t	editor_index(t_editor *editor, t_vec2u rc);
+uint32_t	editor_index(t_editor const *editor, t_vec2u rc);
+
+/*
+** Put text (overriding the selection)
+*/
+void		editor_put(t_editor *editor, t_sub str);
 
 /*
 ** ========================================================================== **
