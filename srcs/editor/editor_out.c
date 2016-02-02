@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   editor_put.c                                       :+:      :+:    :+:   */
+/*   editor_out.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:34:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/01 19:33:27 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 00:34:56 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,22 @@ static void	write_span(struct s_put_pair *p, t_vec2u span, t_style const *style)
 			ft_putsub(p->out, SUBC("\033[27m"));
 	}
 }
+
+// void		editor_out(t_editor const *editor, t_out *out)
+// {
+// 	uint32_t const *const	stops = editor->line_stops.data;
+// 	uint32_t				i;
+// 	uint32_t				offset;
+
+// 	i = 0;
+// 	offset = 0;
+// 	while (i < editor->line_stops.length)
+// 	{
+// 		ft_fprintf(out, "[%u] '%ts'%n", stops[i], SUB(editor->text.str + offset, stops[i]));
+// 		i++;
+// 		offset += stops[i];
+// 	}
+// }
 
 void		editor_out(t_editor const *editor, t_out *out)
 {

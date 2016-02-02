@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/01 19:14:56 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 00:11:32 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,7 @@ void		editor_init(t_editor *editor)
 		NULL
 	};
 	i = 0;
+	ft_vpush(&editor->line_stops, &i, 1);
 	while (i < ARRAY_LEN(g_bindings))
 	{
 		editor_bind(editor, g_bindings[i].key, g_bindings[i].f,

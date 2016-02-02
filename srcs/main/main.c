@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/02 17:49:18 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/02 22:46:14 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -436,11 +436,20 @@ static bool		init_parsers(t_main *main)
 ** Loop
 */
 
+static void		print_line_stops(t_out *out, t_editor const *editor)
+{
+	uint32_t const *const	data = editor->line_stops.data;
+	uint32_t				i;
+
+	i = 0;
+	while (i < editor->line_stops.length)
+		ft_fprintf(out, "LINE %u%n", data[i++]);
+}
+
 static void		interactive_loop(t_main *main)
 {
 	t_key			key;
-	uint32_t		cursor_x;
-	uint32_t		cursor_y;
+	t_vec2u			cursor;
 
 	ft_trestore(main->term, true);
 	while (!(main->flags & FLAG_EXIT))
@@ -452,13 +461,16 @@ static void		interactive_loop(t_main *main)
 		put_key(&main->term->out, key); // TMP
 		if (key.c == 'd' && key.mods == KEY_MOD_CTRL) // TMP
 			main->flags |= FLAG_EXIT; // TMP
+		cursor = editor_rowcol(main->editor, main->editor->cursor);
+		ft_fprintf(&main->term->out, "CURSOR %u, %u%n", cursor.x, cursor.y);
+		print_line_stops(&main->term->out, main->editor);
 		ft_flush(&main->term->out);
-		cursor_x = main->term->cursor_x;
-		cursor_y = main->term->cursor_y;
+		// cursor.x += main->term->cursor_x;
+		// cursor.y += main->term->cursor_y;
 		refresh_syntax(main->editor, main->curr_parser);
 		editor_out(main->editor, &main->term->out);
 		ft_flush(&main->term->out);
-		ft_tcursor(main->term, cursor_x + main->editor->cursor, cursor_y);
+		ft_tcursor(main->term, cursor.x, cursor.y);
 	}
 	ft_trestore(main->term, false);
 }

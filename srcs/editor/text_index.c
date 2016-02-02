@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/01 19:13:58 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/01 23:37:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/02 22:49:55 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ t_vec2u		editor_rowcol(t_editor const *editor, uint32_t index)
 			break ;
 	}
 	rc.x = index;
+	ft_printf("ROWCOL %u -> %u, %u%n", index, rc.x, rc.y);
 	return (rc);
 }
 
