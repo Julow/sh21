@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/02 00:36:46 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/02 17:49:18 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,8 +273,11 @@ static void		on_token(t_spanlist *spanlist, t_parser_data *parent,
 
 static void		refresh_syntax(t_editor *editor, t_parser const *parser)
 {
+	t_in			parse_in;
+
+	parse_in = IN(editor->text.str, editor->text.length, NULL);
 	ft_spanlist_clear(&editor->spans, 1);
-	exec_parser(*(t_sub*)&editor->text, parser, (t_callback[]){
+	exec_parser(&parse_in, parser, (t_callback[]){
 		CALLBACK(on_parser_start, NULL),
 		CALLBACK(on_parser_end, NULL),
 		CALLBACK(on_token, &editor->spans)

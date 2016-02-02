@@ -7,9 +7,9 @@ OBJ_DIR_TREE += $(O_DIR)/srcs/tokenizer/ $(O_DIR)/srcs/spanlist/ \
 	$(O_DIR)/libft/ft_regex/parse_regs/ $(O_DIR)/libft/ft_regex/exec_regs/ \
 	$(O_DIR)/libft/ft_regex/ $(O_DIR)/libft/ft_printf/formats/ \
 	$(O_DIR)/libft/ft_printf/ $(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ \
-	$(O_DIR)/libft/ft_hmap/ $(O_DIR)/libft/ft_getkey/ $(O_DIR)/libft/ft_dstr/ \
-	$(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ $(O_DIR)/libft/ \
-	$(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
+	$(O_DIR)/libft/ft_in/ $(O_DIR)/libft/ft_hmap/ $(O_DIR)/libft/ft_getkey/ \
+	$(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ \
+	$(O_DIR)/libft/ $(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
 O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/delete.o \
 	$(O_DIR)/srcs/editor/binding/extra_mod.o \
@@ -52,8 +52,10 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_hmap/ft_hmapget.o $(O_DIR)/libft/ft_hmap/ft_hmapkeys.o \
 	$(O_DIR)/libft/ft_hmap/ft_hmapnew.o $(O_DIR)/libft/ft_hmap/ft_hmapput.o \
 	$(O_DIR)/libft/ft_hmap/ft_hmapputp.o $(O_DIR)/libft/ft_hmap/ft_hmaprem.o \
-	$(O_DIR)/libft/ft_hmap/hmap_puth.o $(O_DIR)/libft/ft_list/ft_listadd.o \
-	$(O_DIR)/libft/ft_list/ft_listremove.o \
+	$(O_DIR)/libft/ft_hmap/hmap_puth.o $(O_DIR)/libft/ft_in/file_in.o \
+	$(O_DIR)/libft/ft_in/file_in_open.o $(O_DIR)/libft/ft_in/ft_in_refresh.o \
+	$(O_DIR)/libft/ft_in/ft_read.o $(O_DIR)/libft/ft_in/ft_readto.o \
+	$(O_DIR)/libft/ft_list/ft_listadd.o $(O_DIR)/libft/ft_list/ft_listremove.o \
 	$(O_DIR)/libft/ft_list/ft_listsort.o $(O_DIR)/libft/ft_out/ft_putchar.o \
 	$(O_DIR)/libft/ft_out/ft_putendl.o $(O_DIR)/libft/ft_out/ft_putfloat.o \
 	$(O_DIR)/libft/ft_out/ft_putint.o $(O_DIR)/libft/ft_out/ft_putnchar.o \
@@ -100,11 +102,12 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/tokenizer/ft_tokenize.o $(O_DIR)/libft/ft_vector/ft_vclear.o \
 	$(O_DIR)/libft/ft_vector/ft_vpush.o $(O_DIR)/libft/ft_vector/ft_vreserve.o \
 	$(O_DIR)/libft/ft_vector/ft_vspan.o $(O_DIR)/srcs/main/main.o
-PUBLIC_LINKS += $(O_DIR)/_public/editor_bindings.h $(O_DIR)/_public/editor.h \
-	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_colors.h \
-	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/ft_bst.h \
+PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
+	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_wchar.h \
+	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_bst.h \
 	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/get_next_line.h \
 	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/ft_hmap.h \
+	$(O_DIR)/_public/ft/ft_file_in.h $(O_DIR)/_public/ft/ft_in.h \
 	$(O_DIR)/_public/ft/ft_list.h $(O_DIR)/_public/ft/ft_out.h \
 	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/parser.h \
 	$(O_DIR)/_public/ft/parser_def.h $(O_DIR)/_public/ft/ft_printf.h \
@@ -383,6 +386,23 @@ $(O_DIR)/libft/ft_hmap/ft_hmapput.o $(O_DIR)/libft/ft_hmap/ft_hmapputp.o \
 $(O_DIR)/libft/ft_hmap/ft_hmaprem.o $(O_DIR)/libft/ft_hmap/hmap_puth.o: \
 	INCLUDE_FLAGS += -Ilibft/ft_hmap
 
+# module ft::in
+$(O_DIR)/libft/ft_in/file_in.o: libft/ft_in/file_in.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_file_in.h libft/ft_in/public/ft_in.h
+$(O_DIR)/libft/ft_in/file_in_open.o: libft/ft_in/file_in_open.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_file_in.h libft/ft_in/public/ft_in.h
+$(O_DIR)/libft/ft_in/ft_in_refresh.o: libft/ft_in/ft_in_refresh.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h
+$(O_DIR)/libft/ft_in/ft_read.o: libft/ft_in/ft_read.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h
+$(O_DIR)/libft/ft_in/ft_readto.o: libft/ft_in/ft_readto.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h
+
 # module ft::list
 $(O_DIR)/libft/ft_list/ft_listadd.o: libft/ft_list/ft_listadd.c \
 	libft/ft_base/public/libft.h libft/ft_list/public/ft_list.h
@@ -447,12 +467,14 @@ $(O_DIR)/libft/ft_out/ft_write_nchar.o $(O_DIR)/libft/ft_out/out_formats.o: \
 # module ft::parser
 $(O_DIR)/srcs/parser/build_parser.o: srcs/parser/build_parser.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_hmap/public/ft_hmap.h libft/ft_regex/public/regex.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_hmap/public/ft_hmap.h \
+	libft/ft_in/public/ft_in.h libft/ft_regex/public/regex.h \
 	libft/ft_vector/public/ft_vector.h srcs/parser/public/parser.h \
 	srcs/parser/public/parser_def.h srcs/tokenizer/public/tokenizer.h
 $(O_DIR)/srcs/parser/exec_parser.o: srcs/parser/exec_parser.c \
 	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
-	libft/ft_bst/public/ft_bst.h libft/ft_regex/public/regex.h \
+	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_regex/public/regex.h \
 	libft/ft_vector/public/ft_vector.h srcs/parser/public/parser.h \
 	srcs/tokenizer/public/tokenizer.h
 
@@ -628,9 +650,11 @@ $(O_DIR)/libft/ft_term/term_out_flush.o: INCLUDE_FLAGS += -Ilibft/ft_term
 # module ft::tokenizer
 $(O_DIR)/srcs/tokenizer/ft_token_map.o: srcs/tokenizer/ft_token_map.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
 	srcs/tokenizer/public/tokenizer.h
 $(O_DIR)/srcs/tokenizer/ft_tokenize.o: srcs/tokenizer/ft_tokenize.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
 	srcs/tokenizer/public/tokenizer.h
 
 # module ft::vector
@@ -647,10 +671,10 @@ $(O_DIR)/libft/ft_vector/ft_vspan.o: libft/ft_vector/ft_vspan.c \
 $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
-	libft/ft_hmap/public/ft_hmap.h libft/ft_list/public/ft_list.h \
-	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
-	libft/ft_regex/public/regex.h libft/ft_term/public/term.h \
-	libft/ft_vector/public/ft_vector.h \
+	libft/ft_hmap/public/ft_hmap.h libft/ft_in/public/ft_in.h \
+	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
+	libft/ft_printf/public/ft_printf.h libft/ft_regex/public/regex.h \
+	libft/ft_term/public/term.h libft/ft_vector/public/ft_vector.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
 	srcs/parser/public/parser.h srcs/parser/public/parser_def.h \
 	srcs/spanlist/public/spanlist.h srcs/tokenizer/public/tokenizer.h
@@ -661,7 +685,9 @@ $(O_DIR)/_public/editor_bindings.h: srcs/editor/public/editor_bindings.h
 $(O_DIR)/_public/ft/ft_bst.h: libft/ft_bst/public/ft_bst.h
 $(O_DIR)/_public/ft/ft_colors.h: libft/ft_base/public/ft_colors.h
 $(O_DIR)/_public/ft/ft_dstr.h: libft/ft_dstr/public/ft_dstr.h
+$(O_DIR)/_public/ft/ft_file_in.h: libft/ft_in/public/ft_file_in.h
 $(O_DIR)/_public/ft/ft_hmap.h: libft/ft_hmap/public/ft_hmap.h
+$(O_DIR)/_public/ft/ft_in.h: libft/ft_in/public/ft_in.h
 $(O_DIR)/_public/ft/ft_list.h: libft/ft_list/public/ft_list.h
 $(O_DIR)/_public/ft/ft_out.h: libft/ft_out/public/ft_out.h
 $(O_DIR)/_public/ft/ft_printf.h: libft/ft_printf/public/ft_printf.h

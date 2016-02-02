@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/24 21:47:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/02 17:48:12 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ struct			s_parser_data
 };
 
 /*
-** Execute parser on 'line'
+** Execute parser on 'in'
 ** callbacks[0]:
 **  void (*)(void *env, t_parser_data *data, void const *parser_data)
 ** callbacks[1]:
@@ -64,7 +64,7 @@ struct			s_parser_data
 ** callbacks[2]:
 **  void (*)(void *env, t_parser_data *parent, t_sub token, void const *data)
 */
-void			exec_parser(t_sub line, t_parser const *parser,
+void			exec_parser(t_in *in, t_parser const *parser,
 					t_callback callbacks[3], uint32_t data_size);
 
 #endif
