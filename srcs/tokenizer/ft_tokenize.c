@@ -6,54 +6,81 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 17:15:24 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/19 01:15:16 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/02 17:45:35 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/tokenizer.h"
 
 static bool		find_max_t(t_token_def const *def, t_sub const *match,
-					t_token_def const **token)
+					t_tokenizer *t)
 {
-	if ((*token == NULL || (*token)->sub.length < def->sub.length)
-		&& ft_memcmp(match->str, def->sub.str, def->sub.length) == 0)
-		*token = def;
-	return (true);
-}
+	uint32_t const	to = t->end + def->sub.length;
+	uint32_t		i;
 
-static bool		tokenize_from_map(t_sub match, t_sub *token, void **data,
-					t_token_map const *token_map)
-{
-	t_token_def			*t;
-
-	t = NULL;
-	ft_bst_getall(&token_map->tokens, &match, &find_max_t, &t);
-	if (t == NULL)
-		return (false);
-	if (token->length > 0)
+	if (def->sub.length <= t->token.length)
 		return (true);
-	token->length = t->sub.length;
-	if (data != NULL)
-		*data = t->data;
+	i = t->end;
+	while (i < to)
+	{
+		if (i >= t->buff.length)
+		{
+			if (!IN_REFRESH(t->in))
+				return (true);
+			DSTR_APPEND(&t->buff, IN_READ(t->in));
+		}
+		if (t->buff.str[i] != def->sub.str[i - t->end])
+			return (true);
+		i++;
+	}
+	t->token.length = def->sub.length;
+	t->token_data = def->data;
 	return (true);
+	(void)match;
 }
 
-bool			ft_tokenize(t_sub line, t_sub *token, void **data,
-					t_token_map const *token_map)
+static uint32_t	clean_buff(t_tokenizer *t)
 {
-	char const *const	end = line.str + line.length;
-
-	token->str += token->length;
-	token->length = 0;
-	if (data != NULL)
-		*data = NULL;
-	while (token->str + token->length < end)
+	if (t->end >= t->buff.length)
 	{
-		if (BITARRAY_GET(token_map->token_starts, token->str[token->length])
-			&& tokenize_from_map(SUB(token->str + token->length,
-				end - token->str - token->length), token, data, token_map))
-			return (true);
-		token->length++;
+		t->buff.length = 0;
+		t->end = 0;
 	}
-	return (BOOL_OF(token->length > 0));
+	return (t->end);
+}
+
+bool			ft_tokenize(t_tokenizer *t)
+{
+	uint32_t const	start = clean_buff(t);
+	t_sub			match;
+
+	while (true)
+	{
+		if (t->end >= t->buff.length)
+		{
+			if (!IN_REFRESH(t->in))
+				break ;
+			DSTR_APPEND(&t->buff, IN_READ(t->in));
+		}
+		if (BITARRAY_GET(t->token_map->token_starts, t->buff.str[t->end]))
+		{
+			match = SUB(t->buff.str + t->end, 1);
+			t->token.length = 0;
+			ft_bst_getall(&t->token_map->tokens, &match, &find_max_t, t);
+			if (t->token.length > 0)
+			{
+				if (t->end > start)
+					break ;
+				t->token.str = t->buff.str + t->end;
+				t->end += t->token.length;
+				return (true);
+			}
+		}
+		t->end++;
+	}
+	if (start >= t->end)
+		return (false);
+	t->token = SUB(t->buff.str + start, t->end - start);
+	t->token_data = NULL;
+	return (true);
 }

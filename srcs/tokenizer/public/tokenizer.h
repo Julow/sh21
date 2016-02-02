@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/15 17:19:33 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/01/07 22:00:53 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/02 17:47:03 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,51 @@
 # define TOKENIZER_H
 
 # include "ft/ft_bst.h"
+# include "ft/ft_dstr.h"
+# include "ft/ft_in.h"
 # include "ft/libft.h"
 
 typedef struct s_token_def		t_token_def;
 typedef struct s_token_map		t_token_map;
+typedef struct s_tokenizer		t_tokenizer;
 
 /*
 ** ========================================================================== **
 ** Tokenizer
+*/
+
+struct			s_tokenizer
+{
+	t_in				*in;
+	t_token_map const	*token_map;
+	t_dstr				buff;
+	uint32_t			end;
+	t_sub				token;
+	void				*token_data;
+};
+
+/*
+** TOKENIZER(IN, TOKEN_MAP)		Init a tokenizer
+** D_TOKENIZER(T)				Destroy a tokenizer
+** 									(Do not destroy 'in' and 'token_map')
+*/
+# define TOKENIZER(IN,MAP)	((t_tokenizer){(IN),(MAP),DSTR0(),0,SUB0(),NULL})
+# define D_TOKENIZER(T)		(ft_dstrclear(&((T).buff)))
+
+/*
+** Read from 'in' and found tokens of 'map'
+** 't' have to be initialized with TOKENIZER()
+** 't->token' is a sub string of the token
+** 't->token_data' is the token's data (or NULL if it's an unmatched token)
+** It's safe to set 't->in' and 't->token_map' between 2 calls
+*/
+bool			ft_tokenize(t_tokenizer *t);
+
+/*
+** ========================================================================== **
+** Token map
+** -
+** Used to store 
 */
 
 struct			s_token_def
@@ -39,29 +76,18 @@ struct			s_token_map
 /*
 ** Init a token map
 */
-# define TOKEN_MAP()	((t_token_map){BST(t_token_def, &token_map_cmp), {}})
-
-/*
-** The token_map is a map of t_sub * t_token_def
-** 'token' should be initialized before the first run with:
-** 		SUB(line.str, 0)
-** 'data' can be NULL
-** '*data' is set to the corresponding token's data
-** 	or NULL if it's a unmatched token
-*/
-bool		ft_tokenize(t_sub line, t_sub *token, void **data,
-					t_token_map const *token_map);
+# define TOKEN_MAP()   ((t_token_map){BST(t_token_def, &token_map_cmp), {}})
 
 /*
 ** Add a token to a token_map
 ** token->sub data is copied
 */
-void		ft_token_map(t_token_map *map, t_token_def const *token);
+void			ft_token_map(t_token_map *map, t_token_def const *token);
 
 /*
 ** -
 */
 
-int			token_map_cmp(t_token_def const *a, t_sub const *b);
+int				token_map_cmp(t_token_def const *a, t_sub const *b);
 
 #endif
