@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/03 17:59:04 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 20:11:39 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include "ft/tokenizer.h"
 
 #include "editor.h"
+#include "syntax_color_loader.h"
 
 #include <termios.h>
 #include <unistd.h>
@@ -29,11 +30,12 @@
 #include <sys/select.h>
 
 /*
-** TODO: multi cursor
-** TODO: sequenced binding (like ctrl+K,ctrl+C)
-** TODO: next matching binding on binding returning false
-** TODO: undo/redo history
-** TODO: signals
+** TODO: parser: multi inherit
+** TODO: parser: .tail=true to change parser without recursion
+** TODO: editor: multi cursor
+** TODO: editor: binding priority
+** TODO: editor: default binding
+** TODO: editor: undo/redo history
 */
 
 #define WARNING_MSG(MSG)	(C_YELLOW "Warning" C_RESET ": " MSG "%n")
@@ -53,7 +55,6 @@ struct			s_main
 	t_term				*term;
 	t_editor			*editor;
 	uint32_t			flags;
-	t_hmap				*parsers;
 	t_parser			*curr_parser;
 };
 
@@ -222,8 +223,10 @@ static struct {
 	SCOPE("number", (S_YELLOW, 0, 0)),
 	SCOPE("var", (S_CYAN, 0, 0)),
 	SCOPE("comment", (0, S_BLUE, 0)),
+	SCOPE("identifier.key", (S_LIGHT(S_CYAN), 0, 0)),
+	SCOPE("identifier", (S_GREEN, 0, 0)),
 	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
-	SCOPE("error", (S_RED, 0, 0)),
+	SCOPE("error", (0, S_RED, 0)),
 };
 
 static void		on_parser_start(void *env, t_parser_data *data, void const *p)
@@ -317,118 +320,9 @@ static bool		init_main(t_main *main)
 	return (true);
 }
 
-t_parser_def const		g_parsers[] = {
-	PARSER_DEF("sh", "sh",
-		.tokens = PARSER_DEF_T(
-			PARSER_T("\\\"", "escaped.quote"),
-			PARSER_T("\\#", "escaped.comment"),
-			PARSER_T("\\\'", "escaped.quote.simple"),
-			PARSER_T("\\$", "escaped.dollar"),
-			PARSER_T("(", "start", .parser="sh-sub"),
-			PARSER_T("$(", "start", .parser="sh-sub"),
-			PARSER_T("`", "start", .parser="sh-backquote"),
-			PARSER_T("$((", "start", .parser="sh-math"),
-			PARSER_T("${", "start", .parser="sh-expr"),
-			PARSER_T(";", "op.semicolon"),
-			PARSER_T("\"", "start", .parser="sh-string"),
-			PARSER_T("'", "start", .parser="sh-string-simple"),
-			PARSER_T("#", "start", .parser="sh-comment"),
-			PARSER_T("&&", "op.and"),
-			PARSER_T("&", "op.async"),
-			PARSER_T("|", "op.pipe"),
-			PARSER_T("||", "op.or"),
-			PARSER_T("<", "redir.left"),
-			PARSER_T("<<", "redir.heredoc"),
-			PARSER_T(">", "redir.right"),
-			PARSER_T(">>", "redir.right.double"),
-			PARSER_T(" ", "space"),
-			PARSER_T("\t", "space"),
-			PARSER_T("\n", "space"),
-		),
-		.match = PARSER_DEF_T(
-			PARSER_T("$?[a-zA-Z_]?*w", "var"),
-			PARSER_T("$?.", "var"),
-		),
-	),
-	PARSER_DEF("sh-sub", "sub",
-		.inherit = SUBC("sh"),
-		.tokens = PARSER_DEF_T(
-			PARSER_T(")", "end", .end=true),
-		),
-	),
-	PARSER_DEF("sh-backquote", "backquote",
-		.inherit = SUBC("sh"),
-		.tokens = PARSER_DEF_T(
-			PARSER_T("`", "end", .end=true),
-		),
-	),
-	PARSER_DEF("sh-string", "string",
-		.tokens = PARSER_DEF_T(
-			PARSER_T("\"", "end", .end=true),
-			PARSER_T("\\\"", "escaped.quote"),
-			PARSER_T("\\n", "escaped.char"),
-			PARSER_T("\\e", "escaped.char"),
-			PARSER_T("\\t", "escaped.char"),
-			PARSER_T("`", "start", .parser="sh-backquote"),
-			PARSER_T("$(", "start", .parser="sh-sub"),
-			PARSER_T("$((", "start", .parser="sh-math"),
-		),
-		.match = PARSER_DEF_T(
-			PARSER_T("$?[a-zA-Z_]?*w", "var"),
-		),
-	),
-	PARSER_DEF("sh-string-simple", "string.simple",
-		.tokens = PARSER_DEF_T(PARSER_T("'", "end", .end=true)),
-	),
-	PARSER_DEF("sh-comment", "comment",
-		.tokens = PARSER_DEF_T(PARSER_T("\n", "endl", .end=true)),
-	),
-	PARSER_DEF("sh-expr", "expr",
-		.tokens = PARSER_DEF_T(
-			PARSER_T("}", "end", .end=true),
-			PARSER_T("%", "op"),
-			PARSER_T("%%", "op"),
-			PARSER_T("#", "op"),
-		),
-	),
-	PARSER_DEF("sh-math", "math",
-		.inherit = SUBC("math"),
-		.tokens = PARSER_DEF_T(
-			PARSER_T(")", "error"),
-			PARSER_T("))", "end", .end=true),
-		),
-	),
-	PARSER_DEF("math", "math",
-		.tokens = PARSER_DEF_T(
-			PARSER_T("(", "brace", .parser="math-brace"),
-			PARSER_T("+", "op.plus"),
-			PARSER_T("-", "op.minus"),
-			PARSER_T("*", "op.mult"),
-			PARSER_T("/", "op.div"),
-			PARSER_T("%", "op.mod"),
-			PARSER_T(" ", "space"),
-			PARSER_T("\t", "space"),
-			PARSER_T("\n", "space"),
-		),
-		.match = PARSER_DEF_T(
-			PARSER_T("$?[a-zA-Z_]?*w", "var"),
-			PARSER_T("?b?+d?\?(.?*d?\?'f')?b", "number"),
-		),
-	),
-	PARSER_DEF("math-brace", "math",
-		.inherit = SUBC("math"),
-		.tokens = PARSER_DEF_T(
-			PARSER_T(")", "close", .end=true),
-		),
-	),
-};
-
 static bool		init_parsers(t_main *main)
 {
-	main->parsers = ft_hmapnew(10, &ft_djb2);
-	if (!build_parser(main->parsers, &VECTORC(g_parsers)))
-		return (false);
-	main->curr_parser = ft_hmapget(main->parsers, SUBC("sh")).value;
+	main->curr_parser = load_syntax_color(SUBC("xml"));
 	if (main->curr_parser == NULL)
 		return (false);
 	return (true);

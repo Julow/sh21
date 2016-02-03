@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/19 16:56:50 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 18:32:41 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ static bool		inherit_tokens(t_token_def const *token, t_parser *parser)
 
 	if (ft_bst_getall(&parser->token_map.tokens, &token->sub,
 			&has_dupplicated_token, NULL))
-		add_token(parser, token->sub, p_token->data, p_token->parser, false);
+		add_token(parser, token->sub, p_token->data, p_token->parser, p_token->end);
 	return (true);
 }
 

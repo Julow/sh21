@@ -1,4 +1,5 @@
 main module sh21:
+	require syntax-color-loader
 	require ft::term
 	require ft::spanlist
 	require ft::hmap
