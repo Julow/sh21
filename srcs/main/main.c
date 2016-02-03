@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/02 22:46:14 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/03 14:41:53 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,11 +219,12 @@ static struct {
 } const			g_colors[] = {
 	SCOPE("string.simple", (S_YELLOW, 0, 0)),
 	SCOPE("string", (S_LIGHT(S_YELLOW), 0, 0)),
-	SCOPE("escaped", (S_RED, 0, 0)),
+	SCOPE("escaped", (S_LIGHT(S_RED), 0, 0)),
 	SCOPE("number", (S_YELLOW, 0, 0)),
-	SCOPE("var", (S_RED, 0, 0)),
+	SCOPE("var", (S_CYAN, 0, 0)),
 	SCOPE("comment", (0, S_BLUE, 0)),
 	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
+	SCOPE("error", (S_RED, 0, 0)),
 };
 
 static void		on_parser_start(void *env, t_parser_data *data, void const *p)
@@ -291,7 +292,9 @@ static void		refresh_syntax(t_editor *editor, t_parser const *parser)
 
 static bool		binding_newline(t_editor *editor, uint32_t flags)
 {
-	editor_put(editor, SUBC("\n"));
+	editor_write(editor, VEC2U(editor->cursor, editor->cursor + editor->sel),
+		SUBC("\n"));
+	editor_set_cursor(editor, editor->cursor + 1, 0);
 	(void)flags;
 	return (true);
 }
@@ -392,6 +395,7 @@ t_parser_def const		g_parsers[] = {
 	PARSER_DEF("sh-math", "math",
 		.inherit = SUBC("math"),
 		.tokens = PARSER_DEF_T(
+			PARSER_T(")", "error"),
 			PARSER_T("))", "end", .end=true),
 		),
 	),
@@ -436,15 +440,15 @@ static bool		init_parsers(t_main *main)
 ** Loop
 */
 
-static void		print_line_stops(t_out *out, t_editor const *editor)
-{
-	uint32_t const *const	data = editor->line_stops.data;
-	uint32_t				i;
-
-	i = 0;
-	while (i < editor->line_stops.length)
-		ft_fprintf(out, "LINE %u%n", data[i++]);
-}
+/*
+lol;drxd
+truclol&&
+"sdfsadf"
+\"looooool
+$SDFOIWEF:&&
+|||$((4+(8 - 1 * 2 / 7)))
+lollolol
+*/
 
 static void		interactive_loop(t_main *main)
 {
@@ -463,12 +467,12 @@ static void		interactive_loop(t_main *main)
 			main->flags |= FLAG_EXIT; // TMP
 		cursor = editor_rowcol(main->editor, main->editor->cursor);
 		ft_fprintf(&main->term->out, "CURSOR %u, %u%n", cursor.x, cursor.y);
-		print_line_stops(&main->term->out, main->editor);
 		ft_flush(&main->term->out);
 		// cursor.x += main->term->cursor_x;
 		// cursor.y += main->term->cursor_y;
 		refresh_syntax(main->editor, main->curr_parser);
 		editor_out(main->editor, &main->term->out);
+		ft_fprintf(&main->term->out, "%n[[ lines: %u; chars: %u ]]", main->editor->line_stops.length, main->editor->text.length);
 		ft_flush(&main->term->out);
 		ft_tcursor(main->term, cursor.x, cursor.y);
 	}

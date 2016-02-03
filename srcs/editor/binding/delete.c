@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/12 22:00:44 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/26 19:45:10 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 14:39:44 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ bool			editor_bind_delete(t_editor *editor, uint32_t flags)
 		ft_memcpy(ENDOF(save),
 			editor->text.str + editor->cursor + MIN(move, 0), ABS(move));
 	}
-	ft_dstrspan(&editor->text, editor->cursor, editor->cursor + move, 0);
+	editor_write(editor, VEC2U(editor->cursor, editor->cursor + move), SUB0());
 	editor_set_cursor(editor,
 		((move < 0) ? editor->cursor + move : editor->cursor), 0);
 	return (true);

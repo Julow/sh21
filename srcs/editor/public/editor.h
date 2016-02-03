@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/01 23:26:08 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/03 14:35:35 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ typedef struct s_style			t_style;
 /*
 ** ========================================================================== **
 ** Editor
+** -
+** TODO: per modifier default binding
 */
 
 struct		s_editor
@@ -82,10 +84,16 @@ t_vec2u		editor_rowcol(t_editor const *editor, uint32_t index);
 */
 uint32_t	editor_index(t_editor const *editor, t_vec2u rc);
 
+// /*
+// ** Put text
+// ** (handle selection)
+// */
+// void		editor_put(t_editor *editor, t_sub str);
+
 /*
-** Put text (overriding the selection)
+** Override a span of text
 */
-void		editor_put(t_editor *editor, t_sub str);
+void		editor_write(t_editor *editor, t_vec2u span, t_sub str);
 
 /*
 ** ========================================================================== **

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/15 13:06:01 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/01 23:42:28 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/03 14:41:11 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,9 @@ bool		editor_bind_paste(t_editor *editor, uint32_t flags)
 
 	if (paste == NULL)
 		return (false);
-	editor_put(editor, *paste);
+	editor_write(editor, VEC2U(editor->cursor, editor->cursor + editor->sel),
+		*paste);
+	editor_set_cursor(editor, editor->cursor + paste->length, 0);
 	if (flags & PASTE_CONSUME)
 		ft_listremove(&editor->clipboard, editor->clipboard.first);
 	return (true);
