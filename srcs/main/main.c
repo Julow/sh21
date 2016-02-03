@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/03 14:41:53 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 17:59:04 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@
 #include <sys/select.h>
 
 /*
-** TODO: multi line (ctrl+n)
 ** TODO: multi cursor
 ** TODO: sequenced binding (like ctrl+K,ctrl+C)
 ** TODO: next matching binding on binding returning false
@@ -458,6 +457,18 @@ static void		interactive_loop(t_main *main)
 	ft_trestore(main->term, true);
 	while (!(main->flags & FLAG_EXIT))
 	{
+		cursor = editor_rowcol(main->editor, main->editor->cursor);
+		// cursor = VEC2U1(0);
+		refresh_syntax(main->editor, main->curr_parser);
+		ft_fprintf(&main->term->out, "[[ lines: %u; chars: %u; cursor: %u,%u (%u); spans: %u ]]%n",
+			main->editor->line_stops.length, main->editor->text.length,
+			cursor.x, cursor.y, main->editor->cursor, main->editor->spans.spans.length);
+		ft_flush(&main->term->out);
+		cursor.x += main->term->cursor_x;
+		cursor.y += main->term->cursor_y;
+		editor_out(main->editor, &main->term->out);
+		ft_flush(&main->term->out);
+		ft_tcursor(main->term, cursor.x, cursor.y);
 		key = ft_getkey(0);
 		ft_tclear(main->term);
 		if (!editor_key(main->editor, key))
@@ -465,16 +476,6 @@ static void		interactive_loop(t_main *main)
 		put_key(&main->term->out, key); // TMP
 		if (key.c == 'd' && key.mods == KEY_MOD_CTRL) // TMP
 			main->flags |= FLAG_EXIT; // TMP
-		cursor = editor_rowcol(main->editor, main->editor->cursor);
-		ft_fprintf(&main->term->out, "CURSOR %u, %u%n", cursor.x, cursor.y);
-		ft_flush(&main->term->out);
-		// cursor.x += main->term->cursor_x;
-		// cursor.y += main->term->cursor_y;
-		refresh_syntax(main->editor, main->curr_parser);
-		editor_out(main->editor, &main->term->out);
-		ft_fprintf(&main->term->out, "%n[[ lines: %u; chars: %u ]]", main->editor->line_stops.length, main->editor->text.length);
-		ft_flush(&main->term->out);
-		ft_tcursor(main->term, cursor.x, cursor.y);
 	}
 	ft_trestore(main->term, false);
 }

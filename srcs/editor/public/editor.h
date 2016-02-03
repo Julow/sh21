@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/03 14:35:35 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 14:44:33 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,12 +83,6 @@ t_vec2u		editor_rowcol(t_editor const *editor, uint32_t index);
 ** Return the text index for the row/col rc
 */
 uint32_t	editor_index(t_editor const *editor, t_vec2u rc);
-
-// /*
-// ** Put text
-// ** (handle selection)
-// */
-// void		editor_put(t_editor *editor, t_sub str);
 
 /*
 ** Override a span of text

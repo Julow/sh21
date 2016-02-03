@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/03 14:34:17 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/03 14:38:22 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/03 17:58:02 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,46 +16,25 @@
 
 static void		editor_erase(t_editor *editor, t_vec2u span)
 {
-	t_vec2u			begin;
+	t_vec2u const	begin = editor_rowcol(editor, span.x);
 	t_vec2u const	end = editor_rowcol(editor, span.y);
 
 	ft_dstrspan(&editor->text, span.x, span.y, 0);
-	begin = editor_rowcol(editor, span.x);
-	if (begin.y == end.y)
+	ft_dprintf(2, "ERASE %u,%u -> %u,%u%n", begin.x, begin.y, end.x, end.y);
+	if (begin.y >= end.y)
 		*EDITOR_LINE(*editor, begin.y) -= end.x - begin.x;
 	else
 	{
-		*EDITOR_LINE(*editor, begin.y) = begin.x + *EDITOR_LINE(*editor, end.y) - end.x;
-		ft_vspan(&editor->line_stops, VEC2U(begin.y + 1, end.y + 1), NULL, 0); // TODO: investigate
+		*EDITOR_LINE(*editor, begin.y) = begin.x + (*EDITOR_LINE(*editor, end.y) - end.x);
+		ft_dprintf(2, "REMOVE LINE %u->%u%n", begin.y + 1, end.y + 1);
+		ft_bzero(ft_vspan(&editor->line_stops, N_VEC2U(begin.y + 1, end.y + 1), NULL, 0),
+			S(uint32_t, end.y - begin.y));
 	}
-}
-
-static uint32_t	*line_stops(t_editor *editor, uint32_t index, t_sub str)
-{
-	uint32_t		line_count;
-	t_vec2u			pos;
-	uint32_t		i;
-	uint32_t		*stops;
-
-	i = 0;
-	line_count = 0;
-	while (i < str.length)
-		if (str.str[i++] == '\n')
-			line_count++;
-	pos = editor_rowcol(editor, index - 1); // TODO: ??
-	if (line_count == 0)
-		return (VECTOR_GET(editor->line_stops, pos.y));
-	stops = ft_vspan(&editor->line_stops, VEC2U1(pos.y), NULL, line_count);
-	stops[line_count] = stops[0] - pos.x;
-	stops[0] = pos.x;
-	while (--line_count > 0)
-		stops[line_count] = 0;
-	return (stops);
 }
 
 void			editor_write(t_editor *editor, t_vec2u span, t_sub str)
 {
-	uint32_t		*stops;
+	uint32_t		y;
 	uint32_t		i;
 	uint32_t		tmp;
 
@@ -63,15 +42,20 @@ void			editor_write(t_editor *editor, t_vec2u span, t_sub str)
 		editor_erase(editor, (span = N_VEC2U(span.x, span.y)));
 	ft_memcpy(ft_dstrspan(&editor->text, span.x, span.x, str.length),
 		str.str, str.length);
-	stops = line_stops(editor, span.x, str);
+	y = editor_rowcol(editor, span.x).y;
 	i = 0;
 	tmp = 0;
 	while (i < str.length)
-		if (str.str[i++] == '\n')
+	{
+		if (str.str[i] == '\n')
 		{
-			(*stops) += i - tmp;
-			stops++;
+			*EDITOR_LINE(*editor, y) += i - tmp;
+			y++;
+			*(uint32_t*)ft_vspan(&editor->line_stops, VEC2U1(y), NULL, 1) = 0;
 			tmp = i;
 		}
-	(*stops) += i - tmp;
+		i++;
+	}
+	if (i > tmp)
+		*EDITOR_LINE(*editor, y) += i - tmp;
 }
