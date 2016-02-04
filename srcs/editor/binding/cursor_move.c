@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/12 22:25:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/04 12:20:30 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 16:43:28 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ bool			editor_bind_cursor_move(void *data, t_editor *editor)
 
 	if (editor->sel != 0 && !(flags & CURSOR_MOVE_SEL))
 	{
-		if (flags & CURSOR_MOVE_BOUND)
+		if (flags & (CURSOR_MOVE_BOUND | CURSOR_MOVE_LINEBOUND))
 			editor_set_cursor(editor, editor->cursor + move, 0);
 		else if (INT_NORM(editor->sel) == INT_NORM(move))
 			editor_set_cursor(editor, editor->cursor + editor->sel, 0);

@@ -16,9 +16,10 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/delete.o \
 	$(O_DIR)/srcs/editor/binding/extra_mod.o \
 	$(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding/putkey.o \
-	$(O_DIR)/srcs/editor/binding_utils.o $(O_DIR)/srcs/editor/editor_bind.o \
-	$(O_DIR)/srcs/editor/editor_init.o $(O_DIR)/srcs/editor/editor_key.o \
-	$(O_DIR)/srcs/editor/editor_out.o $(O_DIR)/srcs/editor/editor_set_cursor.o \
+	$(O_DIR)/srcs/editor/binding/write.o $(O_DIR)/srcs/editor/binding_utils.o \
+	$(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
+	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
+	$(O_DIR)/srcs/editor/editor_set_cursor.o \
 	$(O_DIR)/srcs/editor/editor_write.o $(O_DIR)/srcs/editor/text_index.o \
 	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_base/ft_abs.o \
 	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
@@ -156,6 +157,12 @@ $(O_DIR)/srcs/editor/binding/putkey.o: srcs/editor/binding/putkey.c \
 	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
 	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
 	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
+$(O_DIR)/srcs/editor/binding/write.o: srcs/editor/binding/write.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
+	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
+	libft/ft_vector/public/ft_vector.h srcs/editor/editor_internal.h \
+	srcs/editor/public/editor.h srcs/spanlist/public/spanlist.h
 $(O_DIR)/srcs/editor/binding_utils.o: srcs/editor/binding_utils.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
@@ -217,11 +224,12 @@ $(O_DIR)/srcs/editor/word_range.o: srcs/editor/word_range.c \
 $(O_DIR)/srcs/editor/binding/cursor_move.o \
 $(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/srcs/editor/binding/extra_mod.o \
 $(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/srcs/editor/binding/putkey.o \
-$(O_DIR)/srcs/editor/binding_utils.o $(O_DIR)/srcs/editor/editor_bind.o \
-$(O_DIR)/srcs/editor/editor_init.o $(O_DIR)/srcs/editor/editor_key.o \
-$(O_DIR)/srcs/editor/editor_out.o $(O_DIR)/srcs/editor/editor_set_cursor.o \
-$(O_DIR)/srcs/editor/editor_write.o $(O_DIR)/srcs/editor/text_index.o \
-$(O_DIR)/srcs/editor/word_range.o: INCLUDE_FLAGS += -Isrcs/editor
+$(O_DIR)/srcs/editor/binding/write.o $(O_DIR)/srcs/editor/binding_utils.o \
+$(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/srcs/editor/editor_init.o \
+$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
+$(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/editor_write.o \
+$(O_DIR)/srcs/editor/text_index.o $(O_DIR)/srcs/editor/word_range.o: \
+	INCLUDE_FLAGS += -Isrcs/editor
 
 # module ft::base
 $(O_DIR)/libft/ft_base/ft_abs.o: libft/ft_base/ft_abs.c \

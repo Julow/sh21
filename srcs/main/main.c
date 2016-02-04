@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/04 12:29:00 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 16:37:01 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@
 ** TODO: parser: multi inherit
 ** TODO: parser: .tail=true to change parser without recursion
 ** TODO: editor: multi cursor
-** TODO: editor: binding priority
-** TODO: editor: default binding
 ** TODO: editor: undo/redo history
 */
 
@@ -105,7 +103,6 @@ static void		put_key(t_out *out, t_key key)
 {
 	char const		*key_name;
 
-	ft_putsub(out, SUBC("Key: "));
 	if (key.mods & MOD_CTRL)
 		ft_putsub(out, SUBC("ctrl+"));
 	if (key.mods & MOD_ALT)
@@ -118,7 +115,6 @@ static void		put_key(t_out *out, t_key key)
 		ft_fprintf(out, "%s", key_name);
 	else
 		ft_fprintf(out, "0x%0.2x", (uint32_t)key.c);
-	ft_putendl(out);
 }
 
 /*
@@ -292,15 +288,6 @@ static void		refresh_syntax(t_editor *editor, t_parser const *parser)
 ** Init
 */
 
-static bool		binding_newline(t_editor *editor, uint32_t flags)
-{
-	editor_write(editor, VEC2U(editor->cursor, editor->cursor + editor->sel),
-		SUBC("\n"));
-	editor_set_cursor(editor, editor->cursor + 1, 0);
-	(void)flags;
-	return (true);
-}
-
 static bool		init_main(t_main *main)
 {
 	ft_bzero(main, sizeof(t_main));
@@ -322,7 +309,7 @@ static bool		init_main(t_main *main)
 
 static bool		init_parsers(t_main *main)
 {
-	main->curr_parser = load_syntax_color(SUBC("xml"));
+	main->curr_parser = load_syntax_color(SUBC("sh"));
 	if (main->curr_parser == NULL)
 		return (false);
 	return (true);
@@ -346,17 +333,28 @@ lollolol
 static void		interactive_loop(t_main *main)
 {
 	t_key			key;
+	int				key_used;
 	t_vec2u			cursor;
 
+	key_used = -1;
 	ft_trestore(main->term, true);
 	while (!(main->flags & FLAG_EXIT))
 	{
 		cursor = editor_rowcol(main->editor, main->editor->cursor);
-		// cursor = VEC2U1(0);
 		refresh_syntax(main->editor, main->curr_parser);
-		ft_fprintf(&main->term->out, "[[ lines: %u; chars: %u; cursor: %u,%u (%u); spans: %u ]]%n",
+		ft_fprintf(&main->term->out, "[[ ");
+		if (key_used >= 0)
+		{
+			ft_fprintf(&main->term->out, key_used ? C_GREEN : C_RED);
+			put_key(&main->term->out, key);
+			ft_putsub(&main->term->out, SUBC(C_RESET " "));
+		}
+
+		ft_fprintf(&main->term->out, "lines: %u; chars: %u; cursor: %u,%u (%u); spans: %u; line_len: %u ]]%n",
 			main->editor->line_stops.length, main->editor->text.length,
-			cursor.x, cursor.y, main->editor->cursor, main->editor->spans.spans.length);
+			cursor.x, cursor.y, main->editor->cursor, main->editor->spans.spans.length,
+			EDITOR_LINE(main->editor, cursor.y));
+
 		ft_flush(&main->term->out);
 		cursor.x += main->term->cursor_x;
 		cursor.y += main->term->cursor_y;
@@ -365,11 +363,10 @@ static void		interactive_loop(t_main *main)
 		ft_tcursor(main->term, cursor.x, cursor.y);
 		key = ft_getkey(0);
 		ft_tclear(main->term);
-		if (!editor_key(main->editor, key))
-			ft_fprintf(&main->term->out, "(Unused key)%n"); // TMP
-		put_key(&main->term->out, key); // TMP
+		key_used = editor_key(main->editor, key);
 		if (key.c == 'd' && key.mods == MOD_CTRL) // TMP
 			main->flags |= FLAG_EXIT; // TMP
+
 	}
 	ft_trestore(main->term, false);
 }

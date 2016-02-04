@@ -1,34 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   editor_internal.h                                  :+:      :+:    :+:   */
+/*   write.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/12/11 16:36:38 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/04 14:33:13 by jaguillo         ###   ########.fr       */
+/*   Created: 2016/02/04 13:52:07 by jaguillo          #+#    #+#             */
+/*   Updated: 2016/02/04 14:00:02 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EDITOR_INTERNAL_H
-# define EDITOR_INTERNAL_H
+#include "editor_internal.h"
 
-# include "editor.h"
-
-typedef struct s_binding		t_binding;
-
-struct 		s_binding
+bool		editor_bind_write(char const *str, t_editor *editor)
 {
-	t_key		key;
-	t_callback	callback;
-	int32_t		priority;
-	t_binding	*next;
-};
+	t_sub const	sub = ft_sub(str, 0, -1);
 
-/*
-** Return the offset to move respecting
-** CURSOR_MOVE_LEFT, CURSOR_MOVE_WORD and CURSOR_MOVE_SUBWORD
-*/
-int32_t			cursor_move(t_editor *editor, uint32_t flags);
-
-#endif
+	editor_write(editor,
+		VEC2U(editor->cursor, editor->cursor + editor->sel), sub);
+	editor_set_cursor(editor, editor->cursor + sub.length, 0);
+	return (true);
+}

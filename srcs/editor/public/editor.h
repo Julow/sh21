@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/04 12:09:48 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 14:33:59 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,6 @@ typedef struct s_style			t_style;
 /*
 ** ========================================================================== **
 ** Editor
-** -
-** TODO: per modifier default binding
 */
 
 struct		s_editor
@@ -93,20 +91,32 @@ t_vec2u		editor_rowcol(t_editor const *editor, uint32_t index);
 uint32_t	editor_index(t_editor const *editor, t_vec2u rc);
 
 /*
+** ========================================================================== **
+** Editor actions
+*/
+
+/*
+** Return the length of the line Y
+*/
+# define EDITOR_LINE(E, Y)	(((uint32_t const*)((E)->line_stops.data))[(Y)])
+
+/*
 ** Override a span of text
 */
 void		editor_write(t_editor *editor, t_vec2u span, t_sub str);
 
 /*
-** ========================================================================== **
-** Editor actions
+** Set cursor
 */
-
-# define EDITOR_SEL_PRIORITY		128
-
 void		editor_set_cursor(t_editor *editor, uint32_t cursor, int32_t sel);
 
+/*
+** -
+*/
+
 t_vec2u		ft_word_range(t_sub sub, uint32_t at, bool subword);
+
+# define EDITOR_SEL_PRIORITY		128
 
 /*
 ** ========================================================================== **
