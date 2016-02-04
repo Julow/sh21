@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:35:25 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/03 18:00:17 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 12:48:05 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,47 +50,54 @@
 // bind alt+shift+left		cursor_move sel left subword
 // bind alt+shift+right		cursor_move sel right subword
 
+#define BIND(K,MOD,F,DATA,P)	{KEY(K,MOD),CALLBACK(F,DATA),(P),NULL}
+
 static t_binding const	g_bindings[] = {
-	{KEY(KEY_BACKSPACE, 0), &editor_bind_delete, DELETE_LEFT},
-	{KEY(KEY_DELETE, 0), &editor_bind_delete, 0},
-	{KEY(KEY_BACKSPACE, KEY_MOD_CTRL), &editor_bind_delete, DELETE_WORD | DELETE_LEFT},
-	{KEY(KEY_DELETE, KEY_MOD_CTRL), &editor_bind_delete, DELETE_WORD},
-	{KEY(KEY_BACKSPACE, KEY_MOD_ALT), &editor_bind_delete, DELETE_SUBWORD | DELETE_LEFT},
-	{KEY(KEY_DELETE, KEY_MOD_ALT), &editor_bind_delete, DELETE_SUBWORD},
 
-	{KEY(KEY_HOME, 0), &editor_bind_cursor_move, CURSOR_MOVE_BOUND | CURSOR_MOVE_LEFT},
-	{KEY(KEY_END, 0), &editor_bind_cursor_move, CURSOR_MOVE_BOUND},
-	{KEY('a', KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_BOUND | CURSOR_MOVE_LEFT},
-	{KEY('e', KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_BOUND},
+	BIND(-1, 0,								editor_bind_putkey,			NULL,															0),
+	BIND(-1, MOD_SHIFT,						editor_bind_putkey,			NULL,															0),
 
-	{KEY('w', KEY_MOD_CTRL), &editor_bind_delete, DELETE_LEFT | DELETE_WORD | DELETE_CLIPBOARD},
-	{KEY('k', KEY_MOD_CTRL), &editor_bind_delete, DELETE_BOUND | DELETE_CLIPBOARD},
-	{KEY('o', KEY_MOD_CTRL), &editor_bind_delete, DELETE_LEFT | DELETE_BOUND | DELETE_CLIPBOARD},
+	BIND(KEY_BACKSPACE, 0,					editor_bind_delete,			V(DELETE_LEFT),													0),
+	BIND(KEY_DELETE, 0,						editor_bind_delete,			V(0),															0),
+	BIND(KEY_BACKSPACE, MOD_CTRL,			editor_bind_delete,			V(DELETE_WORD | DELETE_LEFT),									0),
+	BIND(KEY_DELETE, MOD_CTRL,				editor_bind_delete,			V(DELETE_WORD),													0),
+	BIND(KEY_BACKSPACE, MOD_ALT,			editor_bind_delete,			V(DELETE_SUBWORD | DELETE_LEFT),								0),
+	BIND(KEY_DELETE, MOD_ALT,				editor_bind_delete,			V(DELETE_SUBWORD),												0),
 
-	{KEY('y', KEY_MOD_CTRL), &editor_bind_paste, 0},
-	{KEY('v', KEY_MOD_CTRL), &editor_bind_paste, PASTE_CONSUME},
+	BIND(KEY_HOME, 0,						editor_bind_cursor_move,	V(CURSOR_MOVE_BOUND | CURSOR_MOVE_LEFT),						0),
+	BIND(KEY_END, 0,						editor_bind_cursor_move,	V(CURSOR_MOVE_BOUND),											0),
+	BIND('a', MOD_CTRL,						editor_bind_cursor_move,	V(CURSOR_MOVE_BOUND | CURSOR_MOVE_LEFT),						0),
+	BIND('e', MOD_CTRL,						editor_bind_cursor_move,	V(CURSOR_MOVE_BOUND),											0),
 
-	{KEY('s', KEY_MOD_CTRL), &editor_bind_extra_mod, KEY_MOD_SHIFT},
+	BIND('w', MOD_CTRL,						editor_bind_delete,			V(DELETE_LEFT | DELETE_WORD | DELETE_CLIPBOARD),				0),
+	BIND('k', MOD_CTRL,						editor_bind_delete,			V(DELETE_BOUND | DELETE_CLIPBOARD),								0),
+	BIND('o', MOD_CTRL,						editor_bind_delete,			V(DELETE_LEFT | DELETE_BOUND | DELETE_CLIPBOARD),				0),
 
-	{KEY(KEY_LEFT, 0), &editor_bind_cursor_move, CURSOR_MOVE_LEFT},
-	{KEY(KEY_RIGHT, 0), &editor_bind_cursor_move, 0},
-	{KEY(KEY_LEFT, KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL},
-	{KEY(KEY_RIGHT, KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL},
-	{KEY(KEY_LEFT, KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_WORD},
-	{KEY(KEY_RIGHT, KEY_MOD_CTRL), &editor_bind_cursor_move, CURSOR_MOVE_WORD},
-	{KEY(KEY_LEFT, KEY_MOD_CTRL | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_WORD},
-	{KEY(KEY_RIGHT, KEY_MOD_CTRL | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL | CURSOR_MOVE_WORD},
-	{KEY(KEY_LEFT, KEY_MOD_ALT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SUBWORD},
-	{KEY(KEY_RIGHT, KEY_MOD_ALT), &editor_bind_cursor_move, CURSOR_MOVE_SUBWORD},
-	{KEY(KEY_LEFT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
-	{KEY(KEY_RIGHT, KEY_MOD_ALT | KEY_MOD_SHIFT), &editor_bind_cursor_move, CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD},
+	BIND('y', MOD_CTRL,						editor_bind_paste,			V(0),															0),
+	BIND('v', MOD_CTRL,						editor_bind_paste,			V(PASTE_CONSUME),												0),
+
+	BIND('s', MOD_CTRL,						editor_bind_extra_mod,		V(MOD_SHIFT),												0),
+
+	BIND(KEY_LEFT, 0,						editor_bind_cursor_move,	V(CURSOR_MOVE_LEFT),											0),
+	BIND(KEY_RIGHT, 0,						editor_bind_cursor_move,	V(0),															0),
+	BIND(KEY_LEFT, MOD_SHIFT,				editor_bind_cursor_move,	V(CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL),							0),
+	BIND(KEY_RIGHT, MOD_SHIFT,				editor_bind_cursor_move,	V(CURSOR_MOVE_SEL),												0),
+	BIND(KEY_LEFT, MOD_CTRL,				editor_bind_cursor_move,	V(CURSOR_MOVE_LEFT | CURSOR_MOVE_WORD),							0),
+	BIND(KEY_RIGHT, MOD_CTRL,				editor_bind_cursor_move,	V(CURSOR_MOVE_WORD),											0),
+	BIND(KEY_LEFT, MOD_CTRL | MOD_SHIFT,	editor_bind_cursor_move,	V(CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_WORD),		0),
+	BIND(KEY_RIGHT, MOD_CTRL | MOD_SHIFT,	editor_bind_cursor_move,	V(CURSOR_MOVE_SEL | CURSOR_MOVE_WORD),							0),
+	BIND(KEY_LEFT, MOD_ALT,					editor_bind_cursor_move,	V(CURSOR_MOVE_LEFT | CURSOR_MOVE_SUBWORD),						0),
+	BIND(KEY_RIGHT, MOD_ALT,				editor_bind_cursor_move,	V(CURSOR_MOVE_SUBWORD),											0),
+	BIND(KEY_LEFT, MOD_ALT | MOD_SHIFT,		editor_bind_cursor_move,	V(CURSOR_MOVE_LEFT | CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD),	0),
+	BIND(KEY_RIGHT, MOD_ALT | MOD_SHIFT,	editor_bind_cursor_move,	V(CURSOR_MOVE_SEL | CURSOR_MOVE_SUBWORD),						0),
+
 };
 
-static int	editor_binding_cmp(t_binding const *a, t_key const *b)
+static int	editor_binding_cmp(t_binding const *const *a, t_key const *b)
 {
-	if (a->key.c == b->c)
-		return (a->key.mods - b->mods);
-	return (a->key.c - b->c);
+	if ((*a)->key.c == b->c)
+		return ((*a)->key.mods - b->mods);
+	return ((*a)->key.c - b->c);
 }
 
 void		editor_init(t_editor *editor)
@@ -103,7 +110,7 @@ void		editor_init(t_editor *editor)
 		SPANLIST(t_style),
 		0,
 		0,
-		BST(t_binding, &editor_binding_cmp),
+		BST(t_binding*, &editor_binding_cmp),
 		LIST(t_sub),
 		0,
 		NULL
@@ -113,8 +120,8 @@ void		editor_init(t_editor *editor)
 	i = 0;
 	while (i < ARRAY_LEN(g_bindings))
 	{
-		editor_bind(editor, g_bindings[i].key, g_bindings[i].f,
-			g_bindings[i].flags);
+		editor_bind(editor, g_bindings[i].key, g_bindings[i].callback,
+			g_bindings[i].priority);
 		i++;
 	}
 }

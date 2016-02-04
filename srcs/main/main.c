@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/03 20:11:39 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 12:29:00 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ struct			s_main
 	t_term				*term;
 	t_editor			*editor;
 	uint32_t			flags;
-	t_parser			*curr_parser;
+	t_parser const		*curr_parser;
 };
 
 /*
@@ -106,11 +106,11 @@ static void		put_key(t_out *out, t_key key)
 	char const		*key_name;
 
 	ft_putsub(out, SUBC("Key: "));
-	if (key.mods & KEY_MOD_CTRL)
+	if (key.mods & MOD_CTRL)
 		ft_putsub(out, SUBC("ctrl+"));
-	if (key.mods & KEY_MOD_ALT)
+	if (key.mods & MOD_ALT)
 		ft_putsub(out, SUBC("alt+"));
-	if (key.mods & KEY_MOD_SHIFT)
+	if (key.mods & MOD_SHIFT)
 		ft_putsub(out, SUBC("shift+"));
 	if (IS(key.c, IS_PRINT))
 		ft_fprintf(out, "%c", key.c);
@@ -313,7 +313,7 @@ static bool		init_main(t_main *main)
 				TERM_DEFAULT_TERM);
 		main->editor = NEW(t_editor);
 		editor_init(main->editor);
-		editor_bind(main->editor, KEY('m', KEY_MOD_CTRL), &binding_newline, 0);
+		// editor_bind(main->editor, KEY('m', MOD_CTRL), &binding_newline, 0);
 		main->editor->user = main;
 		main->flags |= FLAG_INTERACTIVE;
 	}
@@ -368,7 +368,7 @@ static void		interactive_loop(t_main *main)
 		if (!editor_key(main->editor, key))
 			ft_fprintf(&main->term->out, "(Unused key)%n"); // TMP
 		put_key(&main->term->out, key); // TMP
-		if (key.c == 'd' && key.mods == KEY_MOD_CTRL) // TMP
+		if (key.c == 'd' && key.mods == MOD_CTRL) // TMP
 			main->flags |= FLAG_EXIT; // TMP
 	}
 	ft_trestore(main->term, false);

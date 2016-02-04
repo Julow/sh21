@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/03 14:44:33 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 12:09:48 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ struct		s_editor
 void		editor_init(t_editor *editor);
 
 /*
-** Execute 'key' binding
+** Execute binding
 */
 bool		editor_key(t_editor *editor, t_key key);
 
@@ -69,10 +69,18 @@ void		editor_out(t_editor const *editor, t_out *out);
 /*
 ** Add a key binding
 ** -
-** See editor_key
+** 'callback' is of type:
+**  bool (*)(void *self, t_editor *editor, t_key key)
+** -
+** If 'key.c' is -1, it match any key with the same modifier
+** -
+** If a binding return false, the next matching binding is executed
+**  (highest priority match first)
+** -
+** Default bindings have all a priority of 0
 */
 void		editor_bind(t_editor *editor, t_key key,
-				bool (*f)(t_editor*, uint32_t), uint32_t flags);
+				t_callback callback, int32_t priority);
 
 /*
 ** Return the row/column index for the text index 'index'

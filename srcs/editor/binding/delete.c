@@ -6,15 +6,16 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/12 22:00:44 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/03 14:39:44 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 12:20:19 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "editor_bindings.h"
 #include "editor_internal.h"
 
-bool			editor_bind_delete(t_editor *editor, uint32_t flags)
+bool			editor_bind_delete(void *data, t_editor *editor)
 {
+	uintptr_t const	flags = (uintptr_t)data;
 	int32_t			move;
 	t_sub			*save;
 

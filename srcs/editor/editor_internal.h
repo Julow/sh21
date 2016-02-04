@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 16:36:38 by jaguillo          #+#    #+#             */
-/*   Updated: 2015/12/14 18:27:57 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 11:46:48 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@ typedef struct s_binding		t_binding;
 struct 		s_binding
 {
 	t_key		key;
-	bool		(*f)(t_editor*, uint32_t);
-	uint32_t	flags;
+	t_callback	callback;
+	int32_t		priority;
+	t_binding	*next;
 };
 
 /*
