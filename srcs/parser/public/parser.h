@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/02 17:48:12 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 19:12:47 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ struct			s_parser
 	void			*data;
 	t_token_map		token_map;
 	t_vector		match;
+	bool			resolved;
 };
 
 struct			s_parser_data

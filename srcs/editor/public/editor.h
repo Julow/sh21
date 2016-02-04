@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/11 12:55:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/04 14:33:59 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 16:48:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ struct		s_editor
 	t_spanlist	spans;
 	uint32_t	cursor;
 	int32_t		sel;
+	uint32_t	cursor_max_x;
 	t_bst		bindings;
 	t_list		clipboard;
 	uint32_t	extra_mods;

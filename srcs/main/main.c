@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/04 16:37:01 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 19:46:44 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,7 +309,7 @@ static bool		init_main(t_main *main)
 
 static bool		init_parsers(t_main *main)
 {
-	main->curr_parser = load_syntax_color(SUBC("sh"));
+	main->curr_parser = load_syntax_color(SUBC("xml"));
 	if (main->curr_parser == NULL)
 		return (false);
 	return (true);

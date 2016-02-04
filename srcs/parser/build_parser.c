@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/03 18:32:41 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/04 19:15:58 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,26 +98,21 @@ static t_parser	*build(t_hmap *map, t_vector const *parsers,
 	parser->data = def->data;
 	parser->token_map = TOKEN_MAP();
 	parser->match = VECTOR(t_parser_match);
+	parser->resolved = false;
 	i = 0;
 	while (i < def->tokens.length)
 	{
 		token = VECTOR_GET(def->tokens, i);
-		sub_parser = NULL;
-		if (token->parser != NULL && (sub_parser =
-			get_parser(ft_sub(token->parser, 0, -1), map, parsers)) == NULL)
-			return (NULL);
-		add_token(parser, token->token, token->data, sub_parser, token->end);
+		add_token(parser, token->token, token->data,
+			V(token->parser), token->end);
 		i++;
 	}
 	i = 0;
 	while (i < def->match.length)
 	{
 		token = VECTOR_GET(def->match, i);
-		sub_parser = NULL;
-		if (token->parser != NULL && (sub_parser =
-			get_parser(ft_sub(token->parser, 0, -1), map, parsers)) == NULL)
-			return (NULL);
-		add_match(parser, token->token, token->data, sub_parser, token->end);
+		add_match(parser, token->token, token->data,
+			V(token->parser), token->end);
 		i++;
 	}
 	if (parent != NULL)
@@ -153,13 +148,84 @@ static t_parser	*get_parser(t_sub name, t_hmap *map, t_vector const *parsers)
 	return (NULL);
 }
 
+/*
+** ========================================================================== **
+** Sub parser resolver
+** -
+** TODO: remove this shit
+*/
+
+struct			s_subparser_resolver
+{
+	t_parser		*parser;
+	t_hmap			*map;
+	t_vector const	*parsers;
+};
+
+static bool		resolve_token_subparsers(t_token_def *def,
+					struct s_subparser_resolver *s)
+{
+	t_parser_token	*t;
+
+	t = def->data;
+	if (t->parser != NULL)
+	{
+		if ((t->parser = get_parser(ft_sub((char const*)t->parser, 0, -1),
+			s->map, s->parsers)) == NULL)
+			return (false);
+	}
+	return (true);
+}
+
+static bool		resolve_subparsers(t_parser *parser, t_hmap *map,
+					t_vector const *parsers)
+{
+	struct s_subparser_resolver	s;
+	uint32_t		i;
+	t_parser_token	*t;
+
+	s = (struct s_subparser_resolver){parser, map, parsers};
+	if (!ft_bst_iter(&parser->token_map.tokens, &resolve_token_subparsers, &s))
+		return (false);
+	i = 0;
+	while (i < parser->match.length)
+	{
+		t = &(((t_parser_match*)VECTOR_GET(parser->match, i++))->token);
+		if (t->parser != NULL)
+		{
+			if ((t->parser = get_parser(ft_sub((char const*)t->parser, 0, -1),
+				map, parsers)) == NULL)
+				return (false);
+		}
+	}
+	return (true);
+}
+
+/*
+** ========================================================================== **
+*/
+
 bool			build_parser(t_hmap *dst, t_vector const *parsers)
 {
-	uint32_t		i;
+	t_parser_def const *const	defs = parsers->data;
+	t_parser					*p;
+	uint32_t					i;
 
 	i = 0;
 	while (i < parsers->length)
-		if (build(dst, parsers, VECTOR_GET(*parsers, i++)) == NULL)
+	{
+		if (ft_hmapget(dst, defs[i].name).key == NULL
+			&& build(dst, parsers, defs + i) == NULL)
 			return (false);
+		i++;
+	}
+	i = 0;
+	while (i < parsers->length)
+	{
+		p = ft_hmapget(dst, defs[i].name).value;
+		if (!p->resolved && !resolve_subparsers(p, dst, parsers))
+			ft_printf("Fail resolving dependencies for %ts%n", defs[i].name);
+		i++;
+	}
 	return (true);
 }
