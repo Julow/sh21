@@ -1,5 +1,6 @@
 module syntax-color-loader:
 	public include public/
+	private include ./
 
 	public require ft::parser
 	public require ft::base
