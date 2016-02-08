@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/04 19:46:44 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/08 16:07:52 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,8 +285,365 @@ static void		refresh_syntax(t_editor *editor, t_parser const *parser)
 
 /*
 ** ========================================================================== **
+** Exec shell
+*/
+
+/*
+** ========================================================================== **
+** Shell cmd representation
+*/
+
+typedef struct s_sh_subst_expr	t_sh_subst_expr;
+typedef struct s_sh_subst_math	t_sh_subst_math;
+typedef struct s_sh_subst		t_sh_subst;
+typedef struct s_sh_simple_cmd	t_sh_simple_cmd;
+typedef struct s_sh_loop_cmd	t_sh_loop_cmd;
+typedef struct s_sh_for_cmd		t_sh_for_cmd;
+typedef struct s_sh_if_cmd		t_sh_if_cmd;
+typedef struct s_sh_cmd			t_sh_cmd;
+typedef enum e_sh_token			t_sh_token;
+typedef enum e_sh_parser		t_sh_parser;
+
+struct		s_sh_subst_expr
+{
+	enum {
+		SH_SUBST_EXPR_USE_DEF,
+		SH_SUBST_EXPR_SET_DEF,
+		SH_SUBST_EXPR_ISSET,
+		SH_SUBST_EXPR_USE_ALT,
+		SH_SUBST_EXPR_SUFFIX_PATTERN,
+		SH_SUBST_EXPR_PREFIX_PATTERN,
+		SH_SUBST_EXPR_F_COLON = (1 << 17),
+		SH_SUBST_EXPR_F_LARGEST = (1 << 18),
+	}			type;
+	t_vec2u		param_range;
+	t_vec2u		expr_range;
+	t_vector	subst;
+};
+
+struct		s_sh_subst_math
+{
+	t_vec2u		math_range;
+	t_vector	subst;
+};
+
+struct		s_sh_subst
+{
+	uint32_t	arg_index;
+	enum {
+		SH_SUBST_PARAM, // $PARAM, ${PARAM}
+		SH_SUBST_STRLEN, // ${#PARAM}
+		SH_SUBST_EXPR, // ${PARAM([:]?[-=?+]|[%#]{1,2})EXPR}
+		SH_SUBST_MATH, // $(())
+		SH_SUBST_CMD, // $(), ``
+	}			type;
+	t_vec2u		range;
+	union {
+		t_vec2u			param_range; // SH_SUBST_PARAM, SH_SUBST_STRLEN
+		t_sh_subst_math	*math; // SH_SUBST_MATH
+		t_sh_subst_expr	*expr; // SH_SUBST_EXPR
+		t_sh_cmd		*cmd; // SH_SUBST_CMD
+	}			val;
+};
+
+struct		s_sh_simple_cmd
+{
+	t_dstr		args;
+	t_vector	arg_lengths;
+	t_vector	subst;
+};
+
+struct		s_sh_loop_cmd
+{
+	enum {
+		SH_CMD_LOOP_WHILE,
+		SH_CMD_LOOP_UNTIL,
+	}				type;
+	t_sh_cmd		*cond;
+	t_sh_cmd		*body;
+};
+
+struct		s_sh_for_cmd
+{
+	t_sh_simple_cmd	cmd;
+	t_dstr			data;
+	t_vector		words;
+	t_sh_cmd		*body;
+};
+
+struct		s_sh_if_cmd
+{
+	t_sh_simple_cmd	cmd;
+	t_sh_cmd		*body;
+	enum {
+		SH_IF_NEXT_ELIF,
+		SH_IF_NEXT_ELSE,
+	}				next_type;
+	t_sh_if_cmd		*next;
+};
+
+struct		s_sh_cmd
+{
+	enum {
+		SH_CMD_SIMPLE,
+		SH_CMD_LOOP,
+		SH_CMD_FORLOOP,
+		SH_CMD_IF,
+		SH_CMD_SUBSHELL,
+	}			type;
+	t_vector	redirs;
+	union {
+		t_sh_simple_cmd	cmd; // SH_CMD_SIMPLE
+		t_sh_loop_cmd	loop; // SH_CMD_LOOP
+		t_sh_for_cmd	cmd_for; // SH_CMD_FORLOOP
+		t_sh_if_cmd		cmd_if; // SH_CMD_IF
+		t_sh_cmd		*subshell; // SH_CMD_SUBSHELL
+	}			val;
+	enum {
+		SH_NEXT_AND,
+		SH_NEXT_OR,
+		SH_NEXT_PIPE,
+		SH_NEXT_NEWCMD,
+	}			next_type;
+};
+
+/*
+** ========================================================================== **
+** Shell parser
+*/
+
+enum		e_sh_token
+{
+	SH_T_AND = 1,
+	SH_T_OR,
+	SH_T_PIPE,
+	SH_T_SEMICOLON,
+	SH_T_AMPERSAND,
+	SH_T_NEWLINE,
+//
+	SH_T_SPACE,
+	SH_T_BEGIN,
+	SH_T_END,
+	SH_T_ESCAPED,
+//
+	SH_T_SUBST_PARAM,
+};
+
+enum		e_sh_parser
+{
+	SH_P_SHELL = 1,
+	SH_P_SUBSHELL,
+	SH_P_BACKQUOTE,
+	SH_P_EXPR,
+	SH_P_MATH,
+	SH_P_STRING,
+	SH_P_STRING_SINGLE,
+	SH_P_IGNORE,
+};
+
+#define T(STR,T,...)	PARSER_T(STR, V(SH_T_##T), ##__VA_ARGS__)
+
+t_parser_def const	g_sh_parser[] = {
+
+	PARSER_DEF("sh-subst-start", NULL,
+		.tokens = PARSER_DEF_T(
+			T("${", BEGIN, .parser="sh-expr"),
+			T("$(", BEGIN, .parser="sh-sub"),
+			T("$((", BEGIN, .parser="sh-math"),
+			T("`", BEGIN, .parser="sh-backquote"),
+		),
+		.match = PARSER_DEF_T(
+			T("$?[a-zA-Z_]?*w", SUBST_PARAM),
+		),
+	),
+
+	PARSER_DEF("sh-cmd", V(SH_P_SHELL),
+		.inherit = SUBC("sh-subst-start"),
+		.tokens = PARSER_DEF_T(
+			T("&&", AND, .end=true, .parser="sh-cmd"),
+			T("||", OR, .end=true, .parser="sh-cmd"),
+			T("|", PIPE, .end=true, .parser="sh-cmd"),
+			T(";", SEMICOLON, .end=true),
+			T("&", AMPERSAND, .end=true),
+			T("\n", NEWLINE, .end=true),
+			T(" ", SPACE),
+			T("\t", SPACE),
+			T("\"", BEGIN, .parser="sh-string"),
+			T("'", BEGIN, .parser="sh-string-single"),
+			T("#", BEGIN, .parser="sh-comment"),
+
+			T("\\ ", ESCAPED),
+			T("\\\t", ESCAPED),
+			T("\\\n", ESCAPED),
+			T("\\;", ESCAPED),
+			T("\\|", ESCAPED),
+			T("\\&", ESCAPED),
+			T("\\`", ESCAPED),
+			T("\\\"", ESCAPED),
+			T("\\'", ESCAPED),
+
+		),
+	),
+
+	PARSER_DEF("sh-sub", V(SH_P_SUBSHELL),
+		.inherit = SUBC("sh-cmd"),
+		.tokens = PARSER_DEF_T(
+			T(")", END, .end=true),
+		),
+	),
+
+	PARSER_DEF("sh-backquote", V(SH_P_BACKQUOTE),
+		.inherit = SUBC("sh-cmd"),
+		.tokens = PARSER_DEF_T(
+			T("`", END, .end=true),
+			T("\\`", BEGIN, .parser="sh-backquote-rev"),
+		),
+	),
+
+	PARSER_DEF("sh-backquote-rev", V(SH_P_BACKQUOTE),
+		.inherit = SUBC("sh-cmd"),
+		.tokens = PARSER_DEF_T(
+			T("\\`", END, .end=true),
+			T("`", BEGIN, .parser="sh-backquote"),
+		),
+	),
+
+	PARSER_DEF("sh-expr", V(SH_P_EXPR),
+		.tokens = PARSER_DEF_T(
+			T("}", END, .end=true),
+		),
+	),
+
+	PARSER_DEF("sh-math", V(SH_P_MATH),
+		.tokens = PARSER_DEF_T(
+			T("))", END, .end=true),
+		),
+	),
+
+	PARSER_DEF("sh-string", V(SH_P_STRING),
+		.inherit = SUBC("sh-subst-start"),
+		.tokens = PARSER_DEF_T(
+			T("\"", END, .end=true),
+			T("\\\"", ESCAPED),
+		),
+	),
+
+	PARSER_DEF("sh-string-single", V(SH_P_STRING_SINGLE),
+		.tokens = PARSER_DEF_T(
+			T("'", END, .end=true),
+		),
+	),
+
+	PARSER_DEF("sh-comment", V(SH_P_IGNORE),
+		.tokens = PARSER_DEF_T(
+			T("\n", END, .end=true),
+		),
+	),
+};
+
+#undef T
+
+static t_parser const	*load_sh_parser(void)
+{
+	t_hmap					*map;
+	t_parser const			*parser;
+
+	map = ft_hmapnew(10, &ft_djb2);
+	if (!build_parser(map, &VECTORC(g_sh_parser)))
+		return (NULL);
+	parser = ft_hmapget(map, SUBC("sh-cmd")).value;
+	// ft_hmapdestroy(map, NULL);
+	return (parser);
+}
+
+t_sub const		g_sh_token_str[] = {
+	[0] = SUBC("NULL"),
+	[SH_T_AND] = SUBC("AND"),
+	[SH_T_OR] = SUBC("OR"),
+	[SH_T_PIPE] = SUBC("PIPE"),
+	[SH_T_SEMICOLON] = SUBC("SEMICOLON"),
+	[SH_T_AMPERSAND] = SUBC("AMPERSAND"),
+	[SH_T_NEWLINE] = SUBC("NEWLINE"),
+	[SH_T_SPACE] = SUBC("SPACE"),
+	[SH_T_BEGIN] = SUBC("BEGIN"),
+	[SH_T_END] = SUBC("END"),
+	[SH_T_ESCAPED] = SUBC("ESCAPED"),
+	[SH_T_SUBST_PARAM] = SUBC("SUBST_PARAM"),
+};
+
+t_sub const		g_sh_parser_str[] = {
+	[0] = SUBC("NULL"),
+	[SH_P_SHELL] = SUBC("SHELL"),
+	[SH_P_SUBSHELL] = SUBC("SUBSHELL"),
+	[SH_P_BACKQUOTE] = SUBC("BACKQUOTE"),
+	[SH_P_EXPR] = SUBC("EXPR"),
+	[SH_P_MATH] = SUBC("MATH"),
+	[SH_P_STRING] = SUBC("STRING"),
+	[SH_P_STRING_SINGLE] = SUBC("STRING_SINGLE"),
+	[SH_P_IGNORE] = SUBC("IGNORE"),
+};
+
+static void				indent(t_parser_data *data)
+{
+	while ((data = data->prev) != NULL)
+		ft_printf("   ");
+}
+
+static void				sh_parser_begin(void *env, t_parser_data *data,
+							void const *parser_data)
+{
+	indent(data);
+	ft_printf("PARSER BEGIN: %ts%n", g_sh_parser_str[(t_sh_parser)parser_data]);
+	(void)env;
+}
+
+static void				sh_parser_end(void *env, t_parser_data *data,
+							void const *parser_data)
+{
+	indent(data);
+	ft_printf("PARSER END: %ts%n", g_sh_parser_str[(t_sh_parser)parser_data]);
+	(void)env;
+	(void)data;
+}
+
+static void				sh_parser_token(void *env, t_parser_data *parent,
+							t_sub token, void const *token_data)
+{
+	indent(parent);
+	ft_printf(" TOKEN: '%ts' %ts%n", token, g_sh_token_str[(t_sh_token)token_data]);
+	(void)env;
+}
+
+static bool				run_shell(t_sub str)
+{
+	static t_parser const	*sh_parser = NULL;
+	t_in					sh_in;
+
+	if (sh_parser == NULL
+		&& (sh_parser = load_sh_parser()) == NULL)
+		return (false);
+	sh_in = IN(str.str, str.length, NULL);
+	exec_parser(&sh_in, sh_parser, (t_callback[]){
+		CALLBACK(&sh_parser_begin, NULL),
+		CALLBACK(&sh_parser_end, NULL),
+		CALLBACK(&sh_parser_token, NULL),
+	}, 0);
+	return (true);
+}
+
+/*
+** ========================================================================== **
 ** Init
 */
+
+static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
+{
+	if (!run_shell(DSTR_SUB(editor->text)))
+		ft_printf("RUN SHELL FAILED%n");
+	return (true);
+	(void)main;
+	(void)key;
+}
 
 static bool		init_main(t_main *main)
 {
@@ -300,7 +657,8 @@ static bool		init_main(t_main *main)
 				TERM_DEFAULT_TERM);
 		main->editor = NEW(t_editor);
 		editor_init(main->editor);
-		// editor_bind(main->editor, KEY('m', MOD_CTRL), &binding_newline, 0);
+		editor_bind(main->editor, KEY('m', MOD_CTRL), CALLBACK(binding_runshell, main), 1);
+
 		main->editor->user = main;
 		main->flags |= FLAG_INTERACTIVE;
 	}
@@ -309,7 +667,7 @@ static bool		init_main(t_main *main)
 
 static bool		init_parsers(t_main *main)
 {
-	main->curr_parser = load_syntax_color(SUBC("xml"));
+	main->curr_parser = load_syntax_color(SUBC("sh"));
 	if (main->curr_parser == NULL)
 		return (false);
 	return (true);
