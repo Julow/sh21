@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/08 19:19:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/09 00:38:59 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -617,7 +617,75 @@ static void				sh_parser_token(void *env, t_parser_data *parent,
 	(void)env;
 }
 
-// a "safwe$SDLKFJEW $0 $Q $0DSFJOIG" $LOL && truc ; b
+// a "safwe$SDLKFJEW-$0ASD$Q$0DSFJOIG" $LOL && truc ; b
+
+// bool			sh_parser_begin(t_parse_data *p)
+// {
+// 	t_sub			token;
+// 	void const		*token_data;
+// 	uint32_t		data;
+
+// 	data = parent_data + 1;
+// 	while (parse_token(p, &token, &token_data))
+// 	{
+// 		ft_printf("  TOKEN '%ts' %#llx%n", token, token_data);
+// 	}
+// 	if (p->eof)
+// 		ft_printf("ERROR: unexpected EOF%n");
+// 	return (parse_next(p, &data)); // needed ?
+// }
+
+// struct			s_parse_frame
+// {
+// 	t_parser const	*parser; // current parser
+// 	void			*data; // custom frame data (default NULL)
+// 	t_parse_frame	*prev; // previous frame
+// }
+
+// struct			s_parse_data
+// {
+// 	void			*env; // custom data
+// 	t_tokenizer		t; // tokenizer
+// 	t_parse_frame	*frame; // current frame
+// 	bool			eof; // flags
+// };
+
+// /*
+// ** Iterate over tokens
+// ** Return false when current frame should stop
+// ** 'p->eof' is set on EOF
+// ** '*token_str' and '*token_data' are fill with token's infos
+// ** Note: token_str string is temporary and is invalidated after each call
+// ** '*token_data' is set to NULL on unmatched token
+// */
+
+// bool			parse_token(t_parse_data *p,
+// 					t_sub *token_str, void const **token_data)
+// {
+// 	if (!ft_tokenize(&p->t))
+// 		return (false);
+// 	if (p->t.token_data == NULL)
+// 		return (exec_match(p, token_str, token_data));
+// 	return (exec_token(p, token_str, token_data));
+// }
+
+// /*
+// ** Start parsing
+// ** call 'f' function store in each parsers
+// */
+// bool			parse(t_in *in, t_parser const *parser, void *env)
+// {
+// 	t_parse_data	p;
+// 	bool			ret;
+
+// 	p = (t_parse_data){
+// 		env,
+// 		TOKENIZER(in, NULL)
+// 	};
+// 	ret = parser->f(&p, NULL);
+// 	D_TOKENIZER(p.t);
+// 	return (ret);
+// }
 
 static bool				run_shell(t_sub str)
 {
