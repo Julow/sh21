@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/08 16:07:52 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/08 19:19:43 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,11 +217,11 @@ static struct {
 	SCOPE("string", (S_LIGHT(S_YELLOW), 0, 0)),
 	SCOPE("escaped", (S_LIGHT(S_RED), 0, 0)),
 	SCOPE("number", (S_YELLOW, 0, 0)),
-	SCOPE("var", (S_CYAN, 0, 0)),
+	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
+	SCOPE("subst", (S_CYAN, 0, 0)),
 	SCOPE("comment", (0, S_BLUE, 0)),
 	SCOPE("identifier.key", (S_LIGHT(S_CYAN), 0, 0)),
 	SCOPE("identifier", (S_GREEN, 0, 0)),
-	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
 	SCOPE("error", (0, S_RED, 0)),
 };
 
@@ -358,9 +358,9 @@ struct		s_sh_loop_cmd
 	enum {
 		SH_CMD_LOOP_WHILE,
 		SH_CMD_LOOP_UNTIL,
-	}				type;
-	t_sh_cmd		*cond;
-	t_sh_cmd		*body;
+	}			type;
+	t_sh_cmd	*cond;
+	t_sh_cmd	*body;
 };
 
 struct		s_sh_for_cmd
@@ -427,6 +427,7 @@ enum		e_sh_token
 	SH_T_ESCAPED,
 //
 	SH_T_SUBST_PARAM,
+	SH_T_SUBST_PARAM_SPECIAL,
 };
 
 enum		e_sh_parser
@@ -445,7 +446,7 @@ enum		e_sh_parser
 
 t_parser_def const	g_sh_parser[] = {
 
-	PARSER_DEF("sh-subst-start", NULL,
+	PARSER_DEF("sh-base-subst", NULL,
 		.tokens = PARSER_DEF_T(
 			T("${", BEGIN, .parser="sh-expr"),
 			T("$(", BEGIN, .parser="sh-sub"),
@@ -454,11 +455,12 @@ t_parser_def const	g_sh_parser[] = {
 		),
 		.match = PARSER_DEF_T(
 			T("$?[a-zA-Z_]?*w", SUBST_PARAM),
+			T("$?.", SUBST_PARAM_SPECIAL),
 		),
 	),
 
 	PARSER_DEF("sh-cmd", V(SH_P_SHELL),
-		.inherit = SUBC("sh-subst-start"),
+		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
 			T("&&", AND, .end=true, .parser="sh-cmd"),
 			T("||", OR, .end=true, .parser="sh-cmd"),
@@ -486,14 +488,14 @@ t_parser_def const	g_sh_parser[] = {
 	),
 
 	PARSER_DEF("sh-sub", V(SH_P_SUBSHELL),
-		.inherit = SUBC("sh-cmd"),
+		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T(")", END, .end=true),
 		),
 	),
 
 	PARSER_DEF("sh-backquote", V(SH_P_BACKQUOTE),
-		.inherit = SUBC("sh-cmd"),
+		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T("`", END, .end=true),
 			T("\\`", BEGIN, .parser="sh-backquote-rev"),
@@ -501,7 +503,7 @@ t_parser_def const	g_sh_parser[] = {
 	),
 
 	PARSER_DEF("sh-backquote-rev", V(SH_P_BACKQUOTE),
-		.inherit = SUBC("sh-cmd"),
+		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T("\\`", END, .end=true),
 			T("`", BEGIN, .parser="sh-backquote"),
@@ -521,7 +523,7 @@ t_parser_def const	g_sh_parser[] = {
 	),
 
 	PARSER_DEF("sh-string", V(SH_P_STRING),
-		.inherit = SUBC("sh-subst-start"),
+		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
 			T("\"", END, .end=true),
 			T("\\\"", ESCAPED),
@@ -539,6 +541,7 @@ t_parser_def const	g_sh_parser[] = {
 			T("\n", END, .end=true),
 		),
 	),
+
 };
 
 #undef T
@@ -569,6 +572,7 @@ t_sub const		g_sh_token_str[] = {
 	[SH_T_END] = SUBC("END"),
 	[SH_T_ESCAPED] = SUBC("ESCAPED"),
 	[SH_T_SUBST_PARAM] = SUBC("SUBST_PARAM"),
+	[SH_T_SUBST_PARAM_SPECIAL] = SUBC("SUBST_PARAM_SPECIAL"),
 };
 
 t_sub const		g_sh_parser_str[] = {
@@ -586,7 +590,7 @@ t_sub const		g_sh_parser_str[] = {
 static void				indent(t_parser_data *data)
 {
 	while ((data = data->prev) != NULL)
-		ft_printf("   ");
+		ft_printf("    ");
 }
 
 static void				sh_parser_begin(void *env, t_parser_data *data,
@@ -603,16 +607,17 @@ static void				sh_parser_end(void *env, t_parser_data *data,
 	indent(data);
 	ft_printf("PARSER END: %ts%n", g_sh_parser_str[(t_sh_parser)parser_data]);
 	(void)env;
-	(void)data;
 }
 
 static void				sh_parser_token(void *env, t_parser_data *parent,
 							t_sub token, void const *token_data)
 {
 	indent(parent);
-	ft_printf(" TOKEN: '%ts' %ts%n", token, g_sh_token_str[(t_sh_token)token_data]);
+	ft_printf("    TOKEN: '%ts' %ts%n", token, g_sh_token_str[(t_sh_token)token_data]);
 	(void)env;
 }
+
+// a "safwe$SDLKFJEW $0 $Q $0DSFJOIG" $LOL && truc ; b
 
 static bool				run_shell(t_sub str)
 {

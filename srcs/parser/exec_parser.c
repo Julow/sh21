@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/02 17:47:51 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/08 17:47:59 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,10 +61,13 @@ static bool		exec_match(struct s_exec_parser *s, t_parser const *parser,
 		if (ft_rsearch(s->tokenizer.token, &match, &m->regex, NULL))
 		{
 			if (SUB_OFF(s->tokenizer.token, match) > 0)
-				CALL(void, s->on_token, parent_data,
-					SUB_BEF(s->tokenizer.token, match), NULL);
-			s->tokenizer.end -= s->tokenizer.token.length
-				- (SUB_OFF(s->tokenizer.token, match) + match.length);
+			{
+				i = SUB_OFF(s->tokenizer.token, match);
+				s->tokenizer.end -= s->tokenizer.token.length - i;
+				s->tokenizer.token.length = i;
+				return (exec_match(s, parser, parent_data));
+			}
+			s->tokenizer.end -= s->tokenizer.token.length - match.length;
 			s->tokenizer.token = match;
 			return (exec_token(s, &m->token, parent_data));
 		}

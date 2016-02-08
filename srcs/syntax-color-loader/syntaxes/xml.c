@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/04 00:18:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/04 19:57:18 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/08 18:21:34 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 */
 
 		PARSER_DEF("xml-markup-base", "markup",
-			.inherit = SUBC("allow-blanks"),
+			PARSER_INHERIT("allow-blanks"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("/>", "end", .end=true),
 				PARSER_T(">", "start", .end=true, .parser="xml-group"), // TODO: tail
@@ -55,7 +55,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 		),
 
 		PARSER_DEF("xml-markup", "markup",
-			.inherit = SUBC("xml-markup-base"),
+			PARSER_INHERIT("xml-markup-base"),
 			.match = PARSER_DEF_T(
 				PARSER_T("?!+w", "error"),
 				PARSER_T("?b?+w", "identifier", .end=true, .parser="xml-markup-params"),
@@ -63,7 +63,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 		),
 
 		PARSER_DEF("xml-markup-params", "params",
-			.inherit = SUBC("xml-markup-base"),
+			PARSER_INHERIT("xml-markup-base"),
 			.match = PARSER_DEF_T(
 				PARSER_T("?b?+w", "identifier.key", .parser="xml-markup-param-key"),
 				PARSER_T("?+.", "error", .end=true),
@@ -76,7 +76,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 */
 
 		PARSER_DEF("xml-markup-param-key", "param-key",
-			.inherit = SUBC("allow-blanks"),
+			PARSER_INHERIT("allow-blanks"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("=", "op.equal", .end=true, .parser="xml-markup-param-value"), // TODO: tail
 			),
@@ -86,7 +86,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 		),
 
 		PARSER_DEF("xml-markup-param-value", "param-value",
-			.inherit = SUBC("allow-blanks"),
+			PARSER_INHERIT("allow-blanks"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("\"", "start", .end=true, .parser="string"),
 			),
@@ -101,7 +101,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 */
 
 		PARSER_DEF("xml-group", "group",
-			.inherit = SUBC("xml"),
+			PARSER_INHERIT("xml"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("</", "start", .end=true, .parser="xml-group-end"),
 			),
@@ -119,7 +119,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 */
 
 		PARSER_DEF("xml-header", "header",
-			.inherit = SUBC("allow-blanks"),
+			PARSER_INHERIT("allow-blanks"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("?>", "end", .end=true),
 			),
@@ -129,7 +129,7 @@ t_syntax_color_def const	g_syntax_color_xml = SYNTAX_COLOR("xml", "xml",
 		),
 
 		PARSER_DEF("xml-header-params", "header",
-			.inherit = SUBC("xml-header"),
+			PARSER_INHERIT("xml-header"),
 			.match = PARSER_DEF_T(
 				PARSER_T("?b?+w", "identifier.key", .parser="xml-markup-param-key"),
 			),

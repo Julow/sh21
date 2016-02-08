@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/04 19:15:58 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/08 19:21:03 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,15 +85,10 @@ static t_parser	*build(t_hmap *map, t_vector const *parsers,
 {
 	t_parser				*parser;
 	t_parser				*parent;
-	t_parser				*sub_parser;
 	t_parser_def_t const	*token;
 	uint32_t				i;
 
 	ft_hmapputp(map, def->name, NULL);
-	parent = NULL;
-	if (def->inherit.length > 0
-		&& (parent = get_parser(def->inherit, map, parsers)) == NULL)
-		return (NULL);
 	parser = ft_hmapput(map, def->name, NULL, sizeof(t_parser)).value;
 	parser->data = def->data;
 	parser->token_map = TOKEN_MAP();
@@ -115,8 +110,12 @@ static t_parser	*build(t_hmap *map, t_vector const *parsers,
 			V(token->parser), token->end);
 		i++;
 	}
-	if (parent != NULL)
+	i = 0;
+	while (i < def->parents.length)
 	{
+		if ((parent = get_parser(ft_sub(*(void**)VECTOR_GET(def->parents, i++), 0, -1),
+				map, parsers)) == NULL)
+			continue ;
 		ft_bst_iter(&parent->token_map.tokens, &inherit_tokens, parser);
 		inherit_match(parser, parent);
 	}

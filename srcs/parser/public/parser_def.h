@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 21:02:47 by juloo             #+#    #+#             */
-/*   Updated: 2016/01/19 16:57:28 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/08 18:45:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ struct			s_parser_def
 {
 	t_sub			name;
 	void			*data;
-	t_sub			inherit;
+	t_vector		parents;
 	t_vector		tokens;
 	t_vector		match;
 };
@@ -44,9 +44,10 @@ struct			s_parser_def_t
 	bool			end;
 };
 
-# define PARSER_DEF_T(...)			VECTORC(((t_parser_def_t[]){__VA_ARGS__}))
-# define PARSER_T(N,DATA,...)		{.token=SUBC(N),DATA,##__VA_ARGS__}
-# define PARSER_DEF(N,DATA,...)		{SUBC(N),DATA,__VA_ARGS__}
+# define PARSER_DEF_T(...)		VECTOR(t_parser_def_t, ##__VA_ARGS__)
+# define PARSER_T(N,DATA,...)	{.token=SUBC(N), (DATA), ##__VA_ARGS__}
+# define PARSER_DEF(N,DATA,...)	{SUBC(N), (DATA), __VA_ARGS__}
+# define PARSER_INHERIT(...)	.parents=VECTOR(char const*, __VA_ARGS__)
 
 bool			build_parser(t_hmap *dst, t_vector const *parsers);
 
