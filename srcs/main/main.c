@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/09 00:38:59 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/09 14:17:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,27 +225,14 @@ static struct {
 	SCOPE("error", (0, S_RED, 0)),
 };
 
-static void		on_parser_start(void *env, t_parser_data *data, void const *p)
-{
-	data->data = p;
-	(void)env;
-}
-
-static void		on_parser_end(void *env, t_parser_data *data, void const *p)
-{
-	(void)env;
-	(void)data;
-	(void)p;
-}
-
-static t_style	get_color(t_parser_data *data)
+static t_style	get_color(t_parse_frame *frame)
 {
 	uint32_t		i;
 	t_sub			sub;
 
-	while (data != NULL)
+	while (frame != NULL)
 	{
-		sub = ft_sub(data->data, 0, -1);
+		sub = ft_sub(frame->data, 0, -1);
 		i = 0;
 		while (i < ARRAY_LEN(g_colors))
 		{
@@ -253,21 +240,27 @@ static t_style	get_color(t_parser_data *data)
 				return (g_colors[i].style);
 			i++;
 		}
-		data = data->prev;
+		frame = frame->prev;
 	}
 	return (STYLE(0, 0, 0));
 }
 
-static void		on_token(t_spanlist *spanlist, t_parser_data *parent,
-					t_sub token, void const *data)
+bool			syntax_parser_f(t_parse_data *p)
 {
-	t_parser_data	color_data;
+	t_sub			token;
+	void const		*token_data;
+	t_parse_frame	frame;
 	t_style			*tmp;
 
-	color_data = (t_parser_data){data, parent, NULL};
-	parent->next = &color_data;
-	tmp = ft_spanlist_push(spanlist, token.length, 1);
-	*tmp = get_color(&color_data);
+	p->frame->data = p->frame->parser->data;
+	frame = (t_parse_frame){NULL, NULL, p->frame};
+	while (parse_token(p, &token, &token_data))
+	{
+		frame.data = token_data;
+		tmp = ft_spanlist_push(p->env, token.length, 1);
+		*tmp = get_color(&frame);
+	}
+	return (true);
 }
 
 static void		refresh_syntax(t_editor *editor, t_parser const *parser)
@@ -276,11 +269,7 @@ static void		refresh_syntax(t_editor *editor, t_parser const *parser)
 
 	parse_in = IN(editor->text.str, editor->text.length, NULL);
 	ft_spanlist_clear(&editor->spans, 1);
-	exec_parser(&parse_in, parser, (t_callback[]){
-		CALLBACK(on_parser_start, NULL),
-		CALLBACK(on_parser_end, NULL),
-		CALLBACK(on_token, &editor->spans)
-	}, 0);
+	parse(&parse_in, parser, &editor->spans);
 }
 
 /*
@@ -444,9 +433,15 @@ enum		e_sh_parser
 
 #define T(STR,T,...)	PARSER_T(STR, V(SH_T_##T), ##__VA_ARGS__)
 
+static bool		sh_parse_cmd(t_parse_data *p);
+static bool		sh_parse_sub(t_parse_data *p);
+// static bool		sh_parse_expr(t_parse_data *p);
+// static bool		sh_parse_math(t_parse_data *p);
+static bool		sh_parse_string(t_parse_data *p);
+
 t_parser_def const	g_sh_parser[] = {
 
-	PARSER_DEF("sh-base-subst", NULL,
+	PARSER_DEF("sh-base-subst", NULL, NULL,
 		.tokens = PARSER_DEF_T(
 			T("${", BEGIN, .parser="sh-expr"),
 			T("$(", BEGIN, .parser="sh-sub"),
@@ -459,7 +454,7 @@ t_parser_def const	g_sh_parser[] = {
 		),
 	),
 
-	PARSER_DEF("sh-cmd", V(SH_P_SHELL),
+	PARSER_DEF("sh-cmd", V(SH_P_SHELL), &sh_parse_cmd,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
 			T("&&", AND, .end=true, .parser="sh-cmd"),
@@ -487,14 +482,14 @@ t_parser_def const	g_sh_parser[] = {
 		),
 	),
 
-	PARSER_DEF("sh-sub", V(SH_P_SUBSHELL),
+	PARSER_DEF("sh-sub", V(SH_P_SUBSHELL), &sh_parse_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T(")", END, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-backquote", V(SH_P_BACKQUOTE),
+	PARSER_DEF("sh-backquote", V(SH_P_BACKQUOTE), &sh_parse_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T("`", END, .end=true),
@@ -502,7 +497,7 @@ t_parser_def const	g_sh_parser[] = {
 		),
 	),
 
-	PARSER_DEF("sh-backquote-rev", V(SH_P_BACKQUOTE),
+	PARSER_DEF("sh-backquote-rev", V(SH_P_BACKQUOTE), &sh_parse_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T("\\`", END, .end=true),
@@ -510,19 +505,19 @@ t_parser_def const	g_sh_parser[] = {
 		),
 	),
 
-	PARSER_DEF("sh-expr", V(SH_P_EXPR),
+	PARSER_DEF("sh-expr", V(SH_P_EXPR), NULL,
 		.tokens = PARSER_DEF_T(
 			T("}", END, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-math", V(SH_P_MATH),
+	PARSER_DEF("sh-math", V(SH_P_MATH), NULL,
 		.tokens = PARSER_DEF_T(
 			T("))", END, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-string", V(SH_P_STRING),
+	PARSER_DEF("sh-string", V(SH_P_STRING), &sh_parse_string,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
 			T("\"", END, .end=true),
@@ -530,13 +525,13 @@ t_parser_def const	g_sh_parser[] = {
 		),
 	),
 
-	PARSER_DEF("sh-string-single", V(SH_P_STRING_SINGLE),
+	PARSER_DEF("sh-string-single", V(SH_P_STRING_SINGLE), &sh_parse_string,
 		.tokens = PARSER_DEF_T(
 			T("'", END, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-comment", V(SH_P_IGNORE),
+	PARSER_DEF("sh-comment", V(SH_P_IGNORE), NULL,
 		.tokens = PARSER_DEF_T(
 			T("\n", END, .end=true),
 		),
@@ -587,105 +582,44 @@ t_sub const		g_sh_parser_str[] = {
 	[SH_P_IGNORE] = SUBC("IGNORE"),
 };
 
-static void				indent(t_parser_data *data)
+static bool		sh_parse_cmd(t_parse_data *p)
 {
-	while ((data = data->prev) != NULL)
-		ft_printf("    ");
+	t_sub			token;
+	void const		*token_data;
+
+	ft_printf("BEGIN CMD%n");
+	while (parse_token(p, &token, &token_data))
+	{
+		if ((uintptr_t)token_data > SH_T_SUBST_PARAM_SPECIAL)
+			ft_printf("  TOKEN '%ts' <INVALID> %lld%n", token, token_data);
+		else
+			ft_printf("  TOKEN '%ts' %ts%n", token,
+				g_sh_token_str[(uintptr_t)token_data]);
+	}
+	ft_printf(p->eof ? "END CMD EOF%n" : "END CMD%n");
+	return (true);
 }
 
-static void				sh_parser_begin(void *env, t_parser_data *data,
-							void const *parser_data)
+static bool		sh_parse_sub(t_parse_data *p)
 {
-	indent(data);
-	ft_printf("PARSER BEGIN: %ts%n", g_sh_parser_str[(t_sh_parser)parser_data]);
-	(void)env;
+	if (!sh_parse_cmd(p))
+		return (false);
+	if (p->eof)
+		ft_printf("UNCLOSED SUB%n");
+	return (true);
 }
 
-static void				sh_parser_end(void *env, t_parser_data *data,
-							void const *parser_data)
+static bool		sh_parse_string(t_parse_data *p)
 {
-	indent(data);
-	ft_printf("PARSER END: %ts%n", g_sh_parser_str[(t_sh_parser)parser_data]);
-	(void)env;
+	t_sub			token;
+	void const		*token_data;
+
+	ft_printf("  BEGIN STRING%n");
+	while (parse_token(p, &token, &token_data))
+		ft_printf("    STRING += '%ts' %ts%n", token, g_sh_token_str[(uintptr_t)token_data]);
+	ft_printf(p->eof ? "  END STRING UNCLOSED%n" : "END STRING%n");
+	return (true);
 }
-
-static void				sh_parser_token(void *env, t_parser_data *parent,
-							t_sub token, void const *token_data)
-{
-	indent(parent);
-	ft_printf("    TOKEN: '%ts' %ts%n", token, g_sh_token_str[(t_sh_token)token_data]);
-	(void)env;
-}
-
-// a "safwe$SDLKFJEW-$0ASD$Q$0DSFJOIG" $LOL && truc ; b
-
-// bool			sh_parser_begin(t_parse_data *p)
-// {
-// 	t_sub			token;
-// 	void const		*token_data;
-// 	uint32_t		data;
-
-// 	data = parent_data + 1;
-// 	while (parse_token(p, &token, &token_data))
-// 	{
-// 		ft_printf("  TOKEN '%ts' %#llx%n", token, token_data);
-// 	}
-// 	if (p->eof)
-// 		ft_printf("ERROR: unexpected EOF%n");
-// 	return (parse_next(p, &data)); // needed ?
-// }
-
-// struct			s_parse_frame
-// {
-// 	t_parser const	*parser; // current parser
-// 	void			*data; // custom frame data (default NULL)
-// 	t_parse_frame	*prev; // previous frame
-// }
-
-// struct			s_parse_data
-// {
-// 	void			*env; // custom data
-// 	t_tokenizer		t; // tokenizer
-// 	t_parse_frame	*frame; // current frame
-// 	bool			eof; // flags
-// };
-
-// /*
-// ** Iterate over tokens
-// ** Return false when current frame should stop
-// ** 'p->eof' is set on EOF
-// ** '*token_str' and '*token_data' are fill with token's infos
-// ** Note: token_str string is temporary and is invalidated after each call
-// ** '*token_data' is set to NULL on unmatched token
-// */
-
-// bool			parse_token(t_parse_data *p,
-// 					t_sub *token_str, void const **token_data)
-// {
-// 	if (!ft_tokenize(&p->t))
-// 		return (false);
-// 	if (p->t.token_data == NULL)
-// 		return (exec_match(p, token_str, token_data));
-// 	return (exec_token(p, token_str, token_data));
-// }
-
-// /*
-// ** Start parsing
-// ** call 'f' function store in each parsers
-// */
-// bool			parse(t_in *in, t_parser const *parser, void *env)
-// {
-// 	t_parse_data	p;
-// 	bool			ret;
-
-// 	p = (t_parse_data){
-// 		env,
-// 		TOKENIZER(in, NULL)
-// 	};
-// 	ret = parser->f(&p, NULL);
-// 	D_TOKENIZER(p.t);
-// 	return (ret);
-// }
 
 static bool				run_shell(t_sub str)
 {
@@ -696,11 +630,7 @@ static bool				run_shell(t_sub str)
 		&& (sh_parser = load_sh_parser()) == NULL)
 		return (false);
 	sh_in = IN(str.str, str.length, NULL);
-	exec_parser(&sh_in, sh_parser, (t_callback[]){
-		CALLBACK(&sh_parser_begin, NULL),
-		CALLBACK(&sh_parser_end, NULL),
-		CALLBACK(&sh_parser_token, NULL),
-	}, 0);
+	parse(&sh_in, sh_parser, NULL);
 	return (true);
 }
 
