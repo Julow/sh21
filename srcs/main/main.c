@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/09 14:17:31 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/09 15:45:55 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "ft/tokenizer.h"
 
 #include "editor.h"
-#include "syntax_color_loader.h"
+#include "syntax_color.h"
 
 #include <termios.h>
 #include <unistd.h>
@@ -53,8 +53,10 @@ struct			s_main
 	t_term				*term;
 	t_editor			*editor;
 	uint32_t			flags;
-	t_parser const		*curr_parser;
+	t_syntax_color		*syntax_color;
 };
+
+#define DEFAULT_SYNTAX_COLOR	"sh"
 
 /*
 ** ========================================================================== **
@@ -658,21 +660,17 @@ static bool		init_main(t_main *main)
 		if (main->term->flags & TERM_USE_DEFAULT)
 			ft_dprintf(2, WARNING_MSG("Invalid $TERM value: Use default: %s"),
 				TERM_DEFAULT_TERM);
+
 		main->editor = NEW(t_editor);
 		editor_init(main->editor);
 		editor_bind(main->editor, KEY('m', MOD_CTRL), CALLBACK(binding_runshell, main), 1);
 
-		main->editor->user = main;
+		if ((main->syntax_color
+				= load_syntax_color(SUBC(DEFAULT_SYNTAX_COLOR))) == NULL)
+			ft_dprintf(2, WARNING_MSG("Cannot load syntax coloration: %s%n"),
+				DEFAULT_SYNTAX_COLOR);
 		main->flags |= FLAG_INTERACTIVE;
 	}
-	return (true);
-}
-
-static bool		init_parsers(t_main *main)
-{
-	main->curr_parser = load_syntax_color(SUBC("sh"));
-	if (main->curr_parser == NULL)
-		return (false);
 	return (true);
 }
 
@@ -702,7 +700,7 @@ static void		interactive_loop(t_main *main)
 	while (!(main->flags & FLAG_EXIT))
 	{
 		cursor = editor_rowcol(main->editor, main->editor->cursor);
-		refresh_syntax(main->editor, main->curr_parser);
+		refresh_syntax(main->editor, main->syntax_color);
 		ft_fprintf(&main->term->out, "[[ ");
 		if (key_used >= 0)
 		{
@@ -751,7 +749,7 @@ int				main(void)
 {
 	t_main			main;
 
-	if (!init_main(&main) || !init_parsers(&main))
+	if (!init_main(&main))
 		return (1);
 	if (main.flags & FLAG_INTERACTIVE)
 		interactive_loop(&main);

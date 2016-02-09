@@ -6,20 +6,16 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/03 19:44:48 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/04 00:41:19 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/09 15:31:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/ft_hmap.h"
 #include "internal.h"
 
-static t_syntax_color_def const *const	g_syntax_color_def[] = {
-	&g_syntax_color_utils,
-	&g_syntax_color_sh,
-	&g_syntax_color_xml,
-};
+extern t_vector const	g_syntaxes_color_def;
 
-t_parser const	*load_syntax_color(t_sub name)
+t_syntax_color	*load_syntax_color(t_sub name)
 {
 	static t_hmap				*parser_map = NULL;
 	t_syntax_color_def const	*def;
@@ -32,9 +28,9 @@ t_parser const	*load_syntax_color(t_sub name)
 	else if ((tmp = ft_hmapget(parser_map, name).value) != NULL)
 		return (tmp);
 	i = 0;
-	while (i < ARRAY_LEN(g_syntax_color_def))
+	while (i < g_syntaxes_color_def.length)
 	{
-		def = g_syntax_color_def[i];
+		def = *(t_syntax_color_def const**)VECTOR_GET(g_syntaxes_color_def, i);
 		if (SUB_EQU(def->name, name))
 		{
 			j = 0;

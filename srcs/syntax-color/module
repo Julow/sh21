@@ -1,8 +1,8 @@
-module syntax-color-loader:
+module syntax-color:
 	public include public/
 	private include ./
 
-	public require ft::parser
 	public require ft::base
+	private require ft::parser
 	private require ft::hmap
 	private require ft::vector
