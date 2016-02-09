@@ -6,109 +6,106 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/08 17:47:59 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/09 14:15:58 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/ft_colors.h"
 #include "ft/parser.h"
 
-struct			s_exec_parser // TODO: move
+static bool		exec_frame(t_parse_data *p, t_parser const *parser)
 {
-	t_tokenizer		tokenizer;
-	t_callback		on_parser_start;
-	t_callback		on_parser_end;
-	t_callback		on_token;
-	uint32_t		data_size;
-};
+	t_parse_frame			frame;
+	bool					ret;
 
-static void		exec(struct s_exec_parser *s, t_parser const *parser,
-					t_parser_data *data);
-
-static bool		exec_token(struct s_exec_parser *s, t_parser_token const *token,
-					t_parser_data *parent_data)
-{
-	t_parser_data		parser_data;
-	uint8_t				data[s->data_size];
-
-	if (token->parser != NULL)
-	{
-		parser_data = (t_parser_data){data, parent_data, NULL};
-		parent_data->next = &parser_data;
-		CALL(void, s->on_parser_start, &parser_data, token->parser->data);
-		CALL(void, s->on_token, &parser_data, s->tokenizer.token, token->data);
-		exec(s, token->parser, &parser_data);
-		CALL(void, s->on_parser_end, &parser_data, token->parser->data);
-		parent_data->next = NULL;
-	}
-	else
-		CALL(void, s->on_token, parent_data, s->tokenizer.token, token->data);
-	return (token->end);
+	frame = (t_parse_frame){parser, NULL, p->frame};
+	p->frame = &frame;
+	p->t.token_map = &parser->token_map;
+	ret = parser->f(p);
+	p->t.token_map = (frame.prev == NULL ) ? NULL
+		: &frame.prev->parser->token_map;
+	p->frame = frame.prev;
+	return (ret);
 }
 
-static bool		exec_match(struct s_exec_parser *s, t_parser const *parser,
-					t_parser_data *parent_data)
+static bool		exec_token(t_parse_data *p,
+					t_sub *token_str, void const **token_data)
+{
+	t_parser_token const *const	t = p->t.token_data;
+
+	if (t->parser != NULL)
+	{
+		if (token_str != NULL)
+			*token_str = SUB0();
+		if (token_data != NULL)
+			*token_data = NULL;
+		if (!exec_frame(p, t->parser))
+			return (false);
+		return (t->end ? false : parse_token(p, token_str, token_data));
+	}
+	if (token_str != NULL)
+		*token_str = p->t.token;
+	if (token_data != NULL)
+		*token_data = p->t.token_data;
+	return (!t->end);
+}
+
+static bool		exec_match(t_parse_data *p,
+					t_sub *token_str, void const **token_data)
 {
 	t_sub			match;
 	t_parser_match	*m;
 	uint32_t		i;
 
 	i = 0;
-	while (i < parser->match.length)
+	while (i < p->frame->parser->match.length)
 	{
-		m = VECTOR_GET(parser->match, i);
-		match = SUB(s->tokenizer.token.str, 0);
-		if (ft_rsearch(s->tokenizer.token, &match, &m->regex, NULL))
+		m = VECTOR_GET(p->frame->parser->match, i);
+		match = SUB(p->t.token.str, 0);
+		if (ft_rsearch(p->t.token, &match, &m->regex, NULL))
 		{
-			if (SUB_OFF(s->tokenizer.token, match) > 0)
+			if (SUB_OFF(p->t.token, match) > 0)
 			{
-				i = SUB_OFF(s->tokenizer.token, match);
-				s->tokenizer.end -= s->tokenizer.token.length - i;
-				s->tokenizer.token.length = i;
-				return (exec_match(s, parser, parent_data));
+				i = SUB_OFF(p->t.token, match);
+				p->t.end -= p->t.token.length - i;
+				p->t.token.length = i;
+				return (exec_match(p, token_str, token_data));
 			}
-			s->tokenizer.end -= s->tokenizer.token.length - match.length;
-			s->tokenizer.token = match;
-			return (exec_token(s, &m->token, parent_data));
+			p->t.end -= p->t.token.length - match.length;
+			p->t.token = match;
+			return (exec_token(p, token_str, token_data));
 		}
 		i++;
 	}
-	if (s->tokenizer.token.length > 0)
-		CALL(void, s->on_token, parent_data, s->tokenizer.token, NULL);
-	return (false);
+	if (token_str != NULL)
+		*token_str = p->t.token;
+	if (token_data != NULL)
+		*token_data = p->t.token_data;
+	return (true);
 }
 
-static void		exec(struct s_exec_parser *s, t_parser const *parser,
-					t_parser_data *data)
+bool			parse_token(t_parse_data *p,
+					t_sub *token_str, void const **token_data)
 {
-	t_token_map const	*old_map = s->tokenizer.token_map;
-
-	s->tokenizer.token_map = &parser->token_map;
-	while (ft_tokenize(&s->tokenizer))
-		if ((s->tokenizer.token_data == NULL)
-				? exec_match(s, parser, data)
-				: exec_token(s, s->tokenizer.token_data, data))
-			break ;
-	s->tokenizer.token_map = old_map;
+	if (!ft_tokenize(&p->t))
+		return (false);
+	if (p->t.token_data == NULL)
+		return (exec_match(p, token_str, token_data));
+	return (exec_token(p, token_str, token_data));
 }
 
-void			exec_parser(t_in *in, t_parser const *parser,
-					t_callback callbacks[3], uint32_t data_size)
+bool			parse(t_in *in, t_parser const *parser, void *env)
 {
-	struct s_exec_parser	s;
-	t_parser_data			parser_data;
-	uint8_t					data[data_size];
+	t_parse_data	p;
+	bool			ret;
 
-	s = (struct s_exec_parser){
+	p = (t_parse_data){
+		env,
 		TOKENIZER(in, NULL),
-		callbacks[0],
-		callbacks[1],
-		callbacks[2],
-		data_size
+		NULL,
+		false
 	};
-	parser_data = (t_parser_data){data, NULL, NULL};
-	CALL(void, s.on_parser_start, &parser_data, parser->data);
-	exec(&s, parser, &parser_data);
-	CALL(void, s.on_parser_end, &parser_data, parser->data);
-	D_TOKENIZER(s.tokenizer);
+	ret = exec_frame(&p, parser);
+	D_TOKENIZER(p.t);
+	return (ret);
 }

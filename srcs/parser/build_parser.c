@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/08 19:21:03 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/09 12:44:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,13 @@
 #include "ft/parser_def.h"
 
 static t_parser	*get_parser(t_sub name, t_hmap *map, t_vector const *parsers);
+
+static bool		parser_parse_ignore(t_parse_data *p)
+{
+	while (parse_token(p, NULL, NULL))
+		;
+	return (p->eof);
+}
 
 static void		add_token(t_parser *parser, t_sub token_str, void *data,
 					t_parser *sub_parser, bool end_token)
@@ -91,6 +98,7 @@ static t_parser	*build(t_hmap *map, t_vector const *parsers,
 	ft_hmapputp(map, def->name, NULL);
 	parser = ft_hmapput(map, def->name, NULL, sizeof(t_parser)).value;
 	parser->data = def->data;
+	parser->f = (def->f == NULL) ? &parser_parse_ignore : def->f;
 	parser->token_map = TOKEN_MAP();
 	parser->match = VECTOR(t_parser_match);
 	parser->resolved = false;

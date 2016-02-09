@@ -27,6 +27,11 @@ else
 endif
 export DEBUG_MODE
 
+# Compilers
+CC				= clang
+CXX				= clang++
+LINKER			= $(CC)
+
 # Objects directory
 O_DIR			:= _objs
 
@@ -38,27 +43,32 @@ DEPEND			:= depend.mk
 
 # tmp
 SUBMODULE_RULES	:= $(addsuffix /.git,$(SUBMODULES))
-PRINT_OK	= printf '\033[32m$<\033[0m\n'
-PRINT_LINK	= printf '\033[32m$@\033[0m\n'
+PRINT_OK		= printf '\033[32m$<\033[0m\n'
+PRINT_LINK		= printf '\033[32m$@\033[0m\n'
 
 # Default rule (need to be before any include)
-all: $(SUBMODULE_RULES) init
-	-make -j$(JOBS) $(NAME)
+all: init
+	make -j$(JOBS) $(NAME)
 
 # Include $(O_FILES) and dependencies
 include $(DEPEND)
 
-init: $(LIBS_RULES) $(OBJ_DIR_TREE) $(PUBLIC_LINKS)
+# make -n
+n: init
+	make -n $(NAME)
+
+init: $(SUBMODULE_RULES) $(LIBS_RULES) $(OBJ_DIR_TREE) $(PUBLIC_LINKS)
 
 # Linking
 $(NAME): $(OBJ_DIR_TREE) $(PUBLIC_LINKS) $(LINK_DEPENDS) $(O_FILES)
-	clang -o $@ $(O_FILES) $(LINK_FLAGS) && $(PRINT_LINK)
+	$(LINKER) -o $@ $(O_FILES) $(LINK_FLAGS) && $(PRINT_LINK)
 
 # Compiling
 $(O_DIR)/%.o: %.c
-	clang $(C_FLAGS) -c $< -o $@ && $(PRINT_OK)
+	$(CC) $(C_FLAGS) -c $< -o $@ && $(PRINT_OK)
 $(O_DIR)/%.o: %.cpp
-	clang++ $(CPP_FLAGS) -c $< -o $@ && $(PRINT_OK)
+	$(CXX) $(CPP_FLAGS) -c $< -o $@ && $(PRINT_OK)
+	$(eval LINKER = $(CXX))
 
 # Init submodules
 $(SUBMODULE_RULES):
@@ -95,4 +105,4 @@ _debug:
 	$(eval DEBUG_MODE = 1)
 
 .SILENT:
-.PHONY: all clean fclean re debug rebug _debug init
+.PHONY: all n clean fclean re debug rebug _debug init

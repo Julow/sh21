@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/04 19:12:47 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/09 12:31:17 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,52 @@
 typedef struct s_parser			t_parser;
 typedef struct s_parser_token	t_parser_token;
 typedef struct s_parser_match	t_parser_match;
-typedef struct s_parser_data	t_parser_data;
+
+typedef struct s_parse_data		t_parse_data;
+typedef struct s_parse_frame	t_parse_frame;
 
 /*
 ** ========================================================================== **
-** parser
+** Parsing
+*/
+
+struct			s_parse_frame
+{
+	t_parser const	*parser; // current parser
+	void			*data; // custom frame data (default NULL)
+	t_parse_frame	*prev; // previous frame
+};
+
+struct			s_parse_data
+{
+	void			*env; // custom data
+	t_tokenizer		t; // tokenizer
+	t_parse_frame	*frame; // current frame
+	bool			eof; // flags
+	// TODO: error flag + error info report
+};
+
+/*
+** Start parsing
+** call 'f' function store in each parsers
+*/
+bool			parse(t_in *in, t_parser const *parser, void *env);
+
+/*
+** Iterate over tokens
+** Return false when current frame should stop
+** 'p->eof' is set on EOF
+** '*token_str' and '*token_data' are fill with token's infos
+** Note: token_str string is temporary and is invalidated after each call
+** '*token_data' is set to NULL on unmatched token
+** 'token_str' and 'token_data' can be NULL
+*/
+bool			parse_token(t_parse_data *p,
+					t_sub *token_str, void const **token_data);
+
+/*
+** ========================================================================== **
+** Parser
 */
 
 struct			s_parser_token
@@ -44,28 +85,10 @@ struct			s_parser_match
 struct			s_parser
 {
 	void			*data;
+	bool			(*f)(t_parse_data *);
 	t_token_map		token_map;
 	t_vector		match;
 	bool			resolved;
 };
-
-struct			s_parser_data
-{
-	void			*data;
-	t_parser_data	*prev;
-	t_parser_data	*next;
-};
-
-/*
-** Execute parser on 'in'
-** callbacks[0]:
-**  void (*)(void *env, t_parser_data *data, void const *parser_data)
-** callbacks[1]:
-**  void (*)(void *env, t_parser_data *data, void const *parser_data)
-** callbacks[2]:
-**  void (*)(void *env, t_parser_data *parent, t_sub token, void const *data)
-*/
-void			exec_parser(t_in *in, t_parser const *parser,
-					t_callback callbacks[3], uint32_t data_size);
 
 #endif
