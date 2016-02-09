@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/04 00:18:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/09 12:46:02 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 00:05:57 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			),
 		),
 
-		PARSER_DEF("sh", "sh", NULL,
+		PARSER_DEF("sh", "sh", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh-allow-subst"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("\\\"", "escaped.quote"),
@@ -55,21 +55,21 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			),
 		),
 
-		PARSER_DEF("sh-sub", "sub", NULL,
+		PARSER_DEF("sh-sub", "sub", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T(")", "end", .end=true),
 			),
 		),
 
-		PARSER_DEF("sh-backquote", "backquote", NULL,
+		PARSER_DEF("sh-backquote", "backquote", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("`", "end", .end=true),
 			),
 		),
 
-		PARSER_DEF("sh-string", "string", NULL,
+		PARSER_DEF("sh-string", "string", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh-allow-subst"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("\"", "end", .end=true),
@@ -80,15 +80,15 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			),
 		),
 
-		PARSER_DEF("sh-string-simple", "string.simple", NULL,
+		PARSER_DEF("sh-string-simple", "string.simple", &syntax_color_parser_begin,
 			.tokens = PARSER_DEF_T(PARSER_T("'", "end", .end=true)),
 		),
 
-		PARSER_DEF("sh-comment", "comment", NULL,
+		PARSER_DEF("sh-comment", "comment", &syntax_color_parser_begin,
 			.tokens = PARSER_DEF_T(PARSER_T("\n", "endl", .end=true)),
 		),
 
-		PARSER_DEF("sh-subst", "subst", NULL,
+		PARSER_DEF("sh-subst", "subst", &syntax_color_parser_begin,
 			.tokens = PARSER_DEF_T(
 				PARSER_T("}", "end", .end=true),
 				PARSER_T("%", "op"),
@@ -115,7 +115,7 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			),
 		),
 
-		PARSER_DEF("sh-math", "math", NULL,
+		PARSER_DEF("sh-math", "math", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh-math-base"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T(")", "error"),
@@ -123,7 +123,7 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			),
 		),
 
-		PARSER_DEF("sh-math-sub", "math", NULL,
+		PARSER_DEF("sh-math-sub", "math", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh-math-base"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T(")", "end", .end=true),

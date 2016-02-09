@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/09 15:45:55 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 00:25:05 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ struct			s_main
 	t_term				*term;
 	t_editor			*editor;
 	uint32_t			flags;
-	t_syntax_color		*syntax_color;
+	t_syntax_color const	*syntax_color;
 };
 
 #define DEFAULT_SYNTAX_COLOR	"sh"
@@ -209,12 +209,9 @@ static void		put_key(t_out *out, t_key key)
 ** ========================================================================== **
 */
 
-#define SCOPE(S,C)	{SUBC(S), STYLE C}
+#define SCOPE(S,C)	{SUBC(S), &STYLE C}
 
-static struct {
-	t_sub			scope;
-	t_style			style;
-} const			g_colors[] = {
+static t_vector const	g_color_scheme = VECTOR(t_color_scheme,
 	SCOPE("string.simple", (S_YELLOW, 0, 0)),
 	SCOPE("string", (S_LIGHT(S_YELLOW), 0, 0)),
 	SCOPE("escaped", (S_LIGHT(S_RED), 0, 0)),
@@ -225,53 +222,27 @@ static struct {
 	SCOPE("identifier.key", (S_LIGHT(S_CYAN), 0, 0)),
 	SCOPE("identifier", (S_GREEN, 0, 0)),
 	SCOPE("error", (0, S_RED, 0)),
-};
+);
 
-static t_style	get_color(t_parse_frame *frame)
+static void		sh_spanlist_fill(t_spanlist *spanlist,
+					t_vec2u range, t_style const *style)
 {
-	uint32_t		i;
-	t_sub			sub;
-
-	while (frame != NULL)
-	{
-		sub = ft_sub(frame->data, 0, -1);
-		i = 0;
-		while (i < ARRAY_LEN(g_colors))
-		{
-			if (ft_subfind(sub, g_colors[i].scope, 0) < sub.length)
-				return (g_colors[i].style);
-			i++;
-		}
-		frame = frame->prev;
-	}
-	return (STYLE(0, 0, 0));
-}
-
-bool			syntax_parser_f(t_parse_data *p)
-{
-	t_sub			token;
-	void const		*token_data;
-	t_parse_frame	frame;
 	t_style			*tmp;
 
-	p->frame->data = p->frame->parser->data;
-	frame = (t_parse_frame){NULL, NULL, p->frame};
-	while (parse_token(p, &token, &token_data))
-	{
-		frame.data = token_data;
-		tmp = ft_spanlist_push(p->env, token.length, 1);
-		*tmp = get_color(&frame);
-	}
-	return (true);
+	tmp = ft_spanlist_set(spanlist, range, 1);
+	*tmp = (style == NULL) ? STYLE(0, 0, 0) : *style;
+	ft_printf("SPAN %d->%d :: %d:%d:%d%n",
+		range.x, range.y, tmp->foreground, tmp->background, tmp->styles);
 }
 
-static void		refresh_syntax(t_editor *editor, t_parser const *parser)
+static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
 {
 	t_in			parse_in;
 
 	parse_in = IN(editor->text.str, editor->text.length, NULL);
 	ft_spanlist_clear(&editor->spans, 1);
-	parse(&parse_in, parser, &editor->spans);
+	exec_syntax_color(&parse_in, s, &g_color_scheme,
+		CALLBACK(sh_spanlist_fill, &editor->spans));
 }
 
 /*

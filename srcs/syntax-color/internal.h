@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/04 00:18:44 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/09 15:23:24 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 00:04:50 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,7 @@ struct			s_syntax_color_def
 
 # define SYNTAX_COLOR(N,M,...)		{SUBC(N),SUBC(M),##__VA_ARGS__}
 # define SYNTAX_COLOR_DEPEND(...)	.depend=VECTORC(((t_sub[]){__VA_ARGS__}))
+
+bool			syntax_color_parser_begin(t_parse_data *p);
 
 #endif

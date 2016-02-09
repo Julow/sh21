@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/03 19:44:48 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/09 15:31:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/09 23:41:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 extern t_vector const	g_syntaxes_color_def;
 
-t_syntax_color	*load_syntax_color(t_sub name)
+t_syntax_color const	*load_syntax_color(t_sub name)
 {
 	static t_hmap				*parser_map = NULL;
 	t_syntax_color_def const	*def;

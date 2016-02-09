@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/09 14:15:58 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 00:29:03 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ static bool		exec_match(t_parse_data *p,
 			}
 			p->t.end -= p->t.token.length - match.length;
 			p->t.token = match;
+			p->t.token_data = &m->token;
 			return (exec_token(p, token_str, token_data));
 		}
 		i++;
