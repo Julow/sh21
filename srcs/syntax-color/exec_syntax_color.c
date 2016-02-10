@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/09 21:32:29 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 00:33:39 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/10 13:17:21 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,38 +42,33 @@ static void const	*get_scheme(t_parse_frame *frame,
 	return (NULL);
 }
 
-/*
-
-TODO:
-
-move token_str and token_data into 'p'
-ensure begin token is always set before call to begin function
-ensure end token is set when parse_token return false
-
-*/
-
 bool			syntax_color_parser_begin(t_parse_data *p)
 {
 	t_parse_frame					frame;
-	t_sub							token_str;
-	void const						*token_data;
 	t_sub							frame_scope;
 	t_sub							token_scope;
 	struct s_exec_data *const		data = p->env;
+	bool							end;
 
+	end = true;
 	frame_scope = ft_sub(p->frame->parser->data, 0, -1);
 	p->frame->data = &frame_scope;
 	frame = (t_parse_frame){NULL, NULL, p->frame};
-	while (parse_token(p, &token_str, &token_data))
+	while (true)
 	{
-		data->range.y = data->range.x + token_str.length;
-		token_scope = ft_sub(token_data, 0, -1);
-		frame.data = &token_scope;
-		CALL(void, data->callback, data->range,
-			get_scheme(&frame, data->color_scheme));
-		data->range.x = data->range.y;
+		if (p->token.length > 0)
+		{
+			data->range.y = data->range.x + p->token.length;
+			token_scope = ft_sub(p->token_data, 0, -1);
+			frame.data = &token_scope;
+			CALL(void, data->callback, data->range,
+				get_scheme(&frame, data->color_scheme));
+			data->range.x = data->range.y;
+		}
+		if (!end)
+			break ;
+		end = parse_token(p);
 	}
-	data->range.x += token_str.length;
 	return (true);
 }
 

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/09 12:44:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 12:51:03 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static t_parser	*get_parser(t_sub name, t_hmap *map, t_vector const *parsers);
 
 static bool		parser_parse_ignore(t_parse_data *p)
 {
-	while (parse_token(p, NULL, NULL))
+	while (parse_token(p))
 		;
 	return (p->eof);
 }

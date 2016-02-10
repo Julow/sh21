@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/10 00:31:25 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/10 13:19:53 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,37 +32,38 @@ typedef struct s_parse_frame	t_parse_frame;
 
 struct			s_parse_frame
 {
-	t_parser const	*parser; // current parser
-	void			*data; // custom frame data (default NULL)
-	t_parse_frame	*prev; // previous frame
+	t_parser const	*parser;
+	void			*data;
+	t_parse_frame	*prev;
 };
 
 struct			s_parse_data
 {
-	void			*env; // custom data
-	t_tokenizer		t; // tokenizer
-	t_parse_frame	*frame; // current frame
-	bool			eof; // flags
-	// TODO: error flag + error info report
+	void			*env;
+	t_tokenizer		t;
+	t_parse_frame	*frame;
+	bool			eof;
+	t_sub			token;
+	void const		*token_data;
 };
 
 /*
 ** Start parsing
-** call 'f' function store in each parsers
+** Call 'f' function store in each parsers
+** 'p->token' and 'p->token_data' are set to the begin token's datas
 */
 bool			parse(t_in *in, t_parser const *parser, void *env);
 
 /*
 ** Iterate over tokens
+** 'p->eof' is set to true on EOF
+** 'p->token' represent the token string
+** 'p->token_data' represent the token data
 ** Return false when current frame should stop
-** 'p->eof' is set on EOF
-** '*token_str' and '*token_data' are fill with token's infos
-** Note: token_str string is temporary and is invalidated after each call
-** '*token_data' is set to NULL on unmatched token
-** 'token_str' and 'token_data' can be NULL
+** On returning false: 'p->token' and 'p->token_data'
+**  are set to the end token's datas
 */
-bool			parse_token(t_parse_data *p,
-					t_sub *token_str, void const **token_data);
+bool			parse_token(t_parse_data *p);
 
 /*
 ** ========================================================================== **

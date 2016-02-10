@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 00:25:05 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/10 13:20:41 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,10 +229,8 @@ static void		sh_spanlist_fill(t_spanlist *spanlist,
 {
 	t_style			*tmp;
 
-	tmp = ft_spanlist_set(spanlist, range, 1);
+	tmp = ft_spanlist_push(spanlist, range.y - range.x, 1);
 	*tmp = (style == NULL) ? STYLE(0, 0, 0) : *style;
-	ft_printf("SPAN %d->%d :: %d:%d:%d%n",
-		range.x, range.y, tmp->foreground, tmp->background, tmp->styles);
 }
 
 static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
@@ -557,17 +555,14 @@ t_sub const		g_sh_parser_str[] = {
 
 static bool		sh_parse_cmd(t_parse_data *p)
 {
-	t_sub			token;
-	void const		*token_data;
-
 	ft_printf("BEGIN CMD%n");
-	while (parse_token(p, &token, &token_data))
+	while (parse_token(p))
 	{
-		if ((uintptr_t)token_data > SH_T_SUBST_PARAM_SPECIAL)
-			ft_printf("  TOKEN '%ts' <INVALID> %lld%n", token, token_data);
+		if ((uintptr_t)p->token_data > SH_T_SUBST_PARAM_SPECIAL)
+			ft_printf("  TOKEN '%ts' <INVALID> %lld%n", p->token, p->token_data);
 		else
-			ft_printf("  TOKEN '%ts' %ts%n", token,
-				g_sh_token_str[(uintptr_t)token_data]);
+			ft_printf("  TOKEN '%ts' %ts%n", p->token,
+				g_sh_token_str[(uintptr_t)p->token_data]);
 	}
 	ft_printf(p->eof ? "END CMD EOF%n" : "END CMD%n");
 	return (true);
@@ -584,12 +579,9 @@ static bool		sh_parse_sub(t_parse_data *p)
 
 static bool		sh_parse_string(t_parse_data *p)
 {
-	t_sub			token;
-	void const		*token_data;
-
 	ft_printf("  BEGIN STRING%n");
-	while (parse_token(p, &token, &token_data))
-		ft_printf("    STRING += '%ts' %ts%n", token, g_sh_token_str[(uintptr_t)token_data]);
+	while (parse_token(p))
+		ft_printf("    STRING += '%ts' %ts%n", p->token, g_sh_token_str[(uintptr_t)p->token_data]);
 	ft_printf(p->eof ? "  END STRING UNCLOSED%n" : "END STRING%n");
 	return (true);
 }
