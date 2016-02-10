@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 19:11:54 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 21:49:43 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,6 @@ bool			parse(t_in *in, t_parser const *parser, void *env)
 		NULL
 	};
 	ret = parse_frame(&p, parser);
-	D_TOKENIZER(p.t);
+	ft_tokenizer_reset(&p.t, true);
 	return (ret);
 }

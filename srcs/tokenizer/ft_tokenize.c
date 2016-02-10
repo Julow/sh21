@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 17:15:24 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/10 13:03:40 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 22:40:53 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ static bool		find_max_t(t_token_def const *def, t_sub const *match,
 			if (!IN_REFRESH(t->in))
 				return (true);
 			DSTR_APPEND(&t->buff, IN_READ(t->in));
+			t->char_count++;
 		}
 		if (t->buff.str[i] != def->sub.str[i - t->end])
 			return (true);
@@ -61,6 +62,7 @@ bool			ft_tokenize(t_tokenizer *t)
 			if (!IN_REFRESH(t->in))
 				break ;
 			DSTR_APPEND(&t->buff, IN_READ(t->in));
+			t->char_count++;
 		}
 		if (BITARRAY_GET(t->token_map->token_starts, t->buff.str[t->end]))
 		{
@@ -83,4 +85,15 @@ bool			ft_tokenize(t_tokenizer *t)
 	if (start >= t->end)
 		return (false);
 	return (true);
+}
+
+void			ft_tokenizer_reset(t_tokenizer *t, bool destroy)
+{
+	if (destroy)
+		ft_dstrclear(&t->buff);
+	t->buff.length = 0;
+	t->end = 0;
+	t->char_count = 0;
+	t->token = SUB0();
+	t->token_data = NULL;
 }

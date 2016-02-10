@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/15 17:19:33 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/02 17:47:03 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 22:00:30 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,17 +33,15 @@ struct			s_tokenizer
 	t_token_map const	*token_map;
 	t_dstr				buff;
 	uint32_t			end;
+	uint32_t			char_count;
 	t_sub				token;
 	void				*token_data;
 };
 
 /*
 ** TOKENIZER(IN, TOKEN_MAP)		Init a tokenizer
-** D_TOKENIZER(T)				Destroy a tokenizer
-** 									(Do not destroy 'in' and 'token_map')
 */
-# define TOKENIZER(IN,MAP)	((t_tokenizer){(IN),(MAP),DSTR0(),0,SUB0(),NULL})
-# define D_TOKENIZER(T)		(ft_dstrclear(&((T).buff)))
+# define TOKENIZER(IN,MAP)	((t_tokenizer){(IN),(MAP),DSTR0(),0,0,SUB0(),NULL})
 
 /*
 ** Read from 'in' and found tokens of 'map'
@@ -53,6 +51,14 @@ struct			s_tokenizer
 ** It's safe to set 't->in' and 't->token_map' between 2 calls
 */
 bool			ft_tokenize(t_tokenizer *t);
+
+/*
+** Reset a tokenizer
+** If 'destroy' is true, also free the temporary buffer
+** Does not unset/destroy 'in' and 'token_map'
+** The tokenizer is reusable after a reset
+*/
+void			ft_tokenizer_reset(t_tokenizer *t, bool destroy);
 
 /*
 ** ========================================================================== **

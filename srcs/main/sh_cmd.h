@@ -6,13 +6,14 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/10 14:39:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/10 14:41:17 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 00:27:03 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SH_CMD_H
 # define SH_CMD_H
 
+typedef struct s_sh_redir		t_sh_redir;
 typedef struct s_sh_subst_expr	t_sh_subst_expr;
 typedef struct s_sh_subst_math	t_sh_subst_math;
 typedef struct s_sh_subst		t_sh_subst;
@@ -21,13 +22,29 @@ typedef struct s_sh_loop_cmd	t_sh_loop_cmd;
 typedef struct s_sh_for_cmd		t_sh_for_cmd;
 typedef struct s_sh_if_cmd		t_sh_if_cmd;
 typedef struct s_sh_cmd			t_sh_cmd;
-typedef enum e_sh_token			t_sh_token;
-typedef enum e_sh_parser		t_sh_parser;
 
 /*
 ** ========================================================================== **
 ** Shell command representation
 */
+
+/*
+** ========================================================================== **
+** Redirections
+*/
+
+struct		s_sh_redir
+{
+	enum {
+		SH_REDIR_OUT_FD,
+		SH_REDIR_OUT_FILE,
+	}			out_type;
+	uint32_t	fd_in;
+	union {
+		uint32_t	fd;
+		uint32_t	file_len;
+	}			out;
+};
 
 /*
 ** ========================================================================== **
@@ -57,9 +74,11 @@ struct		s_sh_subst_math
 	t_vector	subst;
 };
 
+/*
+** substitution
+*/
 struct		s_sh_subst
 {
-	uint32_t	arg_index;
 	enum {
 		SH_SUBST_PARAM, // $PARAM, ${PARAM}
 		SH_SUBST_STRLEN, // ${#PARAM}
@@ -81,13 +100,20 @@ struct		s_sh_subst
 ** Shell command spec
 */
 
+/*
+** simple cmd:
+**  hold cmd string split by argument + substitution array
+*/
 struct		s_sh_simple_cmd
 {
-	t_dstr		args;
+	t_dstr		text;
 	t_vector	arg_lengths;
 	t_vector	subst;
 };
 
+/*
+** {loop,for,if} cmd
+*/
 struct		s_sh_loop_cmd
 {
 	enum {
@@ -100,15 +126,13 @@ struct		s_sh_loop_cmd
 
 struct		s_sh_for_cmd
 {
-	t_sh_simple_cmd	cmd;
-	t_dstr			data;
-	t_vector		words;
+	t_sh_simple_cmd	*cmd;
 	t_sh_cmd		*body;
 };
 
 struct		s_sh_if_cmd
 {
-	t_sh_simple_cmd	cmd;
+	t_sh_cmd		*cmd;
 	t_sh_cmd		*body;
 	enum {
 		SH_IF_NEXT_ELIF,
@@ -122,6 +146,11 @@ struct		s_sh_if_cmd
 ** Shell command
 */
 
+/*
+** sh cmd:
+**  hold redir list + cmd spec
+**  pipeline/and_or_list/compound_list
+*/
 struct		s_sh_cmd
 {
 	enum {
@@ -131,7 +160,7 @@ struct		s_sh_cmd
 		SH_CMD_IF,
 		SH_CMD_SUBSHELL,
 	}			type;
-	t_vector	redirs;
+	t_list		redirs;
 	union {
 		t_sh_simple_cmd	cmd; // SH_CMD_SIMPLE
 		t_sh_loop_cmd	loop; // SH_CMD_LOOP
@@ -143,8 +172,9 @@ struct		s_sh_cmd
 		SH_NEXT_AND,
 		SH_NEXT_OR,
 		SH_NEXT_PIPE,
-		SH_NEXT_NEWCMD,
+		SH_NEXT_NEW,
 	}			next_type;
+	t_sh_cmd	*next;
 };
 
 #endif

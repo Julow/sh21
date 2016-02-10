@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 17:54:19 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 00:32:56 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 ** TODO: parser: .tail=true to change parser without recursion
 ** TODO: editor: multi cursor
 ** TODO: editor: undo/redo history
+** TODO: tokenizer: reuse buffer
 */
 
 #define WARNING_MSG(MSG)	(C_YELLOW "Warning" C_RESET ": " MSG "%n")
@@ -255,6 +256,9 @@ static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
 ** Shell parser
 */
 
+typedef enum e_sh_token			t_sh_token;
+typedef enum e_sh_parser		t_sh_parser;
+
 enum		e_sh_token
 {
 	SH_T_AND = 1,
@@ -311,9 +315,9 @@ t_parser_def const	g_sh_parser[] = {
 	PARSER_DEF("sh-cmd", V(SH_P_SHELL), &sh_parse_cmd,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
-			T("&&", AND, .end=true, .parser="sh-cmd"),
-			T("||", OR, .end=true, .parser="sh-cmd"),
-			T("|", PIPE, .end=true, .parser="sh-cmd"),
+			T("&&", AND, .parser="sh-cmd"),
+			T("||", OR, .parser="sh-cmd"),
+			T("|", PIPE, .parser="sh-cmd"),
 			T(";", SEMICOLON, .end=true),
 			T("&", AMPERSAND, .end=true),
 			T("\n", NEWLINE, .end=true),
@@ -321,7 +325,7 @@ t_parser_def const	g_sh_parser[] = {
 			T("\t", SPACE),
 			T("\"", BEGIN, .parser="sh-string"),
 			T("'", BEGIN, .parser="sh-string-single"),
-			T("#", BEGIN, .parser="sh-comment"),
+			T("#", BEGIN, .end=true, .parser="sh-comment"),
 
 			T("\\ ", ESCAPED),
 			T("\\\t", ESCAPED),
@@ -436,8 +440,28 @@ t_sub const		g_sh_parser_str[] = {
 	[SH_P_IGNORE] = SUBC("IGNORE"),
 };
 
+struct			s_parse_sh_frame
+{
+	t_sh_cmd		*cmd;
+	uint32_t		start_index;
+};
+
+static void		sh_simple_cmd_add_cmd_subst(t_sh_simple_cmd *s, t_sh_cmd *cmd)
+{
+}
+
 static bool		sh_parse_cmd(t_parse_data *p)
 {
+	struct s_parse_sh_cmd	c;
+
+	p->frame->data = &c;
+	c = (struct s_parse_sh_cmd){NEW(t_sh_cmd, p->t.char_count};
+	*c.cmd = {SH_CMD_SIMPLE, LIST(t_sh_redir), {.cmd = C(t_sh_simple_cmd,
+		DSTR0(), VECTOR(uint32_t), VECTOR(t_sh_subst))}, SH_NEXT_NEW};
+	if (p->frame->prev == NULL)
+		*(void**)p->env = c.cmd;
+	else
+		sh_simple_cmd_add_cmd_subst(p->frame->prev->data, c.cmd);
 	ft_printf("BEGIN CMD%n");
 	while (parse_token(p))
 	{
@@ -473,12 +497,18 @@ static bool				run_shell(t_sub str)
 {
 	static t_parser const	*sh_parser = NULL;
 	t_in					sh_in;
+	t_sh_cmd				*cmd;
 
 	if (sh_parser == NULL
 		&& (sh_parser = load_sh_parser()) == NULL)
 		return (false);
 	sh_in = IN(str.str, str.length, NULL);
-	parse(&sh_in, sh_parser, NULL);
+	cmd = NULL;
+	parse(&sh_in, sh_parser, &cmd);
+	if (cmd == NULL)
+		ft_printf("NO CMD%n");
+	else
+		ft_printf("PARSED CMD DATA: '%ts'%n", DSTR_SUB(cmd->val.cmd.args));
 	return (true);
 }
 
