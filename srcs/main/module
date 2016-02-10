@@ -1,4 +1,5 @@
 main module sh21:
+	private include ./
 	require syntax-color
 	require ft::term
 	require ft::spanlist

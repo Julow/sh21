@@ -110,12 +110,12 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/syntax-color/syntaxes/sh.o \
 	$(O_DIR)/srcs/syntax-color/syntaxes/utils.o \
 	$(O_DIR)/srcs/syntax-color/syntaxes/xml.o
-PUBLIC_LINKS += $(O_DIR)/_public/editor_bindings.h $(O_DIR)/_public/editor.h \
-	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_colors.h \
-	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/ft_bst.h \
+PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
+	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_wchar.h \
+	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_bst.h \
 	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/get_next_line.h \
 	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/ft_hmap.h \
-	$(O_DIR)/_public/ft/ft_in.h $(O_DIR)/_public/ft/ft_file_in.h \
+	$(O_DIR)/_public/ft/ft_file_in.h $(O_DIR)/_public/ft/ft_in.h \
 	$(O_DIR)/_public/ft/ft_list.h $(O_DIR)/_public/ft/ft_out.h \
 	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/parser.h \
 	$(O_DIR)/_public/ft/parser_def.h $(O_DIR)/_public/ft/ft_printf.h \
@@ -698,9 +698,11 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_printf/public/ft_printf.h libft/ft_regex/public/regex.h \
 	libft/ft_term/public/term.h libft/ft_vector/public/ft_vector.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
-	srcs/parser/public/parser.h srcs/parser/public/parser_def.h \
-	srcs/spanlist/public/spanlist.h srcs/syntax-color/public/syntax_color.h \
-	srcs/tokenizer/public/tokenizer.h
+	srcs/main/sh_cmd.h srcs/parser/public/parser.h \
+	srcs/parser/public/parser_def.h srcs/spanlist/public/spanlist.h \
+	srcs/syntax-color/public/syntax_color.h srcs/tokenizer/public/tokenizer.h
+
+$(O_DIR)/srcs/main/main.o: INCLUDE_FLAGS += -Isrcs/main
 
 # module syntax-color
 $(O_DIR)/srcs/syntax-color/exec_syntax_color.o: \

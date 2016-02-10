@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/10 13:19:53 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/10 19:13:58 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,15 +37,32 @@ struct			s_parse_frame
 	t_parse_frame	*prev;
 };
 
+/*
+** Parse data
+** -
+** 'env'		User data
+** 't'			Tokenizer
+** 'frame'		The current frame
+** TODO: 'eof'		Set if EOF is reached
+** 'flags'		Flags:
+** 			PARSE_F_FIRST	Set when parse_token return it's first token
+** 'token'		The current token's string
+** 'token_data'	The current token's data
+*/
+
 struct			s_parse_data
 {
 	void			*env;
 	t_tokenizer		t;
 	t_parse_frame	*frame;
 	bool			eof;
+	uint32_t		flags;
 	t_sub			token;
 	void const		*token_data;
 };
+
+# define PARSE_F_FIRST		(1 << 0)
+# define _PARSE_F_FIRST		(1 << 1)
 
 /*
 ** Start parsing
@@ -66,8 +83,15 @@ bool			parse(t_in *in, t_parser const *parser, void *env);
 bool			parse_token(t_parse_data *p);
 
 /*
+** Create a new frame and execute 'parser'
+*/
+bool			parse_frame(t_parse_data *p, t_parser const *parser);
+
+/*
 ** ========================================================================== **
 ** Parser
+** -
+** TODO: .tail		call next parser without recursion
 */
 
 struct			s_parser_token

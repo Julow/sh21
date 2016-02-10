@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/04 00:18:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 00:05:57 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/10 18:44:05 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,10 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 				PARSER_T("\t", "space"),
 				PARSER_T("\n", "space"),
 			),
+			.match = PARSER_DEF_T(
+				PARSER_T("?^while?b", "keyword.while"),
+				PARSER_T("?^?+w", "identifier"),
+			),
 		),
 
 		PARSER_DEF("sh-sub", "sub", &syntax_color_parser_begin,
@@ -65,7 +69,16 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 		PARSER_DEF("sh-backquote", "backquote", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh"),
 			.tokens = PARSER_DEF_T(
+				PARSER_T("\\`", "begin", .parser="sh-backquote-rev"),
 				PARSER_T("`", "end", .end=true),
+			),
+		),
+
+		PARSER_DEF("sh-backquote-rev", "backquote", &syntax_color_parser_begin,
+			PARSER_INHERIT("sh"),
+			.tokens = PARSER_DEF_T(
+				PARSER_T("`", "begin", .parser="sh-backquote"),
+				PARSER_T("\\`", "end", .end=true),
 			),
 		),
 
