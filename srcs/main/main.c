@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/11 16:00:30 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 17:20:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,19 +277,20 @@ static void		print_cmd_simple(t_sh_cmd const *cmd, uint32_t indent)
 {
 	t_sh_simple_cmd const *const	scmd = &cmd->val.cmd;
 	uint32_t						i;
-	uint32_t						next;
+	t_vec2u							range;
 
 	PRINT_CMD(indent, "CMD DATA: %ts%n", DSTR_SUB(scmd->text));
 	PRINT_CMD(indent, "ARG STOPS:");
 	i = 0;
-	while (i < scmd->text.length)
+	range = VEC2U(0, 0);
+	while (range.x < scmd->text.length)
 	{
 		if (i >= scmd->arg_stops.length)
-			next = scmd->text.length;
+			range.y = scmd->text.length;
 		else
-			next = *(uint32_t*)VECTOR_GET(scmd->arg_stops, i);
-		ft_printf(" %ts", SUB(scmd->text.str + i, next - i));
-		i = next;
+			range.y = *(uint32_t*)VECTOR_GET(scmd->arg_stops, i++);
+		ft_printf(" %ts", SUB(scmd->text.str + range.x, range.y - range.x));
+		range.x = range.y;
 	}
 	ft_printf("%n");
 	PRINT_CMD(indent, "SUBSTS: [%n");

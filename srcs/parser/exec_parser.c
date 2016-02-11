@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 21:49:43 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/11 17:39:24 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static bool		exec_match(t_parse_data *p)
 	uint32_t		i;
 	t_rmatch		rmatch;
 
-	rmatch = C(t_rmatch, p->t.token, SUB0(), NULL, 0, 0,
+	rmatch = C(t_rmatch, p->t.token, SUB_START(p->t.token), NULL, 0, 0,
 		(p->flags & PARSE_F_FIRST) ? 0 : RMATCH_F_NBOL);
 	i = 0;
 	offset = 0;
@@ -59,6 +59,7 @@ static bool		exec_match(t_parse_data *p)
 			}
 			if (++i >= p->frame->parser->match.length)
 			{
+				rmatch.flags &= ~RMATCH_F_NBOL;
 				if (++offset >= (p->t.token.length - 1))
 					break ;
 				i = 0;

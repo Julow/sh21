@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/04 00:18:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 18:44:05 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 17:42:17 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			),
 			.match = PARSER_DEF_T(
 				PARSER_T("?^while?b", "keyword.while"),
-				PARSER_T("?^?+w", "identifier"),
+				PARSER_T("?^?+.", "identifier"),
 			),
 		),
 

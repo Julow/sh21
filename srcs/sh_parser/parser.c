@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 16:02:34 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 17:54:15 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ bool			sh_parse_cmd(t_parse_data *p)
 	if (p->frame->prev == NULL)
 		*(void**)p->env = c.cmd;
 	else
-		sh_simple_cmd_add_subst(p->frame->prev->data, SH_SUBST_CMD, 0)->val.cmd = c.cmd;
+		sh_simple_cmd_add_subst(&((t_sh_cmd*)p->frame->prev->data)->val.cmd, SH_SUBST_CMD, 0)->val.cmd = c.cmd;
 	while (parse_token(p))
 		switch ((uintptr_t)p->token_data)
 		{
@@ -53,6 +53,11 @@ bool			sh_parse_cmd(t_parse_data *p)
 				|| *(uint32_t*)VECTOR_GET(c.cmd->val.cmd.arg_stops, c.cmd->val.cmd.arg_stops.length - 1) < c.cmd->val.cmd.text.length)
 				*(uint32_t*)ft_vpush(&c.cmd->val.cmd.arg_stops, NULL, 1) = c.cmd->val.cmd.text.length;
 			break ;
+		case SH_T_SUBST_PARAM:
+		case SH_T_SUBST_PARAM_SPECIAL:
+			ft_dstradd(&c.cmd->val.cmd.text, SUB_FOR(p->token, 1));
+			sh_simple_cmd_add_subst(&c.cmd->val.cmd, SH_SUBST_PARAM, p->token.length - 1);
+			break ;
 		}
 	return (true);
 }
@@ -66,10 +71,26 @@ bool			sh_parse_sub(t_parse_data *p)
 	return (true);
 }
 
+// same as sh_parse_cmd
 bool			sh_parse_string(t_parse_data *p)
 {
+	t_sh_simple_cmd *const	cmd = &((t_sh_cmd*)p->frame->prev->data)->val.cmd;
+
 	p->frame->data = p->frame->prev->data;
 	while (parse_token(p))
-		;
+		switch ((uintptr_t)p->token_data)
+		{
+		case 0:
+			ft_dstradd(&cmd->text, p->token);
+			break ;
+		case SH_T_ESCAPED:
+			ft_dstradd(&cmd->text, SUB_FOR(p->token, 1));
+			break ;
+		case SH_T_SUBST_PARAM:
+		case SH_T_SUBST_PARAM_SPECIAL:
+			ft_dstradd(&cmd->text, SUB_FOR(p->token, 1));
+			sh_simple_cmd_add_subst(cmd, SH_SUBST_PARAM, p->token.length - 1);
+			break ;
+		}
 	return (true);
 }
