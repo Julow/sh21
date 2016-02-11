@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/11 00:32:56 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/11 16:00:30 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@
 #include "ft/spanlist.h"
 #include "ft/term.h"
 #include "ft/tokenizer.h"
+#include "sh/cmd.h"
+#include "sh/tokens.h"
 
 #include "editor.h"
-#include "sh_cmd.h"
 #include "syntax_color.h"
 
 #include <termios.h>
@@ -256,259 +257,89 @@ static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
 ** Shell parser
 */
 
-typedef enum e_sh_token			t_sh_token;
-typedef enum e_sh_parser		t_sh_parser;
+#define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, INDENT, '\t', ##__VA_ARGS__)
 
-enum		e_sh_token
-{
-	SH_T_AND = 1,
-	SH_T_OR,
-	SH_T_PIPE,
-	SH_T_SEMICOLON,
-	SH_T_AMPERSAND,
-	SH_T_NEWLINE,
-//
-	SH_T_SPACE,
-	SH_T_BEGIN,
-	SH_T_END,
-	SH_T_ESCAPED,
-//
-	SH_T_SUBST_PARAM,
-	SH_T_SUBST_PARAM_SPECIAL,
+static char const *const	g_print_subst_type[] = {
+	[SH_SUBST_PARAM] = "PARAM",
+	[SH_SUBST_STRLEN] = "STRLEN",
+	[SH_SUBST_EXPR] = "EXPR",
+	[SH_SUBST_MATH] = "MATH",
+	[SH_SUBST_CMD] = "CMD",
 };
 
-enum		e_sh_parser
+static void		print_subst(t_sh_subst const *subst, uint32_t indent)
 {
-	SH_P_SHELL = 1,
-	SH_P_SUBSHELL,
-	SH_P_BACKQUOTE,
-	SH_P_EXPR,
-	SH_P_MATH,
-	SH_P_STRING,
-	SH_P_STRING_SINGLE,
-	SH_P_IGNORE,
-};
-
-#define T(STR,T,...)	PARSER_T(STR, V(SH_T_##T), ##__VA_ARGS__)
-
-static bool		sh_parse_cmd(t_parse_data *p);
-static bool		sh_parse_sub(t_parse_data *p);
-// static bool		sh_parse_expr(t_parse_data *p);
-// static bool		sh_parse_math(t_parse_data *p);
-static bool		sh_parse_string(t_parse_data *p);
-
-t_parser_def const	g_sh_parser[] = {
-
-	PARSER_DEF("sh-base-subst", NULL, NULL,
-		.tokens = PARSER_DEF_T(
-			T("${", BEGIN, .parser="sh-expr"),
-			T("$(", BEGIN, .parser="sh-sub"),
-			T("$((", BEGIN, .parser="sh-math"),
-			T("`", BEGIN, .parser="sh-backquote"),
-		),
-		.match = PARSER_DEF_T(
-			T("$?[a-zA-Z_]?*w", SUBST_PARAM),
-			T("$?.", SUBST_PARAM_SPECIAL),
-		),
-	),
-
-	PARSER_DEF("sh-cmd", V(SH_P_SHELL), &sh_parse_cmd,
-		PARSER_INHERIT("sh-base-subst"),
-		.tokens = PARSER_DEF_T(
-			T("&&", AND, .parser="sh-cmd"),
-			T("||", OR, .parser="sh-cmd"),
-			T("|", PIPE, .parser="sh-cmd"),
-			T(";", SEMICOLON, .end=true),
-			T("&", AMPERSAND, .end=true),
-			T("\n", NEWLINE, .end=true),
-			T(" ", SPACE),
-			T("\t", SPACE),
-			T("\"", BEGIN, .parser="sh-string"),
-			T("'", BEGIN, .parser="sh-string-single"),
-			T("#", BEGIN, .end=true, .parser="sh-comment"),
-
-			T("\\ ", ESCAPED),
-			T("\\\t", ESCAPED),
-			T("\\\n", ESCAPED),
-			T("\\;", ESCAPED),
-			T("\\|", ESCAPED),
-			T("\\&", ESCAPED),
-			T("\\`", ESCAPED),
-			T("\\\"", ESCAPED),
-			T("\\'", ESCAPED),
-
-		),
-	),
-
-	PARSER_DEF("sh-sub", V(SH_P_SUBSHELL), &sh_parse_sub,
-		PARSER_INHERIT("sh-cmd"),
-		.tokens = PARSER_DEF_T(
-			T(")", END, .end=true),
-		),
-	),
-
-	PARSER_DEF("sh-backquote", V(SH_P_BACKQUOTE), &sh_parse_sub,
-		PARSER_INHERIT("sh-cmd"),
-		.tokens = PARSER_DEF_T(
-			T("`", END, .end=true),
-			T("\\`", BEGIN, .parser="sh-backquote-rev"),
-		),
-	),
-
-	PARSER_DEF("sh-backquote-rev", V(SH_P_BACKQUOTE), &sh_parse_sub,
-		PARSER_INHERIT("sh-cmd"),
-		.tokens = PARSER_DEF_T(
-			T("\\`", END, .end=true),
-			T("`", BEGIN, .parser="sh-backquote"),
-		),
-	),
-
-	PARSER_DEF("sh-expr", V(SH_P_EXPR), NULL,
-		.tokens = PARSER_DEF_T(
-			T("}", END, .end=true),
-		),
-	),
-
-	PARSER_DEF("sh-math", V(SH_P_MATH), NULL,
-		.tokens = PARSER_DEF_T(
-			T("))", END, .end=true),
-		),
-	),
-
-	PARSER_DEF("sh-string", V(SH_P_STRING), &sh_parse_string,
-		PARSER_INHERIT("sh-base-subst"),
-		.tokens = PARSER_DEF_T(
-			T("\"", END, .end=true),
-			T("\\\"", ESCAPED),
-		),
-	),
-
-	PARSER_DEF("sh-string-single", V(SH_P_STRING_SINGLE), &sh_parse_string,
-		.tokens = PARSER_DEF_T(
-			T("'", END, .end=true),
-		),
-	),
-
-	PARSER_DEF("sh-comment", V(SH_P_IGNORE), NULL,
-		.tokens = PARSER_DEF_T(
-			T("\n", END, .end=true),
-		),
-	),
-
-};
-
-#undef T
-
-static t_parser const	*load_sh_parser(void)
-{
-	t_hmap					*map;
-	t_parser const			*parser;
-
-	map = ft_hmapnew(10, &ft_djb2);
-	if (!build_parser(map, &VECTORC(g_sh_parser)))
-		return (NULL);
-	parser = ft_hmapget(map, SUBC("sh-cmd")).value;
-	// ft_hmapdestroy(map, NULL);
-	return (parser);
+	PRINT_CMD(indent, "%s%n", (subst->type >= ARRAY_LEN(g_print_subst_type))
+		? "<INVALID SUBST TYPE>" : g_print_subst_type[subst->type]);
 }
 
-t_sub const		g_sh_token_str[] = {
-	[0] = SUBC("NULL"),
-	[SH_T_AND] = SUBC("AND"),
-	[SH_T_OR] = SUBC("OR"),
-	[SH_T_PIPE] = SUBC("PIPE"),
-	[SH_T_SEMICOLON] = SUBC("SEMICOLON"),
-	[SH_T_AMPERSAND] = SUBC("AMPERSAND"),
-	[SH_T_NEWLINE] = SUBC("NEWLINE"),
-	[SH_T_SPACE] = SUBC("SPACE"),
-	[SH_T_BEGIN] = SUBC("BEGIN"),
-	[SH_T_END] = SUBC("END"),
-	[SH_T_ESCAPED] = SUBC("ESCAPED"),
-	[SH_T_SUBST_PARAM] = SUBC("SUBST_PARAM"),
-	[SH_T_SUBST_PARAM_SPECIAL] = SUBC("SUBST_PARAM_SPECIAL"),
-};
-
-t_sub const		g_sh_parser_str[] = {
-	[0] = SUBC("NULL"),
-	[SH_P_SHELL] = SUBC("SHELL"),
-	[SH_P_SUBSHELL] = SUBC("SUBSHELL"),
-	[SH_P_BACKQUOTE] = SUBC("BACKQUOTE"),
-	[SH_P_EXPR] = SUBC("EXPR"),
-	[SH_P_MATH] = SUBC("MATH"),
-	[SH_P_STRING] = SUBC("STRING"),
-	[SH_P_STRING_SINGLE] = SUBC("STRING_SINGLE"),
-	[SH_P_IGNORE] = SUBC("IGNORE"),
-};
-
-struct			s_parse_sh_frame
+static void		print_cmd_simple(t_sh_cmd const *cmd, uint32_t indent)
 {
-	t_sh_cmd		*cmd;
-	uint32_t		start_index;
-};
+	t_sh_simple_cmd const *const	scmd = &cmd->val.cmd;
+	uint32_t						i;
+	uint32_t						next;
 
-static void		sh_simple_cmd_add_cmd_subst(t_sh_simple_cmd *s, t_sh_cmd *cmd)
-{
-}
-
-static bool		sh_parse_cmd(t_parse_data *p)
-{
-	struct s_parse_sh_cmd	c;
-
-	p->frame->data = &c;
-	c = (struct s_parse_sh_cmd){NEW(t_sh_cmd, p->t.char_count};
-	*c.cmd = {SH_CMD_SIMPLE, LIST(t_sh_redir), {.cmd = C(t_sh_simple_cmd,
-		DSTR0(), VECTOR(uint32_t), VECTOR(t_sh_subst))}, SH_NEXT_NEW};
-	if (p->frame->prev == NULL)
-		*(void**)p->env = c.cmd;
-	else
-		sh_simple_cmd_add_cmd_subst(p->frame->prev->data, c.cmd);
-	ft_printf("BEGIN CMD%n");
-	while (parse_token(p))
+	PRINT_CMD(indent, "CMD DATA: %ts%n", DSTR_SUB(scmd->text));
+	PRINT_CMD(indent, "ARG STOPS:");
+	i = 0;
+	while (i < scmd->text.length)
 	{
-		if ((uintptr_t)p->token_data > SH_T_SUBST_PARAM_SPECIAL)
-			ft_printf("  TOKEN '%ts' <INVALID> %lld%n", p->token, p->token_data);
+		if (i >= scmd->arg_stops.length)
+			next = scmd->text.length;
 		else
-			ft_printf("  TOKEN '%ts' %ts%n", p->token,
-				g_sh_token_str[(uintptr_t)p->token_data]);
+			next = *(uint32_t*)VECTOR_GET(scmd->arg_stops, i);
+		ft_printf(" %ts", SUB(scmd->text.str + i, next - i));
+		i = next;
 	}
-	ft_printf(p->eof ? "END CMD EOF%n" : "END CMD%n");
-	return (true);
+	ft_printf("%n");
+	PRINT_CMD(indent, "SUBSTS: [%n");
+	i = 0;
+	while (i < scmd->substs.length)
+		print_subst(VECTOR_GET(scmd->substs, i++), indent + 1);
+	PRINT_CMD(indent, "]%n");
 }
 
-static bool		sh_parse_sub(t_parse_data *p)
+static void		(*g_print_cmd[])(t_sh_cmd const *cmd, uint32_t indent) = {
+	[SH_CMD_SIMPLE] = &print_cmd_simple,
+};
+
+static char const *const	g_print_cmd_next[] = {
+	[SH_NEXT_AND] = "&&",
+	[SH_NEXT_OR] = "||",
+	[SH_NEXT_PIPE] = "|",
+	[SH_NEXT_NEW] = ";",
+};
+
+static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
-	if (!sh_parse_cmd(p))
-		return (false);
-	if (p->eof)
-		ft_printf("UNCLOSED SUB%n");
-	return (true);
+	while (cmd != NULL)
+	{
+		PRINT_CMD(indent, "{%n");
+		if (cmd->type >= ARRAY_LEN(g_print_cmd))
+			PRINT_CMD(indent + 1, "<INVALID CMD TYPE>%n");
+		else
+			g_print_cmd[cmd->type](cmd, indent + 1);
+		PRINT_CMD(indent, "}%n");
+		PRINT_CMD(indent, "%s%n", (cmd->next_type >= ARRAY_LEN(g_print_cmd_next))
+			? "<INVALID NEXT TYPE>" : g_print_cmd_next[cmd->next_type]);
+		cmd = cmd->next;
+	}
 }
 
-static bool		sh_parse_string(t_parse_data *p)
+static bool		run_shell(t_sub str)
 {
-	ft_printf("  BEGIN STRING%n");
-	while (parse_token(p))
-		ft_printf("    STRING += '%ts' %ts%n", p->token, g_sh_token_str[(uintptr_t)p->token_data]);
-	ft_printf(p->eof ? "  END STRING UNCLOSED%n" : "END STRING%n");
-	return (true);
-}
+	t_in			sh_in;
+	t_sh_cmd		*cmd;
 
-static bool				run_shell(t_sub str)
-{
-	static t_parser const	*sh_parser = NULL;
-	t_in					sh_in;
-	t_sh_cmd				*cmd;
-
-	if (sh_parser == NULL
-		&& (sh_parser = load_sh_parser()) == NULL)
-		return (false);
 	sh_in = IN(str.str, str.length, NULL);
 	cmd = NULL;
-	parse(&sh_in, sh_parser, &cmd);
+	ft_printf("PARSE '%ts' [[%n", str);
+	parse(&sh_in, load_sh_parser(), &cmd);
 	if (cmd == NULL)
 		ft_printf("NO CMD%n");
 	else
-		ft_printf("PARSED CMD DATA: '%ts'%n", DSTR_SUB(cmd->val.cmd.args));
+		print_cmd(cmd, 1);
+	ft_printf("]]%n");
 	return (true);
 }
 

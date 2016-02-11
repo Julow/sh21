@@ -53,6 +53,10 @@ all: init
 # Include $(O_FILES) and dependencies
 include $(DEPEND)
 
+# No jobs
+1: init
+	make $(NAME)
+
 # make -n
 n: init
 	make -n $(NAME)
@@ -105,4 +109,4 @@ _debug:
 	$(eval DEBUG_MODE = 1)
 
 .SILENT:
-.PHONY: all n clean fclean re debug rebug _debug init
+.PHONY: all 1 n clean fclean re debug rebug _debug init

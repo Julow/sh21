@@ -1,0 +1,9 @@
+module sh::parser:
+	public include public/
+	private include ./
+
+	public require sh::exec
+	public require ft::base
+	private require ft::vector
+	private require ft::hmap
+	private require ft::parser

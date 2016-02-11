@@ -1,0 +1,8 @@
+module sh::exec:
+	public include public/
+	private include ./
+
+	public require ft::base
+	public require ft::list
+	public require ft::vector
+	public require ft::dstr

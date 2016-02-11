@@ -1,6 +1,8 @@
 main module sh21:
 	private include ./
 	require syntax-color
+	require sh::exec
+	require sh::parser
 	require ft::term
 	require ft::spanlist
 	require ft::hmap

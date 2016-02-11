@@ -1,17 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sh_cmd.h                                           :+:      :+:    :+:   */
+/*   cmd.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/02/10 14:39:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 00:27:03 by juloo            ###   ########.fr       */
+/*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
+/*   Updated: 2016/02/11 13:56:54 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SH_CMD_H
-# define SH_CMD_H
+#ifndef EXEC_H
+# define EXEC_H
+
+# include "ft/ft_dstr.h"
+# include "ft/ft_list.h"
+# include "ft/ft_vector.h"
+# include "ft/libft.h"
 
 typedef struct s_sh_redir		t_sh_redir;
 typedef struct s_sh_subst_expr	t_sh_subst_expr;
@@ -79,7 +84,7 @@ struct		s_sh_subst_math
 */
 struct		s_sh_subst
 {
-	enum {
+	enum e_sh_subst_type {
 		SH_SUBST_PARAM, // $PARAM, ${PARAM}
 		SH_SUBST_STRLEN, // ${#PARAM}
 		SH_SUBST_EXPR, // ${PARAM([:]?[-=?+]|[%#]{1,2})EXPR}
@@ -107,8 +112,8 @@ struct		s_sh_subst
 struct		s_sh_simple_cmd
 {
 	t_dstr		text;
-	t_vector	arg_lengths;
-	t_vector	subst;
+	t_vector	arg_stops;
+	t_vector	substs;
 };
 
 /*
