@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/11 17:20:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 18:23:17 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,7 +269,8 @@ static char const *const	g_print_subst_type[] = {
 
 static void		print_subst(t_sh_subst const *subst, uint32_t indent)
 {
-	PRINT_CMD(indent, "%s%n", (subst->type >= ARRAY_LEN(g_print_subst_type))
+	PRINT_CMD(indent, "[%u -> %u] %s%n", subst->range.x, subst->range.y,
+		(subst->type >= ARRAY_LEN(g_print_subst_type))
 		? "<INVALID SUBST TYPE>" : g_print_subst_type[subst->type]);
 }
 

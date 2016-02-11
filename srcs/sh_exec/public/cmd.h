@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 13:56:54 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 18:29:15 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ struct		s_sh_subst
 struct		s_sh_simple_cmd
 {
 	t_dstr		text;
-	t_vector	arg_stops;
+	t_vector	arg_ranges;
 	t_vector	substs;
 };
 
