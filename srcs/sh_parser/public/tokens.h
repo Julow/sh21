@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 13:40:44 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 13:41:23 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 19:04:44 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ typedef enum e_sh_parser		t_sh_parser;
 
 enum		e_sh_token
 {
-	SH_T_AND = 1,
+	SH_T_NONE = 0,
+	SH_T_AND,
 	SH_T_OR,
 	SH_T_PIPE,
 	SH_T_SEMICOLON,

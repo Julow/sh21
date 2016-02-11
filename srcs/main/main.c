@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/11 18:23:17 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 19:51:11 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,8 @@ static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
 
 #define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, INDENT, '\t', ##__VA_ARGS__)
 
+static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent);
+
 static char const *const	g_print_subst_type[] = {
 	[SH_SUBST_PARAM] = "PARAM",
 	[SH_SUBST_STRLEN] = "STRLEN",
@@ -272,6 +274,14 @@ static void		print_subst(t_sh_subst const *subst, uint32_t indent)
 	PRINT_CMD(indent, "[%u -> %u] %s%n", subst->range.x, subst->range.y,
 		(subst->type >= ARRAY_LEN(g_print_subst_type))
 		? "<INVALID SUBST TYPE>" : g_print_subst_type[subst->type]);
+	switch (subst->type)
+	{
+	case SH_SUBST_CMD:
+		print_cmd(subst->val.cmd, indent + 1);
+		break ;
+	default:
+		break ;
+	}
 }
 
 static void		print_cmd_simple(t_sh_cmd const *cmd, uint32_t indent)
@@ -317,6 +327,8 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 	while (cmd != NULL)
 	{
 		PRINT_CMD(indent, "{%n");
+		if (cmd->async)
+			PRINT_CMD(indent + 1, "ASYNC%n");
 		if (cmd->type >= ARRAY_LEN(g_print_cmd))
 			PRINT_CMD(indent + 1, "<INVALID CMD TYPE>%n");
 		else

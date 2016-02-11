@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:25:44 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 14:44:30 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 19:28:29 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,5 +31,7 @@ bool			sh_parse_sub(t_parse_data *p);
 // bool			sh_parse_expr(t_parse_data *p);
 // bool			sh_parse_math(t_parse_data *p);
 bool			sh_parse_string(t_parse_data *p);
+
+bool			sh_parse_ignore(t_parse_data *p);
 
 #endif

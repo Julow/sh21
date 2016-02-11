@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:32:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 14:51:23 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 19:27:35 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,13 +84,13 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-expr", V(SH_P_EXPR), NULL,
+	PARSER_DEF("sh-expr", V(SH_P_EXPR), &sh_parse_ignore,
 		.tokens = PARSER_DEF_T(
 			T("}", END, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-math", V(SH_P_MATH), NULL,
+	PARSER_DEF("sh-math", V(SH_P_MATH), &sh_parse_ignore,
 		.tokens = PARSER_DEF_T(
 			T("))", END, .end=true),
 		),
@@ -110,7 +110,7 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-comment", V(SH_P_IGNORE), NULL,
+	PARSER_DEF("sh-comment", V(SH_P_IGNORE), &sh_parse_ignore,
 		.tokens = PARSER_DEF_T(
 			T("\n", END, .end=true),
 		),

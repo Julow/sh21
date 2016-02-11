@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 18:29:15 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/11 19:08:47 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ struct		s_sh_subst
 struct		s_sh_simple_cmd
 {
 	t_dstr		text;
-	t_vector	arg_ranges;
+	t_vector	arg_stops;
 	t_vector	substs;
 };
 
@@ -166,6 +166,7 @@ struct		s_sh_cmd
 		SH_CMD_SUBSHELL,
 	}			type;
 	t_list		redirs;
+	bool		async;
 	union {
 		t_sh_simple_cmd	cmd; // SH_CMD_SIMPLE
 		t_sh_loop_cmd	loop; // SH_CMD_LOOP
