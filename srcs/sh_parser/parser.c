@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 19:46:45 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/12 10:26:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ bool			sh_parse_cmd(t_parse_data *p)
 	{
 	case SH_T_NONE:
 	case SH_T_SEMICOLON:
+	case SH_T_END:
+	case SH_T_NEWLINE:
 		break ;
 	case SH_T_AND:
 		c.cmd->next_type = SH_NEXT_AND;

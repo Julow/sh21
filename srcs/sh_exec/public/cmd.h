@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 19:08:47 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/12 11:51:47 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,14 +41,21 @@ typedef struct s_sh_cmd			t_sh_cmd;
 struct		s_sh_redir
 {
 	enum {
-		SH_REDIR_OUT_FD,
-		SH_REDIR_OUT_FILE,
-	}			out_type;
-	uint32_t	fd_in;
+		SH_REDIR_INPUT, // [left_fd]<right
+		SH_REDIR_OUTPUT, // [left_fd]>right
+		// SH_REDIR_OUTPUT_CLOBBER, // [left_fd]>|right
+		SH_REDIR_APPEND, // [left_fd]>>right
+		SH_REDIR_HEREDOC, // [left_fd]<<right
+	}			type;
+	uint32_t	left_fd;
+	enum {
+		SH_REDIR_RIGHT_FD,
+		SH_REDIR_RIGHT_TEXT,
+	}			right_type;
 	union {
 		uint32_t	fd;
 		uint32_t	file_len;
-	}			out;
+	}			right;
 };
 
 /*
@@ -116,35 +123,35 @@ struct		s_sh_simple_cmd
 	t_vector	substs;
 };
 
-/*
-** {loop,for,if} cmd
-*/
-struct		s_sh_loop_cmd
-{
-	enum {
-		SH_CMD_LOOP_WHILE,
-		SH_CMD_LOOP_UNTIL,
-	}			type;
-	t_sh_cmd	*cond;
-	t_sh_cmd	*body;
-};
+// /*
+// ** {loop,for,if} cmd
+// */
+// struct		s_sh_loop_cmd
+// {
+// 	enum {
+// 		SH_CMD_LOOP_WHILE,
+// 		SH_CMD_LOOP_UNTIL,
+// 	}			type;
+// 	t_sh_cmd	*cond;
+// 	t_sh_cmd	*body;
+// };
 
-struct		s_sh_for_cmd
-{
-	t_sh_simple_cmd	*cmd;
-	t_sh_cmd		*body;
-};
+// struct		s_sh_for_cmd
+// {
+// 	t_sh_simple_cmd	*cmd;
+// 	t_sh_cmd		*body;
+// };
 
-struct		s_sh_if_cmd
-{
-	t_sh_cmd		*cmd;
-	t_sh_cmd		*body;
-	enum {
-		SH_IF_NEXT_ELIF,
-		SH_IF_NEXT_ELSE,
-	}				next_type;
-	t_sh_if_cmd		*next;
-};
+// struct		s_sh_if_cmd
+// {
+// 	t_sh_cmd		*cmd;
+// 	t_sh_cmd		*body;
+// 	enum {
+// 		SH_IF_NEXT_ELIF,
+// 		SH_IF_NEXT_ELSE,
+// 	}				next_type;
+// 	t_sh_if_cmd		*next;
+// };
 
 /*
 ** ========================================================================== **
@@ -160,19 +167,19 @@ struct		s_sh_cmd
 {
 	enum {
 		SH_CMD_SIMPLE,
-		SH_CMD_LOOP,
-		SH_CMD_FORLOOP,
-		SH_CMD_IF,
-		SH_CMD_SUBSHELL,
+		// SH_CMD_LOOP,
+		// SH_CMD_FORLOOP,
+		// SH_CMD_IF,
+		// SH_CMD_SUBSHELL,
 	}			type;
 	t_list		redirs;
 	bool		async;
 	union {
 		t_sh_simple_cmd	cmd; // SH_CMD_SIMPLE
-		t_sh_loop_cmd	loop; // SH_CMD_LOOP
-		t_sh_for_cmd	cmd_for; // SH_CMD_FORLOOP
-		t_sh_if_cmd		cmd_if; // SH_CMD_IF
-		t_sh_cmd		*subshell; // SH_CMD_SUBSHELL
+		// t_sh_loop_cmd	loop; // SH_CMD_LOOP
+		// t_sh_for_cmd	cmd_for; // SH_CMD_FORLOOP
+		// t_sh_if_cmd		cmd_if; // SH_CMD_IF
+		// t_sh_cmd		*subshell; // SH_CMD_SUBSHELL
 	}			val;
 	enum {
 		SH_NEXT_AND,

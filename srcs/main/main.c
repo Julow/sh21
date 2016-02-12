@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/11 19:51:11 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/12 13:00:10 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include "sh/tokens.h"
 
 #include "editor.h"
+#include "editor_bindings.h"
 #include "syntax_color.h"
 
 #include <termios.h>
@@ -322,6 +323,30 @@ static char const *const	g_print_cmd_next[] = {
 	[SH_NEXT_NEW] = ";",
 };
 
+static char const *const	g_print_cmd_redir[] = {
+	[SH_REDIR_INPUT] = "<",
+	[SH_REDIR_OUTPUT] = ">",
+	[SH_REDIR_APPEND] = ">>",
+	[SH_REDIR_HEREDOC] = "<<",
+};
+
+static void		print_cmd_redir(t_list const *lst, uint32_t indent)
+{
+	t_sh_redir const	*redir;
+
+	PRINT_CMD(indent, "REDIRS: [%n");
+	redir = LIST_IT(lst);
+	while ((redir = LIST_NEXT(redir)))
+	{
+		PRINT_CMD(indent + 1, "%u%s", redir->left_fd, g_print_cmd_redir[redir->type]);
+		if (redir->right_type == SH_REDIR_RIGHT_FD)
+			ft_printf("%u%n", redir->right.fd);
+		else
+			ft_printf("%ts%n", SUB(ENDOF(redir), redir->right.file_len));
+	}
+	PRINT_CMD(indent, "]%n");
+}
+
 static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
 	while (cmd != NULL)
@@ -329,6 +354,7 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		PRINT_CMD(indent, "{%n");
 		if (cmd->async)
 			PRINT_CMD(indent + 1, "ASYNC%n");
+		print_cmd_redir(&cmd->redirs, indent + 1);
 		if (cmd->type >= ARRAY_LEN(g_print_cmd))
 			PRINT_CMD(indent + 1, "<INVALID CMD TYPE>%n");
 		else
@@ -343,17 +369,36 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 static bool		run_shell(t_sub str)
 {
 	t_in			sh_in;
+	t_parse_data	p;
 	t_sh_cmd		*cmd;
+	t_sh_cmd		*first;
 
 	sh_in = IN(str.str, str.length, NULL);
+	p = PARSE_DATA(NULL, &sh_in);
 	cmd = NULL;
+	first = NULL;
 	ft_printf("PARSE '%ts' [[%n", str);
-	parse(&sh_in, load_sh_parser(), &cmd);
-	if (cmd == NULL)
-		ft_printf("NO CMD%n");
-	else
-		print_cmd(cmd, 1);
+	while (!p.eof)
+	{
+		p.env = (first == NULL) ? &first : &cmd->next;
+		parse_frame(&p, load_sh_parser());
+		cmd = *(void**)p.env;
+		ASSERT(cmd != NULL);
+		if (cmd->next_type == SH_NEXT_NEW)
+		{
+			ft_printf("RUN%n");
+			print_cmd(first, 1);
+			// free
+			first = NULL;
+		}
+	}
+	if (first != NULL)
+	{
+		ASSERT(false, "Unexpected end of file");
+		ft_printf(">> '%ts' %u%n", p.token, p.token_data);
+	}
 	ft_printf("]]%n");
+	D_PARSE_DATA(p);
 	return (true);
 }
 
@@ -362,6 +407,8 @@ static bool		run_shell(t_sub str)
 ** Init
 */
 
+#define MOD_CTRL_X		(1 << 8)
+
 static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 {
 	if (!run_shell(DSTR_SUB(editor->text)))
@@ -369,6 +416,13 @@ static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 	return (true);
 	(void)main;
 	(void)key;
+}
+
+static bool		binding_runshell_one(t_main *main, t_editor *editor, t_key key)
+{
+	if (editor->line_stops.length > 1)
+		return (false);
+	return (binding_runshell(main, editor, key));
 }
 
 static bool		init_main(t_main *main)
@@ -384,7 +438,10 @@ static bool		init_main(t_main *main)
 
 		main->editor = NEW(t_editor);
 		editor_init(main->editor);
-		editor_bind(main->editor, KEY('m', MOD_CTRL), CALLBACK(binding_runshell, main), 1);
+		editor_bind(main->editor, KEY('x', MOD_CTRL), CALLBACK(editor_bind_extra_mod, V(MOD_CTRL_X)), 0);
+		editor_bind(main->editor, KEY('m', MOD_CTRL), CALLBACK(binding_runshell_one, main), 1);
+		editor_bind(main->editor, KEY('m', MOD_CTRL | MOD_CTRL_X), CALLBACK(binding_runshell, main), 0);
+		editor_bind(main->editor, KEY('n', MOD_CTRL), CALLBACK(editor_bind_write, "\n"), 0);
 
 		if ((main->syntax_color
 				= load_syntax_color(SUBC(DEFAULT_SYNTAX_COLOR))) == NULL)

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/11 19:20:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/12 12:54:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,28 +96,10 @@ bool			parse_token(t_parse_data *p)
 	{
 		p->token = SUB0();
 		p->token_data = NULL;
+		p->eof = true;
 		return (false);
 	}
 	if (p->t.token_data == NULL)
 		return (exec_match(p));
 	return (exec_token(p));
-}
-
-bool			parse(t_in *in, t_parser const *parser, void *env)
-{
-	t_parse_data	p;
-	bool			ret;
-
-	p = (t_parse_data){
-		env,
-		TOKENIZER(in, NULL),
-		NULL,
-		false,
-		0,
-		SUB0(),
-		NULL
-	};
-	ret = parse_frame(&p, parser);
-	ft_tokenizer_reset(&p.t, true);
-	return (ret);
 }

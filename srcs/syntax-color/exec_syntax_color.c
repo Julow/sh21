@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/09 21:32:29 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 13:17:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/12 11:29:49 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,10 @@ void			exec_syntax_color(t_in *in, t_syntax_color const *syntax,
 					t_vector const *color_scheme, t_callback callback)
 {
 	struct s_exec_data	data;
+	t_parse_data		p;
 
 	data = (struct s_exec_data){color_scheme, callback, VEC2U(0, 0)};
-	parse(in, syntax, &data);
+	p = PARSE_DATA(&data, in);
+	parse_frame(&p, syntax);
+	D_PARSE_DATA(p);
 }

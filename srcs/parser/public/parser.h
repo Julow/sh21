@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/10 19:13:58 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/12 10:46:40 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,15 +61,11 @@ struct			s_parse_data
 	void const		*token_data;
 };
 
+# define PARSE_DATA(ENV, IN)	((t_parse_data){(ENV),.t=TOKENIZER(IN,NULL)})
+# define D_PARSE_DATA(P)		(ft_tokenizer_reset(&((P).t), true))
+
 # define PARSE_F_FIRST		(1 << 0)
 # define _PARSE_F_FIRST		(1 << 1)
-
-/*
-** Start parsing
-** Call 'f' function store in each parsers
-** 'p->token' and 'p->token_data' are set to the begin token's datas
-*/
-bool			parse(t_in *in, t_parser const *parser, void *env);
 
 /*
 ** Iterate over tokens
@@ -84,6 +80,8 @@ bool			parse_token(t_parse_data *p);
 
 /*
 ** Create a new frame and execute 'parser'
+** Call 'f' function store in each parsers
+** 'p->token' and 'p->token_data' are set to the begin token's datas
 */
 bool			parse_frame(t_parse_data *p, t_parser const *parser);
 

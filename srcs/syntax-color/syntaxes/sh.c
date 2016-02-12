@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/04 00:18:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/11 17:42:17 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/12 10:14:17 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,25 +37,24 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 				PARSER_T("\\\'", "escaped.quote.simple"),
 				PARSER_T("\\$", "escaped.dollar"),
 				PARSER_T("(", "start", .parser="sh-sub"),
-				PARSER_T(";", "op.semicolon"),
 				PARSER_T("\"", "start", .parser="sh-string"),
 				PARSER_T("'", "start", .parser="sh-string-simple"),
 				PARSER_T("#", "start", .parser="sh-comment"),
-				PARSER_T("&&", "op.and"),
-				PARSER_T("&", "op.async"),
-				PARSER_T("|", "op.pipe"),
-				PARSER_T("||", "op.or"),
+				PARSER_T(";", "op.semicolon", .end=true, .parser="sh"),
+				PARSER_T("&&", "op.and", .end=true, .parser="sh"),
+				PARSER_T("&", "op.async", .end=true, .parser="sh"),
+				PARSER_T("|", "op.pipe", .end=true, .parser="sh"),
+				PARSER_T("||", "op.or", .end=true, .parser="sh"),
 				PARSER_T("<", "redir.left"),
 				PARSER_T("<<", "redir.heredoc"),
 				PARSER_T(">", "redir.right"),
 				PARSER_T(">>", "redir.right.double"),
-				PARSER_T(" ", "space"),
-				PARSER_T("\t", "space"),
-				PARSER_T("\n", "space"),
+				PARSER_T("\n", "newline", .end=true, .parser="sh"),
 			),
 			.match = PARSER_DEF_T(
-				PARSER_T("?^while?b", "keyword.while"),
-				PARSER_T("?^?+.", "identifier"),
+				PARSER_T("?^?*swhile?b", "keyword.while"),
+				PARSER_T("?^?*s?!+s", "identifier"),
+				PARSER_T("?+s", "space"),
 			),
 		),
 
