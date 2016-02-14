@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/14 02:07:27 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/14 12:57:52 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include "ft/term.h"
 #include "ft/tokenizer.h"
 #include "sh/cmd.h"
-#include "sh/tokens.h"
+#include "sh/parser.h"
 
 #include "editor.h"
 #include "editor_bindings.h"
@@ -320,6 +320,8 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		PRINT_CMD(indent, ";%n");
 	else
 		ASSERT(false, "Invalid next type");
+	if (cmd->next != NULL)
+		print_cmd(cmd->next, indent);
 }
 
 static bool		run_shell(t_sub str)
@@ -334,7 +336,13 @@ static bool		run_shell(t_sub str)
 	ft_printf("PARSE '%ts' [[%n", str);
 	while (!p.eof)
 	{
-		parse_frame(&p, load_sh_parser());
+		if (!parse_frame(&p, load_sh_parser()))
+		{
+			if (first != NULL)
+				sh_destroy_cmd(first);
+			ASSERT(false, "Parsing failed");
+			break ;
+		}
 		cmd = (first == NULL) ? (first = p.env) : (cmd->next = p.env);
 		if (!ASSERT(cmd != NULL))
 			break ;
@@ -342,7 +350,7 @@ static bool		run_shell(t_sub str)
 		{
 			ft_printf("RUN%n");
 			print_cmd(first, 0);
-			// free
+			sh_destroy_cmd(first);
 			first = NULL;
 		}
 	}
@@ -350,6 +358,7 @@ static bool		run_shell(t_sub str)
 	{
 		ASSERT(false, "Unexpected end of file");
 		ft_printf(">> '%ts' %u%n", p.token, p.token_data);
+		sh_destroy_cmd(first);
 	}
 	ft_printf("]]%n");
 	D_PARSE_DATA(p);

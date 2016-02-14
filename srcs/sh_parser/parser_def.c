@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:32:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/14 01:37:06 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/14 11:58:11 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-cmd", NULL, &sh_parse_cmd,
+	PARSER_DEF("sh-cmd", NULL, &sh_parse_frame_cmd,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
 			T("&&", AND, .end=true),
@@ -48,6 +48,7 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 			T("'", NONE, .parser="sh-string-single"),
 			T("#", NONE, .end=true, .parser="sh-comment"),
 
+			T("\\", BACKSLASH),
 			T("\\ ", ESCAPED),
 			T("\\\t", ESCAPED),
 			T("\\\n", ESCAPED),
@@ -64,14 +65,14 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-sub", NULL, &sh_parse_sub,
+	PARSER_DEF("sh-sub", NULL, &sh_parse_frame_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T(")", NONE, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-backquote", NULL, &sh_parse_sub,
+	PARSER_DEF("sh-backquote", NULL, &sh_parse_frame_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T("`", NONE, .end=true),
@@ -79,7 +80,7 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_sub,
+	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_frame_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
 			T("\\`", NONE, .end=true),
@@ -87,19 +88,19 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-expr", NULL, &sh_parse_ignore,
+	PARSER_DEF("sh-expr", NULL, &sh_parse_frame_ignore,
 		.tokens = PARSER_DEF_T(
 			T("}", NONE, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-math", NULL, &sh_parse_ignore,
+	PARSER_DEF("sh-math", NULL, &sh_parse_frame_ignore,
 		.tokens = PARSER_DEF_T(
 			T("))", NONE, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-string", NULL, &sh_parse_string,
+	PARSER_DEF("sh-string", NULL, &sh_parse_frame_string,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
 			T("\"", NONE, .end=true),
@@ -107,13 +108,13 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-string-single", NULL, &sh_parse_string,
+	PARSER_DEF("sh-string-single", NULL, &sh_parse_frame_string,
 		.tokens = PARSER_DEF_T(
 			T("'", NONE, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-comment", NULL, &sh_parse_ignore,
+	PARSER_DEF("sh-comment", NULL, &sh_parse_frame_ignore,
 		.tokens = PARSER_DEF_T(
 			T("\n", NONE, .end=true),
 		),

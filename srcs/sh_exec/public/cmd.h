@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/14 01:36:27 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/14 13:00:35 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,5 +106,24 @@ struct		s_sh_cmd
 	}			next_type;
 	t_sh_cmd	*next;
 };
+
+#define SH_TEXT()	((t_sh_text){DSTR0(), VECTOR(t_sh_token)})
+#define SH_CMD()	((t_sh_cmd){SH_TEXT(), false, SH_NEXT_NEW, NULL})
+
+/*
+** ========================================================================== **
+*/
+
+/*
+** Destroy a t_sh_text
+** The 'text' ptr is NOT freed
+*/
+void		sh_destroy_text(t_sh_text *text);
+
+/*
+** Destroy a t_sh_cmd
+** The 'cmd' ptr IS freed
+*/
+void		sh_destroy_cmd(t_sh_cmd *cmd);
 
 #endif
