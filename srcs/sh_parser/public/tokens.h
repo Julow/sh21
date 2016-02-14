@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 13:40:44 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 19:04:44 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/14 01:36:58 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,38 +15,23 @@
 
 # include "sh/parser.h"
 
-typedef enum e_sh_token			t_sh_token;
-typedef enum e_sh_parser		t_sh_parser;
+typedef enum e_sh_parser_token	t_sh_parser_token;
 
-enum		e_sh_token
+enum		e_sh_parser_token
 {
-	SH_T_NONE = 0,
-	SH_T_AND,
-	SH_T_OR,
-	SH_T_PIPE,
-	SH_T_SEMICOLON,
-	SH_T_AMPERSAND,
-	SH_T_NEWLINE,
+	SH_PARSE_T_NONE = 0,
+	SH_PARSE_T_AND,
+	SH_PARSE_T_OR,
+	SH_PARSE_T_PIPE,
+	SH_PARSE_T_SEMICOLON,
+	SH_PARSE_T_AMPERSAND,
+	SH_PARSE_T_NEWLINE,
 //
-	SH_T_SPACE,
-	SH_T_BEGIN,
-	SH_T_END,
-	SH_T_ESCAPED,
+	SH_PARSE_T_SPACE,
+	SH_PARSE_T_ESCAPED,
 //
-	SH_T_SUBST_PARAM,
-	SH_T_SUBST_PARAM_SPECIAL,
-};
-
-enum		e_sh_parser
-{
-	SH_P_SHELL = 1,
-	SH_P_SUBSHELL,
-	SH_P_BACKQUOTE,
-	SH_P_EXPR,
-	SH_P_MATH,
-	SH_P_STRING,
-	SH_P_STRING_SINGLE,
-	SH_P_IGNORE,
+	SH_PARSE_T_PARAM,
+	SH_PARSE_T_PARAM_SPECIAL,
 };
 
 #endif

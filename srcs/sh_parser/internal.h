@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:25:44 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/11 19:28:29 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/14 01:33:29 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,7 @@
 # include "ft/parser.h"
 # include "sh/tokens.h"
 
-struct			s_parse_sh_frame
-{
-	t_sh_cmd		*cmd;
-	uint32_t		start_index;
-};
-
-t_sh_subst		*sh_simple_cmd_add_subst(t_sh_simple_cmd *s,
-					enum e_sh_subst_type type, uint32_t length);
+bool			sh_parse_text(t_parse_data *p, t_sh_text *text);
 
 bool			sh_parse_cmd(t_parse_data *p);
 bool			sh_parse_sub(t_parse_data *p);

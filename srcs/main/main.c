@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/12 13:00:10 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/14 02:07:27 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,136 +258,90 @@ static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
 ** Shell parser
 */
 
-#define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, INDENT, '\t', ##__VA_ARGS__)
+#define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, (INDENT) * 4 + 1, ' ', ##__VA_ARGS__)
 
 static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent);
 
-static char const *const	g_print_subst_type[] = {
-	[SH_SUBST_PARAM] = "PARAM",
-	[SH_SUBST_STRLEN] = "STRLEN",
-	[SH_SUBST_EXPR] = "EXPR",
-	[SH_SUBST_MATH] = "MATH",
-	[SH_SUBST_CMD] = "CMD",
-};
-
-static void		print_subst(t_sh_subst const *subst, uint32_t indent)
+static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 {
-	PRINT_CMD(indent, "[%u -> %u] %s%n", subst->range.x, subst->range.y,
-		(subst->type >= ARRAY_LEN(g_print_subst_type))
-		? "<INVALID SUBST TYPE>" : g_print_subst_type[subst->type]);
-	switch (subst->type)
-	{
-	case SH_SUBST_CMD:
-		print_cmd(subst->val.cmd, indent + 1);
-		break ;
-	default:
-		break ;
-	}
-}
+	uint32_t			i;
+	uint32_t			token_start;
+	t_sh_token const	*token;
 
-static void		print_cmd_simple(t_sh_cmd const *cmd, uint32_t indent)
-{
-	t_sh_simple_cmd const *const	scmd = &cmd->val.cmd;
-	uint32_t						i;
-	t_vec2u							range;
-
-	PRINT_CMD(indent, "CMD DATA: %ts%n", DSTR_SUB(scmd->text));
-	PRINT_CMD(indent, "ARG STOPS:");
+	PRINT_CMD(indent, "TEXT DATA: '%ts'%n", DSTR_SUB(text->text));
+	PRINT_CMD(indent, "TOKENS: [%n");
 	i = 0;
-	range = VEC2U(0, 0);
-	while (range.x < scmd->text.length)
-	{
-		if (i >= scmd->arg_stops.length)
-			range.y = scmd->text.length;
-		else
-			range.y = *(uint32_t*)VECTOR_GET(scmd->arg_stops, i++);
-		ft_printf(" %ts", SUB(scmd->text.str + range.x, range.y - range.x));
-		range.x = range.y;
-	}
-	ft_printf("%n");
-	PRINT_CMD(indent, "SUBSTS: [%n");
-	i = 0;
-	while (i < scmd->substs.length)
-		print_subst(VECTOR_GET(scmd->substs, i++), indent + 1);
-	PRINT_CMD(indent, "]%n");
-}
-
-static void		(*g_print_cmd[])(t_sh_cmd const *cmd, uint32_t indent) = {
-	[SH_CMD_SIMPLE] = &print_cmd_simple,
-};
-
-static char const *const	g_print_cmd_next[] = {
-	[SH_NEXT_AND] = "&&",
-	[SH_NEXT_OR] = "||",
-	[SH_NEXT_PIPE] = "|",
-	[SH_NEXT_NEW] = ";",
-};
-
-static char const *const	g_print_cmd_redir[] = {
-	[SH_REDIR_INPUT] = "<",
-	[SH_REDIR_OUTPUT] = ">",
-	[SH_REDIR_APPEND] = ">>",
-	[SH_REDIR_HEREDOC] = "<<",
-};
-
-static void		print_cmd_redir(t_list const *lst, uint32_t indent)
-{
-	t_sh_redir const	*redir;
-
-	PRINT_CMD(indent, "REDIRS: [%n");
-	redir = LIST_IT(lst);
-	while ((redir = LIST_NEXT(redir)))
-	{
-		PRINT_CMD(indent + 1, "%u%s", redir->left_fd, g_print_cmd_redir[redir->type]);
-		if (redir->right_type == SH_REDIR_RIGHT_FD)
-			ft_printf("%u%n", redir->right.fd);
-		else
-			ft_printf("%ts%n", SUB(ENDOF(redir), redir->right.file_len));
-	}
-	PRINT_CMD(indent, "]%n");
+	token_start = 0;
+	while (i < text->tokens.length)
+		switch ((token = VECTOR_GET(text->tokens, i++))->type)
+		{
+		case SH_T_STRING:
+		case SH_T_STRING_QUOTED:
+			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n",
+				(token->type == SH_T_STRING) ? "" : "_QUOTED",
+					SUB(text->text.str + token_start, token->val.token_len));
+			token_start += token->val.token_len;
+			break ;
+		case SH_T_SPACE:
+			PRINT_CMD(indent + 1, "SH_T_SPACE%n");
+			break ;
+		case SH_T_SUBSHELL:
+			PRINT_CMD(indent + 1, "SH_T_SUBSHELL {%n");
+			print_cmd(token->val.cmd, indent + 2);
+			PRINT_CMD(indent + 1, "}%n");
+			break ;
+		case SH_T_PARAM:
+		case SH_T_PARAMLEN:
+			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n",
+				(token->type == SH_T_PARAM) ? "" : "LEN",
+					SUB(text->text.str + token_start, token->val.token_len));
+			token_start += token->val.token_len;
+			break ;
+		default:
+			ASSERT(false, "Invalid token type");
+		}
+	PRINT_CMD(indent, "TOKENS: ]%n");
 }
 
 static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
-	while (cmd != NULL)
-	{
-		PRINT_CMD(indent, "{%n");
-		if (cmd->async)
-			PRINT_CMD(indent + 1, "ASYNC%n");
-		print_cmd_redir(&cmd->redirs, indent + 1);
-		if (cmd->type >= ARRAY_LEN(g_print_cmd))
-			PRINT_CMD(indent + 1, "<INVALID CMD TYPE>%n");
-		else
-			g_print_cmd[cmd->type](cmd, indent + 1);
-		PRINT_CMD(indent, "}%n");
-		PRINT_CMD(indent, "%s%n", (cmd->next_type >= ARRAY_LEN(g_print_cmd_next))
-			? "<INVALID NEXT TYPE>" : g_print_cmd_next[cmd->next_type]);
-		cmd = cmd->next;
-	}
+	PRINT_CMD(indent, "{%n");
+	if (cmd->async)
+		PRINT_CMD(indent + 1, "ASYNC%n");
+	print_sh_text(&cmd->text, indent + 2);
+	PRINT_CMD(indent, "}%n");
+	if (cmd->next_type == SH_NEXT_AND)
+		PRINT_CMD(indent, "&&%n");
+	else if (cmd->next_type == SH_NEXT_OR)
+		PRINT_CMD(indent, "||%n");
+	else if (cmd->next_type == SH_NEXT_PIPE)
+		PRINT_CMD(indent, "|%n");
+	else if (cmd->next_type == SH_NEXT_NEW)
+		PRINT_CMD(indent, ";%n");
+	else
+		ASSERT(false, "Invalid next type");
 }
 
 static bool		run_shell(t_sub str)
 {
-	t_in			sh_in;
 	t_parse_data	p;
 	t_sh_cmd		*cmd;
 	t_sh_cmd		*first;
 
-	sh_in = IN(str.str, str.length, NULL);
-	p = PARSE_DATA(NULL, &sh_in);
+	p = PARSE_DATA(NULL, &IN(str.str, str.length, NULL));
 	cmd = NULL;
 	first = NULL;
 	ft_printf("PARSE '%ts' [[%n", str);
 	while (!p.eof)
 	{
-		p.env = (first == NULL) ? &first : &cmd->next;
 		parse_frame(&p, load_sh_parser());
-		cmd = *(void**)p.env;
-		ASSERT(cmd != NULL);
+		cmd = (first == NULL) ? (first = p.env) : (cmd->next = p.env);
+		if (!ASSERT(cmd != NULL))
+			break ;
 		if (cmd->next_type == SH_NEXT_NEW)
 		{
 			ft_printf("RUN%n");
-			print_cmd(first, 1);
+			print_cmd(first, 0);
 			// free
 			first = NULL;
 		}

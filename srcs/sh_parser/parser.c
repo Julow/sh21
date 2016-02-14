@@ -6,31 +6,13 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/12 10:26:37 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/14 02:11:17 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "internal.h"
 
-/*
-** Add a subst
-** Does not init 'val' field
-** 'range' is set to the 'length' last char of text
-*/
-t_sh_subst		*sh_simple_cmd_add_subst(t_sh_simple_cmd *s,
-					enum e_sh_subst_type type, uint32_t length)
-{
-	t_sh_subst *const	subst = ft_vpush(&s->substs, NULL, 1);
-
-	subst->type = type;
-	subst->range = VEC2U(s->text.length - length, s->text.length);
-	return (subst);
-}
-
-#define VGET(TYPE,V,I)		(*((TYPE*)VECTOR_GET(V, I)))
-#define VGETC(TYPE,V,I)		(VGET(TYPE const, (V), (U)))
-
-bool			sh_parse_ignore(t_parse_data *p)
+bool				sh_parse_ignore(t_parse_data *p)
 {
 	p->frame->data = p->frame->prev->data;
 	while (parse_token(p))
@@ -38,74 +20,90 @@ bool			sh_parse_ignore(t_parse_data *p)
 	return (true);
 }
 
-static void		sh_parse_simple_cmd(t_parse_data *p, t_sh_simple_cmd *cmd)
+static t_sh_token	*sh_put_token(t_sh_text *text, t_sh_token_t type)
 {
+	t_sh_token *const	token = ft_vpush(&text->tokens, NULL, 1);
+
+	token->type = type;
+	return (token);
+}
+
+static t_sh_token	*sh_put_t_string(t_sh_text *text, t_sub str, bool quoted)
+{
+	t_sh_token			*token;
+
+	if (text->tokens.length == 0 || ((token = VECTOR_GET(text->tokens,
+				text->tokens.length - 1))->type != SH_T_STRING
+			&& token->type != SH_T_STRING_QUOTED))
+	{
+		token = ft_vpush(&text->tokens, NULL, 1);
+		token->type = SH_T_STRING;
+		token->val.token_len = str.length;
+	}
+	else
+		token->val.token_len += str.length;
+	ft_dstradd(&text->text, str);
+	if (quoted)
+		token->type = SH_T_STRING_QUOTED;
+	return (token);
+}
+
+bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
+{
+	t_sh_token			*last_token;
+
+	last_token = (text->tokens.length == 0) ? NULL
+		: VECTOR_GET(text->tokens, text->tokens.length - 1);
 	while (parse_token(p))
 		switch ((uintptr_t)p->token_data)
 		{
-		case SH_T_NONE:
-
-			ft_dstradd(&cmd->text, p->token);
+		case SH_PARSE_T_SPACE:
+			if (last_token->type == SH_T_SPACE)
+				break ;
+			last_token = sh_put_token(text, SH_T_SPACE);
 			break ;
-		case SH_T_ESCAPED:
-
-			ft_dstradd(&cmd->text, SUB_FOR(p->token, 1));
+		case SH_PARSE_T_ESCAPED:
+			last_token = sh_put_t_string(text, SUB_FOR(p->token, 1), true);
 			break ;
-		case SH_T_SPACE:
-
-			if (cmd->arg_stops.length == 0
-				|| VGET(uint32_t, cmd->arg_stops, cmd->arg_stops.length - 1) < cmd->text.length)
-				ft_vpush(&cmd->arg_stops, &cmd->text.length, 1);
+		case SH_PARSE_T_NONE:
+			last_token = sh_put_t_string(text, p->token, false);
 			break ;
-		case SH_T_SUBST_PARAM:
-		case SH_T_SUBST_PARAM_SPECIAL:
-
-			ft_dstradd(&cmd->text, SUB_FOR(p->token, 1));
-			sh_simple_cmd_add_subst(cmd, SH_SUBST_PARAM, p->token.length - 1);
+		case SH_PARSE_T_PARAM:
+		case SH_PARSE_T_PARAM_SPECIAL:
+			last_token = sh_put_token(text, SH_T_PARAM);
+			ft_dstradd(&text->text, SUB_FOR(p->token, 1));
+			last_token->val.token_len = p->token.length - 1;
 			break ;
 		}
-}
-
-bool			sh_parse_cmd(t_parse_data *p)
-{
-	struct s_parse_sh_frame	c;
-
-	p->frame->data = &c;
-	c = (struct s_parse_sh_frame){NEW(t_sh_cmd), p->t.char_count};
-	*c.cmd = C(t_sh_cmd, SH_CMD_SIMPLE, LIST(t_sh_redir), false, {.cmd = C(t_sh_simple_cmd,
-		DSTR0(), VECTOR(uint32_t), VECTOR(t_sh_subst))}, SH_NEXT_NEW, NULL);
-	if (p->frame->prev == NULL)
-		*(void**)p->env = c.cmd;
-	else
-		sh_simple_cmd_add_subst(&((struct s_parse_sh_frame*)p->frame->prev->data)->cmd->val.cmd, SH_SUBST_CMD, 0)->val.cmd = c.cmd;
-	sh_parse_simple_cmd(p, &c.cmd->val.cmd);
-	switch ((uintptr_t)p->token_data)
-	{
-	case SH_T_NONE:
-	case SH_T_SEMICOLON:
-	case SH_T_END:
-	case SH_T_NEWLINE:
-		break ;
-	case SH_T_AND:
-		c.cmd->next_type = SH_NEXT_AND;
-		break ;
-	case SH_T_OR:
-		c.cmd->next_type = SH_NEXT_OR;
-		break ;
-	case SH_T_PIPE:
-		c.cmd->next_type = SH_NEXT_PIPE;
-		break ;
-	case SH_T_AMPERSAND:
-		c.cmd->async = true;
-		break ;
-	default:
-		ASSERT(false, "Invalid cmd end token");
-		break ;
-	}
 	return (true);
 }
 
-bool			sh_parse_sub(t_parse_data *p)
+bool				sh_parse_cmd(t_parse_data *p)
+{
+	t_sh_cmd *const	cmd = NEW(t_sh_cmd);
+
+	*cmd = (t_sh_cmd){(t_sh_text){DSTR0(), VECTOR(t_sh_token)},
+		false, SH_NEXT_NEW, NULL},
+	p->frame->data = cmd;
+	if (!sh_parse_text(p, &cmd->text))
+		return (false); // TODO: free
+	if (p->frame->prev == NULL)
+		p->env = cmd;
+	else
+		sh_put_token(&((t_sh_cmd*)p->frame->prev->data)->text,
+			SH_T_SUBSHELL)->val.cmd = cmd;
+	if (((uintptr_t)p->token_data) == SH_PARSE_T_AND)
+		cmd->next_type = SH_NEXT_AND;
+	else if (((uintptr_t)p->token_data) == SH_PARSE_T_OR)
+		cmd->next_type = SH_NEXT_OR;
+	else if (((uintptr_t)p->token_data) == SH_PARSE_T_PIPE)
+		cmd->next_type = SH_NEXT_PIPE;
+	else if (((uintptr_t)p->token_data) == SH_PARSE_T_AMPERSAND)
+		cmd->async = true;
+	return (true);
+}
+
+bool				sh_parse_sub(t_parse_data *p)
 {
 	if (!sh_parse_cmd(p))
 		return (false);
@@ -114,10 +112,13 @@ bool			sh_parse_sub(t_parse_data *p)
 	return (true);
 }
 
-bool			sh_parse_string(t_parse_data *p)
+bool				sh_parse_string(t_parse_data *p)
 {
+	t_sh_text *const	text = &((t_sh_cmd*)p->frame->prev->data)->text;
+
 	p->frame->data = p->frame->prev->data;
-	sh_parse_simple_cmd(p, &((struct s_parse_sh_frame*)p->frame->data)->cmd->val.cmd);
+	sh_put_t_string(text, SUB0(), true);
+	sh_parse_text(p, text);
 	if (p->eof)
 		ASSERT(false, "Unclosed string");
 	return (true);
