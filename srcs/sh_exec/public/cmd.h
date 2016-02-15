@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 17:42:37 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 18:09:57 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,12 @@ struct		s_sh_expr
 ** The 'text' ptr is NOT freed
 */
 void		sh_destroy_text(t_sh_text *text);
+
+/*
+** Destroy a t_sh_text
+** The 'expr' ptr is freed
+*/
+void		sh_destroy_expr(t_sh_expr *expr);
 
 /*
 ** Destroy a t_sh_cmd

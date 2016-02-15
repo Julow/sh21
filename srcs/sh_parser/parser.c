@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 18:02:14 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 18:18:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,14 @@ static t_sh_token	*sh_put_t_string(t_sh_text *text, t_sub str, bool quoted)
 {
 	t_sh_token			*token;
 
+	token = NULL;
 	if (text->tokens.length == 0 || ((token = VECTOR_GET(text->tokens,
 				text->tokens.length - 1))->type != SH_T_STRING
 			&& token->type != SH_T_STRING_QUOTED))
 	{
+		if (token != NULL && (token->type == SH_T_PARAM
+			|| token->type == SH_T_EXPR || token->type == SH_T_SUBSHELL))
+			quoted = true;
 		token = ft_vpush(&text->tokens, NULL, 1);
 		token->type = SH_T_STRING;
 		token->val.token_len = str.length;
@@ -70,8 +74,6 @@ bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
 				break ;
 			case SH_PARSE_T_ESCAPED:
 				sh_put_t_string(text, SUB_FOR(p->token, 1), true);
-				break ;
-			case SH_PARSE_T_NONE:
 				break ;
 			case SH_PARSE_T_BACKSLASH:
 				sh_put_t_string(text, SUB0(), true);
@@ -177,17 +179,18 @@ bool			sh_parse_frame_expr(t_parse_data *p)
 	p->frame->data = expr;
 	ft_memcpy(ENDOF(expr), p->token.str, p->token.length);
 	if (parse_token(p))
-		return (ASSERT(false, "Unexpected token")); // TODO: free expr
+		return (sh_destroy_expr(expr), ASSERT(false, "Unexpected token"));
 	if (p->eof)
-		return (ASSERT(false, "Unexpected EOF")); // TODO: free expr
+		return (sh_destroy_expr(expr), ASSERT(false, "Unexpected EOF"));
 	if (expr->type == SH_EXPR_NONE)
 	{
 		ft_dstradd(&parent->text, SUB(ENDOF(expr), expr->param_len));
 		sh_put_token(parent, SH_T_PARAM)->val.token_len = expr->param_len;
-		return (true); // TODO: free expr
+		sh_destroy_expr(expr);
+		return (true);
 	}
 	if (p->token_data == NULL) // TODO: error
-		return (ASSERT(false, "Unexpected EOF")); // TODO: free expr
+		return (sh_destroy_expr(expr), ASSERT(false, "Unexpected EOF"));
 	sh_put_token(parent, SH_T_EXPR)->val.expr = expr;
 	return (true);
 }
