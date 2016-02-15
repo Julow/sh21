@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 10:46:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 17:42:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,11 @@ typedef struct s_sh_text		t_sh_text;
 typedef struct s_sh_cmd			t_sh_cmd;
 typedef enum e_sh_token_t		t_sh_token_t;
 typedef enum e_sh_redir_t		t_sh_redir_t;
+typedef enum e_sh_expr_t		t_sh_expr_t;
 
 /*
 ** ========================================================================== **
-** Shell command representation
+** Shell cmd
 */
 
 enum		e_sh_redir_t
@@ -50,7 +51,7 @@ enum		e_sh_token_t
 	SH_T_REDIR,
 	SH_T_SUBSHELL,
 	SH_T_PARAM,
-	SH_T_PARAMLEN,
+	SH_T_EXPR,
 };
 
 struct		s_sh_token
@@ -60,6 +61,7 @@ struct		s_sh_token
 		uint32_t		token_len;
 		t_sh_cmd		*cmd;
 		t_sh_redir_t	redir_type;
+		t_sh_expr		*expr;
 	}				val;
 };
 
@@ -82,12 +84,32 @@ struct		s_sh_cmd
 	t_sh_cmd	*next;
 };
 
-#define SH_TEXT()	((t_sh_text){DSTR0(), VECTOR(t_sh_token)})
-#define SH_CMD()	((t_sh_cmd){SH_TEXT(), false, SH_NEXT_NEW, NULL})
+enum		e_sh_expr_t
+{
+	SH_EXPR_NONE = 0,
+	SH_EXPR_USE_DEF,
+	SH_EXPR_SET_DEF,
+	SH_EXPR_ISSET,
+	SH_EXPR_USE_ALT,
+	SH_EXPR_SUFFIX,
+	SH_EXPR_PREFIX,
+	SH_EXPR_F_ALT = (1 << 8),
+};
+
+struct		s_sh_expr
+{
+	t_sh_expr_t	type;
+	uint32_t	param_len;
+	t_sh_text	text;
+};
 
 /*
 ** ========================================================================== **
 */
+
+#define SH_TEXT()	((t_sh_text){DSTR0(), VECTOR(t_sh_token)})
+#define SH_CMD()	((t_sh_cmd){SH_TEXT(), false, SH_NEXT_NEW, NULL})
+#define SH_EXPR(L)	((t_sh_expr){SH_EXPR_NONE, (L), SH_TEXT()})
 
 /*
 ** Destroy a t_sh_text

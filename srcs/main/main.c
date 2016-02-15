@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/15 12:23:01 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 18:03:32 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,6 +273,15 @@ static char const *const	g_redir_types[] = {
 	[SH_REDIR_OPEN] = "OPEN",
 };
 
+static char const *const	g_expr_types[] = {
+	[SH_EXPR_USE_DEF] = "-",
+	[SH_EXPR_SET_DEF] = "=",
+	[SH_EXPR_ISSET] = "?",
+	[SH_EXPR_USE_ALT] = "+",
+	[SH_EXPR_SUFFIX] = "%",
+	[SH_EXPR_PREFIX] = "#",
+};
+
 static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 {
 	uint32_t			i;
@@ -306,14 +315,21 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 				g_redir_types[token->val.redir_type]);
 			break ;
 		case SH_T_PARAM:
-		case SH_T_PARAMLEN:
-			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n",
-				(token->type == SH_T_PARAM) ? "" : "LEN",
-					SUB(text->text.str + token_start, token->val.token_len));
+			PRINT_CMD(indent + 1, "SH_T_PARAM ${%ts}%n",
+				SUB(text->text.str + token_start, token->val.token_len));
 			token_start += token->val.token_len;
 			break ;
+		case SH_T_EXPR:
+			PRINT_CMD(indent + 1, "SH_T_EXPR ${%ts%s%s%n",
+				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
+				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
+				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
+			print_sh_text(&token->val.expr->text, indent + 2);
+			PRINT_CMD(indent + 1, "}%n");
+			break ;
 		default:
-			ASSERT(false, "Invalid token type");
+			PRINT_CMD(indent + 1, "<INVALID TOKEN TYPE> %u%n", token->type);
+			break ;
 		}
 	PRINT_CMD(indent, "]%n");
 }

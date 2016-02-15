@@ -6,11 +6,12 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 13:40:24 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 18:02:14 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "internal.h"
+#include <stdlib.h>
 
 bool				sh_parse_frame_ignore(t_parse_data *p)
 {
@@ -50,41 +51,40 @@ static t_sh_token	*sh_put_t_string(t_sh_text *text, t_sub str, bool quoted)
 
 bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
 {
-	t_sh_token				*last_token;
 	t_sh_parser_data const	*token_data;
 
-	last_token = (text->tokens.length == 0) ? NULL
-		: VECTOR_GET(text->tokens, text->tokens.length - 1);
+	p->frame->data = text;
 	while (parse_token(p))
 	{
 		token_data = p->token_data;
 		if (token_data == NULL)
-			last_token = sh_put_t_string(text, p->token, false);
+			sh_put_t_string(text, p->token, false);
 		else
 			switch (token_data->t)
 			{
 			case SH_PARSE_T_SPACE:
-				if (last_token == NULL || last_token->type == SH_T_SPACE)
+				if (text->tokens.length == 0 || VGET(t_sh_token, text->tokens,
+						text->tokens.length - 1).type == SH_T_SPACE)
 					break ;
-				last_token = sh_put_token(text, SH_T_SPACE);
+				sh_put_token(text, SH_T_SPACE);
 				break ;
 			case SH_PARSE_T_ESCAPED:
-				last_token = sh_put_t_string(text, SUB_FOR(p->token, 1), true);
+				sh_put_t_string(text, SUB_FOR(p->token, 1), true);
 				break ;
 			case SH_PARSE_T_NONE:
 				break ;
 			case SH_PARSE_T_BACKSLASH:
-				last_token = sh_put_t_string(text, SUB0(), true);
+				sh_put_t_string(text, SUB0(), true);
 				break ;
 			case SH_PARSE_T_REDIR:
-				last_token = sh_put_token(text, SH_T_REDIR);
-				last_token->val.redir_type = token_data->data;
+				sh_put_token(text, SH_T_REDIR)->val.redir_type =
+					token_data->data;
 				break ;
 			case SH_PARSE_T_PARAM:
 			case SH_PARSE_T_PARAM_SPECIAL:
-				last_token = sh_put_token(text, SH_T_PARAM);
+				sh_put_token(text, SH_T_PARAM)->val.token_len =
+					p->token.length - 1;
 				ft_dstradd(&text->text, SUB_FOR(p->token, 1));
-				last_token->val.token_len = p->token.length - 1;
 				break ;
 			default:
 				ASSERT(false, "Unexpected token");
@@ -99,7 +99,7 @@ static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd)
 	if (p->frame->prev == NULL)
 		p->env = cmd;
 	else
-		sh_put_token(&((t_sh_cmd*)p->frame->prev->data)->text,
+		sh_put_token((t_sh_text*)p->frame->prev->data,
 			SH_T_SUBSHELL)->val.cmd = cmd;
 }
 
@@ -109,9 +109,8 @@ static t_sh_cmd		*sh_parse_cmd(t_parse_data *p)
 	t_sh_parser_data const	*token_data;
 
 	*cmd = SH_CMD();
-	p->frame->data = cmd;
 	if (!sh_parse_text(p, &cmd->text))
-		return (sh_destroy_cmd(cmd), NULL); // TODO: free
+		return (sh_destroy_cmd(cmd), NULL);
 	if ((token_data = p->token_data) == NULL)
 		;
 	else if (token_data->t == SH_PARSE_T_NEXT)
@@ -156,12 +155,55 @@ bool				sh_parse_frame_sub(t_parse_data *p)
 
 bool				sh_parse_frame_string(t_parse_data *p)
 {
-	t_sh_text *const	text = &((t_sh_cmd*)p->frame->prev->data)->text;
+	t_sh_text *const	text = (t_sh_text*)p->frame->prev->data;
 
-	p->frame->data = p->frame->prev->data;
 	sh_put_t_string(text, SUB0(), true);
 	sh_parse_text(p, text);
 	if (p->eof)
-		return (ASSERT(false, "Unclosed string"));
+		return (ASSERT(false, "Unclosed string")); // TODO: parse error
+	return (true);
+}
+
+bool			sh_parse_frame_expr(t_parse_data *p)
+{
+	t_sh_text *const	parent = (t_sh_text*)p->frame->prev->data;
+	t_sh_expr			*expr;
+
+	p->frame->data = NULL;
+	if (!parse_token(p))
+		return (ASSERT(false, "Parameter expected")); // TODO: parse error
+	expr = MALLOC(sizeof(t_sh_expr) + p->token.length);
+	*expr = SH_EXPR(p->token.length);
+	p->frame->data = expr;
+	ft_memcpy(ENDOF(expr), p->token.str, p->token.length);
+	if (parse_token(p))
+		return (ASSERT(false, "Unexpected token")); // TODO: free expr
+	if (p->eof)
+		return (ASSERT(false, "Unexpected EOF")); // TODO: free expr
+	if (expr->type == SH_EXPR_NONE)
+	{
+		ft_dstradd(&parent->text, SUB(ENDOF(expr), expr->param_len));
+		sh_put_token(parent, SH_T_PARAM)->val.token_len = expr->param_len;
+		return (true); // TODO: free expr
+	}
+	if (p->token_data == NULL) // TODO: error
+		return (ASSERT(false, "Unexpected EOF")); // TODO: free expr
+	sh_put_token(parent, SH_T_EXPR)->val.expr = expr;
+	return (true);
+}
+
+bool			sh_parse_frame_expr_val(t_parse_data *p)
+{
+	t_sh_expr *const		expr = p->frame->prev->data;
+	t_sh_parser_data const	*data;
+
+	if (expr == NULL)
+		return (false);
+	if (p->eof)
+		return (ASSERT(false, "Unexpected EOF"));
+	data = p->token_data;
+	ASSERT(data != NULL && data->t == SH_PARSE_T_EXPR);
+	expr->type = data->data;
+	sh_parse_text(p, &expr->text);
 	return (true);
 }

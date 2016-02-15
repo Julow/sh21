@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/12 10:46:40 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 14:50:46 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ bool			parse_frame(t_parse_data *p, t_parser const *parser);
 ** Parser
 ** -
 ** TODO: .tail		call next parser without recursion
+** TODO: .nofail	error on unmatched token
 */
 
 struct			s_parser_token

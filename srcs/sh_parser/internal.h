@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:25:44 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 13:39:01 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 16:52:12 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,16 +38,18 @@ typedef enum e_sh_parser_token	t_sh_parser_token;
 
 enum		e_sh_parser_token
 {
-	SH_PARSE_T_NONE = 0,
+	SH_PARSE_T_NONE,
+	SH_PARSE_T_SPACE,
 
 	SH_PARSE_T_AMPERSAND,
 	SH_PARSE_T_NEXT,
 
-	SH_PARSE_T_SPACE,
 	SH_PARSE_T_ESCAPED,
 	SH_PARSE_T_BACKSLASH,
 
 	SH_PARSE_T_REDIR,
+
+	SH_PARSE_T_EXPR,
 
 	SH_PARSE_T_PARAM,
 	SH_PARSE_T_PARAM_SPECIAL,
@@ -66,6 +68,8 @@ bool			sh_parse_frame_sub(t_parse_data *p);
 // bool			sh_parse_frame_expr(t_parse_data *p);
 // bool			sh_parse_frame_math(t_parse_data *p);
 bool			sh_parse_frame_string(t_parse_data *p);
+bool			sh_parse_frame_expr(t_parse_data *p);
+bool			sh_parse_frame_expr_val(t_parse_data *p);
 
 bool			sh_parse_frame_ignore(t_parse_data *p);
 
