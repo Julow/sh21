@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:32:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/14 11:58:11 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/15 14:24:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,107 +16,116 @@
 
 #include "internal.h"
 
-#define T(STR,T,...)	PARSER_T(STR, V(SH_PARSE_T_##T), ##__VA_ARGS__)
+#define T(STR,T,D,...)	PARSER_T(STR, &C(t_sh_parser_data, SH_PARSE_T_##T, (D)), ##__VA_ARGS__)
 
 static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 
 	PARSER_DEF("sh-base-subst", NULL, NULL,
 		.tokens = PARSER_DEF_T(
-			T("${", NONE, .parser="sh-expr"),
-			T("$(", NONE, .parser="sh-sub"),
-			T("$((", NONE, .parser="sh-math"),
-			T("`", NONE, .parser="sh-backquote"),
+			T("${", NONE, 0, .parser="sh-expr"),
+			T("$(", NONE, 0, .parser="sh-sub"),
+			T("$((", NONE, 0, .parser="sh-math"),
+			T("`", NONE, 0, .parser="sh-backquote"),
 		),
 		.match = PARSER_DEF_T(
-			T("$?[a-zA-Z_]?*w", PARAM),
-			T("$?.", PARAM_SPECIAL),
+			T("$?[a-zA-Z_]?*w", PARAM, 0),
+			T("$?.", PARAM_SPECIAL, 0),
 		),
 	),
 
 	PARSER_DEF("sh-cmd", NULL, &sh_parse_frame_cmd,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
-			T("&&", AND, .end=true),
-			T("||", OR, .end=true),
-			T("|", PIPE, .end=true),
-			T(";", SEMICOLON, .end=true),
-			T("&", AMPERSAND, .end=true),
-			T("\n", NEWLINE, .end=true),
-			T(" ", SPACE),
-			T("\t", SPACE),
-			T("\"", NONE, .parser="sh-string"),
-			T("'", NONE, .parser="sh-string-single"),
-			T("#", NONE, .end=true, .parser="sh-comment"),
+			T("&&", NEXT, SH_NEXT_AND, .end=true),
+			T("||", NEXT, SH_NEXT_OR, .end=true),
+			T("|", NEXT, SH_NEXT_PIPE, .end=true),
+			T(";", NEXT, SH_NEXT_NEW, .end=true),
+			T("&", AMPERSAND, 0, .end=true),
+			T("\n", NEXT, SH_NEXT_NEW, .end=true),
+			T(" ", SPACE, 0),
+			T("\t", SPACE, 0),
+			T("\"", NONE, 0, .parser="sh-string"),
+			T("'", NONE, 0, .parser="sh-string-single"),
+			T("#", NONE, 0, .end=true, .parser="sh-comment"),
 
-			T("\\", BACKSLASH),
-			T("\\ ", ESCAPED),
-			T("\\\t", ESCAPED),
-			T("\\\n", ESCAPED),
-			T("\\;", ESCAPED),
-			T("\\|", ESCAPED),
-			T("\\&", ESCAPED),
-			T("\\`", ESCAPED),
-			T("\\\"", ESCAPED),
-			T("\\'", ESCAPED),
+			T(">", REDIR, SH_REDIR_OUTPUT),
+			T(">|", REDIR, SH_REDIR_OUTPUT_CLOBBER),
+			T(">>", REDIR, SH_REDIR_APPEND),
+			T("<", REDIR, SH_REDIR_INPUT),
+			T("<<", REDIR, SH_REDIR_HEREDOC),
+			T("<&", REDIR, SH_REDIR_DUP_INPUT),
+			T(">&", REDIR, SH_REDIR_DUP_OUTPUT),
+			T("<>", REDIR, SH_REDIR_OPEN),
+
+			T("\\", BACKSLASH, 0),
+			T("\\ ", ESCAPED, 0),
+			T("\\\t", ESCAPED, 0),
+			T("\\\n", ESCAPED, 0),
+			T("\\;", ESCAPED, 0),
+			T("\\|", ESCAPED, 0),
+			T("\\&", ESCAPED, 0),
+			T("\\`", ESCAPED, 0),
+			T("\\\"", ESCAPED, 0),
+			T("\\'", ESCAPED, 0),
 
 		),
 		.match = PARSER_DEF_T(
-			T("\\?+w", ESCAPED),
+			T("\\?+w", ESCAPED, 0),
 		),
 	),
 
 	PARSER_DEF("sh-sub", NULL, &sh_parse_frame_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
-			T(")", NONE, .end=true),
+			T(")", NONE, 0, .end=true),
 		),
 	),
 
 	PARSER_DEF("sh-backquote", NULL, &sh_parse_frame_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
-			T("`", NONE, .end=true),
-			T("\\`", NONE, .parser="sh-backquote-rev"),
+			T("`", NONE, 0, .end=true),
+			T("\\`", NONE, 0, .parser="sh-backquote-rev"),
 		),
 	),
 
 	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_frame_sub,
 		PARSER_INHERIT("sh-cmd"),
 		.tokens = PARSER_DEF_T(
-			T("\\`", NONE, .end=true),
-			T("`", NONE, .parser="sh-backquote"),
+			T("\\`", NONE, 0, .end=true),
+			T("`", NONE, 0, .parser="sh-backquote"),
 		),
 	),
 
 	PARSER_DEF("sh-expr", NULL, &sh_parse_frame_ignore,
 		.tokens = PARSER_DEF_T(
-			T("}", NONE, .end=true),
+			T("}", NONE, 0, .end=true),
 		),
 	),
 
 	PARSER_DEF("sh-math", NULL, &sh_parse_frame_ignore,
 		.tokens = PARSER_DEF_T(
-			T("))", NONE, .end=true),
+			T("))", NONE, 0, .end=true),
 		),
 	),
 
 	PARSER_DEF("sh-string", NULL, &sh_parse_frame_string,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
-			T("\"", NONE, .end=true),
-			T("\\\"", ESCAPED),
+			T("\"", NONE, 0, .end=true),
+			T("\\\"", ESCAPED, 0),
 		),
 	),
 
 	PARSER_DEF("sh-string-single", NULL, &sh_parse_frame_string,
 		.tokens = PARSER_DEF_T(
-			T("'", NONE, .end=true),
+			T("'", NONE, 0, .end=true),
 		),
 	),
 
 	PARSER_DEF("sh-comment", NULL, &sh_parse_frame_ignore,
 		.tokens = PARSER_DEF_T(
-			T("\n", NONE, .end=true),
+			T("\n", NONE, 0, .end=true),
 		),
 	),
 

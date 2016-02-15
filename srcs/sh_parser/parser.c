@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/14 12:53:21 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/15 13:40:24 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,37 +50,47 @@ static t_sh_token	*sh_put_t_string(t_sh_text *text, t_sub str, bool quoted)
 
 bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
 {
-	t_sh_token			*last_token;
+	t_sh_token				*last_token;
+	t_sh_parser_data const	*token_data;
 
 	last_token = (text->tokens.length == 0) ? NULL
 		: VECTOR_GET(text->tokens, text->tokens.length - 1);
 	while (parse_token(p))
-		switch ((uintptr_t)p->token_data)
-		{
-		case SH_PARSE_T_SPACE:
-			if (last_token == NULL || last_token->type == SH_T_SPACE)
-				break ;
-			last_token = sh_put_token(text, SH_T_SPACE);
-			break ;
-		case SH_PARSE_T_ESCAPED:
-			last_token = sh_put_t_string(text, SUB_FOR(p->token, 1), true);
-			break ;
-		case SH_PARSE_T_NONE:
+	{
+		token_data = p->token_data;
+		if (token_data == NULL)
 			last_token = sh_put_t_string(text, p->token, false);
-			break ;
-		case SH_PARSE_T_BACKSLASH:
-			last_token = sh_put_t_string(text, SUB0(), true);
-			break ;
-		case SH_PARSE_T_PARAM:
-		case SH_PARSE_T_PARAM_SPECIAL:
-			last_token = sh_put_token(text, SH_T_PARAM);
-			ft_dstradd(&text->text, SUB_FOR(p->token, 1));
-			last_token->val.token_len = p->token.length - 1;
-			break ;
-		default:
-			ASSERT(false, "Unexpected token");
-			break ;
-		}
+		else
+			switch (token_data->t)
+			{
+			case SH_PARSE_T_SPACE:
+				if (last_token == NULL || last_token->type == SH_T_SPACE)
+					break ;
+				last_token = sh_put_token(text, SH_T_SPACE);
+				break ;
+			case SH_PARSE_T_ESCAPED:
+				last_token = sh_put_t_string(text, SUB_FOR(p->token, 1), true);
+				break ;
+			case SH_PARSE_T_NONE:
+				break ;
+			case SH_PARSE_T_BACKSLASH:
+				last_token = sh_put_t_string(text, SUB0(), true);
+				break ;
+			case SH_PARSE_T_REDIR:
+				last_token = sh_put_token(text, SH_T_REDIR);
+				last_token->val.redir_type = token_data->data;
+				break ;
+			case SH_PARSE_T_PARAM:
+			case SH_PARSE_T_PARAM_SPECIAL:
+				last_token = sh_put_token(text, SH_T_PARAM);
+				ft_dstradd(&text->text, SUB_FOR(p->token, 1));
+				last_token->val.token_len = p->token.length - 1;
+				break ;
+			default:
+				ASSERT(false, "Unexpected token");
+				break ;
+			}
+	}
 	return (true);
 }
 
@@ -95,19 +105,18 @@ static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd)
 
 static t_sh_cmd		*sh_parse_cmd(t_parse_data *p)
 {
-	t_sh_cmd *const	cmd = NEW(t_sh_cmd);
+	t_sh_cmd *const			cmd = NEW(t_sh_cmd);
+	t_sh_parser_data const	*token_data;
 
 	*cmd = SH_CMD();
 	p->frame->data = cmd;
 	if (!sh_parse_text(p, &cmd->text))
 		return (sh_destroy_cmd(cmd), NULL); // TODO: free
-	if (((uintptr_t)p->token_data) == SH_PARSE_T_AND)
-		cmd->next_type = SH_NEXT_AND;
-	else if (((uintptr_t)p->token_data) == SH_PARSE_T_OR)
-		cmd->next_type = SH_NEXT_OR;
-	else if (((uintptr_t)p->token_data) == SH_PARSE_T_PIPE)
-		cmd->next_type = SH_NEXT_PIPE;
-	else if (((uintptr_t)p->token_data) == SH_PARSE_T_AMPERSAND)
+	if ((token_data = p->token_data) == NULL)
+		;
+	else if (token_data->t == SH_PARSE_T_NEXT)
+		cmd->next_type = token_data->data;
+	else if (token_data->t == SH_PARSE_T_AMPERSAND)
 		cmd->async = true;
 	return (cmd);
 }
@@ -139,7 +148,7 @@ bool				sh_parse_frame_sub(t_parse_data *p)
 		cmd = tmp;
 		if (p->eof)
 			return (ASSERT(false, "Unclosed sub"));
-		if ((uintptr_t)p->token_data == SH_PARSE_T_NONE)
+		if (((t_sh_parser_data const*)p->token_data)->t == SH_PARSE_T_NONE)
 			break ;
 	}
 	return (true);

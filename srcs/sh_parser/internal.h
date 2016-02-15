@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:25:44 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/14 12:32:49 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/15 13:39:01 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,28 +17,46 @@
 # include "ft/parser.h"
 # include "sh/parser.h"
 
+typedef struct s_sh_parser_data	t_sh_parser_data;
 typedef enum e_sh_parser_token	t_sh_parser_token;
 
 /*
 ** ========================================================================== **
+** -
+** [n]>[ ]file
+** [n]>|[ ]file
+** [n]>>[ ]file
+** [n]<[ ]file
+** [n]<<[ ]word
+** [n]<<-[ ]word
+** [n]>&[ ]fd
+** [n]>&[ ]-
+** [n]<&[ ]fd
+** [n]<&[ ]-
+** [n]<>[ ]file
 */
 
 enum		e_sh_parser_token
 {
 	SH_PARSE_T_NONE = 0,
-	SH_PARSE_T_AND,
-	SH_PARSE_T_OR,
-	SH_PARSE_T_PIPE,
-	SH_PARSE_T_SEMICOLON,
+
 	SH_PARSE_T_AMPERSAND,
-	SH_PARSE_T_NEWLINE,
-//
+	SH_PARSE_T_NEXT,
+
 	SH_PARSE_T_SPACE,
 	SH_PARSE_T_ESCAPED,
 	SH_PARSE_T_BACKSLASH,
-//
+
+	SH_PARSE_T_REDIR,
+
 	SH_PARSE_T_PARAM,
 	SH_PARSE_T_PARAM_SPECIAL,
+};
+
+struct		s_sh_parser_data
+{
+	t_sh_parser_token	t;
+	uint32_t			data;
 };
 
 bool			sh_parse_text(t_parse_data *p, t_sh_text *text);

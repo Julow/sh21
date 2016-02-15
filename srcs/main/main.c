@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/14 12:57:52 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/15 12:23:01 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,6 +262,17 @@ static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
 
 static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent);
 
+static char const *const	g_redir_types[] = {
+	[SH_REDIR_OUTPUT] = "OUTPUT",
+	[SH_REDIR_OUTPUT_CLOBBER] = "OUTPUT_CLOBBER",
+	[SH_REDIR_APPEND] = "APPEND",
+	[SH_REDIR_INPUT] = "INPUT",
+	[SH_REDIR_HEREDOC] = "HEREDOC",
+	[SH_REDIR_DUP_INPUT] = "DUP_INPUT",
+	[SH_REDIR_DUP_OUTPUT] = "DUP_OUTPUT",
+	[SH_REDIR_OPEN] = "OPEN",
+};
+
 static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 {
 	uint32_t			i;
@@ -290,6 +301,10 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 			print_cmd(token->val.cmd, indent + 2);
 			PRINT_CMD(indent + 1, "}%n");
 			break ;
+		case SH_T_REDIR:
+			PRINT_CMD(indent + 1, "REDIR %s%n",
+				g_redir_types[token->val.redir_type]);
+			break ;
 		case SH_T_PARAM:
 		case SH_T_PARAMLEN:
 			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n",
@@ -300,7 +315,7 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 		default:
 			ASSERT(false, "Invalid token type");
 		}
-	PRINT_CMD(indent, "TOKENS: ]%n");
+	PRINT_CMD(indent, "]%n");
 }
 
 static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)

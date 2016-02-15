@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/14 13:00:35 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/15 10:46:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,69 +23,44 @@ typedef struct s_sh_token		t_sh_token;
 typedef struct s_sh_text		t_sh_text;
 typedef struct s_sh_cmd			t_sh_cmd;
 typedef enum e_sh_token_t		t_sh_token_t;
+typedef enum e_sh_redir_t		t_sh_redir_t;
 
 /*
 ** ========================================================================== **
 ** Shell command representation
 */
 
-// struct		s_sh_redir
-// {
-// 	enum {
-// 		SH_REDIR_INPUT, // [left_fd]<right
-// 		SH_REDIR_OUTPUT, // [left_fd]>right
-// 		// SH_REDIR_OUTPUT_CLOBBER, // [left_fd]>|right
-// 		SH_REDIR_APPEND, // [left_fd]>>right
-// 		SH_REDIR_HEREDOC, // [left_fd]<<right
-// 	}			type;
-// 	uint32_t	left_fd;
-// 	enum {
-// 		SH_REDIR_RIGHT_FD,
-// 		SH_REDIR_RIGHT_TEXT,
-// 	}			right_type;
-// 	union {
-// 		uint32_t	fd;
-// 		uint32_t	file_len;
-// 	}			right;
-// 	t_sh_redir	*next;
-// };
-
-// struct		s_sh_expr
-// {
-// 	enum {
-// 		SH_SUBST_EXPR_USE_DEF,
-// 		SH_SUBST_EXPR_SET_DEF,
-// 		SH_SUBST_EXPR_ISSET,
-// 		SH_SUBST_EXPR_USE_ALT,
-// 		SH_SUBST_EXPR_SUFFIX_PATTERN,
-// 		SH_SUBST_EXPR_PREFIX_PATTERN,
-// 		SH_SUBST_EXPR_F_COLON = (1 << 17),
-// 		SH_SUBST_EXPR_F_LARGEST = (1 << 18),
-// 	}			type;
-// 	t_sh_text	expr;
-// };
+enum		e_sh_redir_t
+{
+	SH_REDIR_OUTPUT,
+	SH_REDIR_OUTPUT_CLOBBER,
+	SH_REDIR_APPEND,
+	SH_REDIR_INPUT,
+	SH_REDIR_HEREDOC,
+	SH_REDIR_DUP_INPUT,
+	SH_REDIR_DUP_OUTPUT,
+	SH_REDIR_OPEN,
+};
 
 enum		e_sh_token_t
 {
 	SH_T_STRING,
 	SH_T_STRING_QUOTED,
 	SH_T_SPACE,
-	// SH_T_REDIR,
+	SH_T_REDIR,
 	SH_T_SUBSHELL,
 	SH_T_PARAM,
 	SH_T_PARAMLEN,
-	// SH_T_EXPR,
 };
 
 struct		s_sh_token
 {
 	t_sh_token_t	type;
 	union {
-		uint32_t	token_len;
-		t_sh_cmd	*cmd;
-		// t_sh_expr	*expr;
-		// t_sh_redir	*redir;
-	}			val;
+		uint32_t		token_len;
+		t_sh_cmd		*cmd;
+		t_sh_redir_t	redir_type;
+	}				val;
 };
 
 struct		s_sh_text
