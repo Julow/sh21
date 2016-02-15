@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/19 20:18:26 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/12 12:54:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 21:48:37 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,8 @@ bool			parse_frame(t_parse_data *p, t_parser const *parser)
 
 bool			parse_token(t_parse_data *p)
 {
+	if (PARSE_ERROR(p))
+		return (false);
 	if (p->flags & _PARSE_F_FIRST)
 		p->flags &= ~_PARSE_F_FIRST;
 	else if (p->flags & PARSE_F_FIRST)
@@ -96,10 +98,17 @@ bool			parse_token(t_parse_data *p)
 	{
 		p->token = SUB0();
 		p->token_data = NULL;
-		p->eof = true;
+		p->flags |= PARSE_F_EOF;
 		return (false);
 	}
 	if (p->t.token_data == NULL)
 		return (exec_match(p));
 	return (exec_token(p));
+}
+
+bool			parse_error(t_parse_data *p, t_sub err)
+{
+	p->token = err;
+	p->flags |= PARSE_F_ERROR;
+	return (false);
 }

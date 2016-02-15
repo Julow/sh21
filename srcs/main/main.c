@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/15 18:03:32 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 22:43:29 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -365,13 +365,13 @@ static bool		run_shell(t_sub str)
 	cmd = NULL;
 	first = NULL;
 	ft_printf("PARSE '%ts' [[%n", str);
-	while (!p.eof)
+	while (!PARSE_EOF(&p) && !PARSE_ERROR(&p))
 	{
 		if (!parse_frame(&p, load_sh_parser()))
 		{
 			if (first != NULL)
 				sh_destroy_cmd(first);
-			ASSERT(false, "Parsing failed");
+			ft_printf("Parse error: '%ts' at token '%ts'%n", p.token, p.t.token);
 			break ;
 		}
 		cmd = (first == NULL) ? (first = p.env) : (cmd->next = p.env);

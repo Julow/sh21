@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/16 16:01:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 14:50:46 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 22:44:59 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,10 @@ struct			s_parse_frame
 ** 'env'		User data
 ** 't'			Tokenizer
 ** 'frame'		The current frame
-** TODO: 'eof'		Set if EOF is reached
 ** 'flags'		Flags:
 ** 			PARSE_F_FIRST	Set when parse_token return it's first token
+** 			PARSE_F_EOF		Set on EOF
+** 			PARSE_F_ERROR	Set after a call to parse_error
 ** 'token'		The current token's string
 ** 'token_data'	The current token's data
 */
@@ -55,7 +56,6 @@ struct			s_parse_data
 	void			*env;
 	t_tokenizer		t;
 	t_parse_frame	*frame;
-	bool			eof;
 	uint32_t		flags;
 	t_sub			token;
 	void const		*token_data;
@@ -63,6 +63,12 @@ struct			s_parse_data
 
 # define PARSE_DATA(ENV, IN)	((t_parse_data){(ENV),.t=TOKENIZER(IN,NULL)})
 # define D_PARSE_DATA(P)		(ft_tokenizer_reset(&((P).t), true))
+
+# define PARSE_EOF(P)		((P)->flags & PARSE_F_EOF)
+# define PARSE_ERROR(P)		((P)->flags & PARSE_F_ERROR)
+
+# define PARSE_F_EOF		(1 << 2)
+# define PARSE_F_ERROR		(1 << 3)
 
 # define PARSE_F_FIRST		(1 << 0)
 # define _PARSE_F_FIRST		(1 << 1)
@@ -82,8 +88,16 @@ bool			parse_token(t_parse_data *p);
 ** Create a new frame and execute 'parser'
 ** Call 'f' function store in each parsers
 ** 'p->token' and 'p->token_data' are set to the begin token's datas
+** Parsing stop when 'f' return false
 */
 bool			parse_frame(t_parse_data *p, t_parser const *parser);
+
+/*
+** Set error flag
+** Return false
+** 'p->token' are set to 'err'
+*/
+bool			parse_error(t_parse_data *p, t_sub err);
 
 /*
 ** ========================================================================== **

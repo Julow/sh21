@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/18 20:06:51 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/10 12:51:03 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/15 20:45:03 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static bool		parser_parse_ignore(t_parse_data *p)
 {
 	while (parse_token(p))
 		;
-	return (p->eof);
+	return (PARSE_EOF(p));
 }
 
 static void		add_token(t_parser *parser, t_sub token_str, void *data,
