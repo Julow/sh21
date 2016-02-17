@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/16 23:39:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/17 11:26:27 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -484,7 +484,7 @@ static bool		run_shell(t_sub str)
 	ft_printf("PARSE '%ts' [[%n", str);
 	while (!PARSE_EOF(&p) && !PARSE_ERROR(&p))
 	{
-		if (!parse_frame(&p, load_sh_parser()))
+		if (!ft_parse(&p, load_sh_parser()))
 		{
 			if (first != NULL)
 				sh_destroy_cmd(first);

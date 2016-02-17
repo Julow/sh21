@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 21:48:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/02/17 11:28:08 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 bool				sh_parse_frame_ignore(t_parse_data *p)
 {
 	p->frame->data = p->frame->prev->data;
-	while (parse_token(p))
+	while (ft_parse_token(p))
 		;
 	return (true);
 }
@@ -58,7 +58,7 @@ bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
 	t_sh_parser_data const	*token_data;
 
 	p->frame->data = text;
-	while (parse_token(p))
+	while (ft_parse_token(p))
 	{
 		token_data = p->token_data;
 		if (token_data == NULL)
@@ -148,7 +148,7 @@ bool				sh_parse_frame_sub(t_parse_data *p)
 			cmd->next = tmp;
 		cmd = tmp;
 		if (PARSE_EOF(p))
-			return (parse_error(p, SUBC("Unclosed sub")));
+			return (ft_parse_error(p, SUBC("Unclosed sub")));
 		if (((t_sh_parser_data const*)p->token_data)->t == SH_PARSE_T_NONE)
 			break ;
 	}
@@ -162,7 +162,7 @@ bool				sh_parse_frame_string(t_parse_data *p)
 	sh_put_t_string(text, SUB0(), true);
 	sh_parse_text(p, text);
 	if (PARSE_EOF(p))
-		return (parse_error(p, SUBC("Unclosed string")));
+		return (ft_parse_error(p, SUBC("Unclosed string")));
 	return (true);
 }
 
@@ -172,16 +172,16 @@ bool			sh_parse_frame_expr(t_parse_data *p)
 	t_sh_expr			*expr;
 
 	p->frame->data = NULL;
-	if (!parse_token(p))
-		return (parse_error(p, SUBC("Parameter expected")));
+	if (!ft_parse_token(p))
+		return (ft_parse_error(p, SUBC("Parameter expected")));
 	expr = MALLOC(sizeof(t_sh_expr) + p->token.length);
 	*expr = SH_EXPR(p->token.length);
 	p->frame->data = expr;
 	ft_memcpy(ENDOF(expr), p->token.str, p->token.length);
-	if (parse_token(p))
-		return (sh_destroy_expr(expr), parse_error(p, SUBC("Unexpected token")));
+	if (ft_parse_token(p))
+		return (sh_destroy_expr(expr), ft_parse_error(p, SUBC("Unexpected token")));
 	if (PARSE_EOF(p))
-		return (sh_destroy_expr(expr), parse_error(p, SUBC("Unexpected EOF")));
+		return (sh_destroy_expr(expr), ft_parse_error(p, SUBC("Unexpected EOF")));
 	if (expr->type == SH_EXPR_NONE)
 	{
 		ft_dstradd(&parent->text, SUB(ENDOF(expr), expr->param_len));
@@ -201,7 +201,7 @@ bool			sh_parse_frame_expr_val(t_parse_data *p)
 	if (expr == NULL)
 		return (false);
 	if (PARSE_EOF(p))
-		return (parse_error(p, SUBC("Unexpected EOF")));
+		return (ft_parse_error(p, SUBC("Unexpected EOF")));
 	data = p->token_data;
 	ASSERT(data != NULL && data->t == SH_PARSE_T_EXPR);
 	expr->type = data->data;

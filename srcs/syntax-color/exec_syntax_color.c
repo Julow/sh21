@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/09 21:32:29 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/12 11:29:49 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/02/17 11:27:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ bool			syntax_color_parser_begin(t_parse_data *p)
 		}
 		if (!end)
 			break ;
-		end = parse_token(p);
+		end = ft_parse_token(p);
 	}
 	return (true);
 }
@@ -80,6 +80,6 @@ void			exec_syntax_color(t_in *in, t_syntax_color const *syntax,
 
 	data = (struct s_exec_data){color_scheme, callback, VEC2U(0, 0)};
 	p = PARSE_DATA(&data, in);
-	parse_frame(&p, syntax);
+	ft_parse(&p, syntax);
 	D_PARSE_DATA(p);
 }
