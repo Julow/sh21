@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/04 00:18:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/12 10:14:17 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/06/30 19:09:45 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			),
 		),
 
-		PARSER_DEF("sh", "sh", &syntax_color_parser_begin,
+		PARSER_DEF("sh-base", "sh", &syntax_color_parser_begin,
 			PARSER_INHERIT("sh-allow-subst"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T("\\\"", "escaped.quote"),
@@ -52,9 +52,18 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 				PARSER_T("\n", "newline", .end=true, .parser="sh"),
 			),
 			.match = PARSER_DEF_T(
-				PARSER_T("?^?*swhile?b", "keyword.while"),
-				PARSER_T("?^?*s?!+s", "identifier"),
 				PARSER_T("?+s", "space"),
+			),
+		),
+
+		PARSER_DEF("sh", "sh", &syntax_color_parser_begin,
+			PARSER_INHERIT("sh-base"),
+			.match = PARSER_DEF_T(
+				PARSER_T("?^?*swhile?b", "keyword.while"),
+				PARSER_T("?^?*sfor?b", "keyword.for", .parser="sh-control-for"),
+				PARSER_T("?^?*sif?b", "keyword.if"),
+				PARSER_T("?^?*suntil?b", "keyword.until"),
+				PARSER_T("?^?*s?!+s", "identifier"),
 			),
 		),
 
@@ -139,6 +148,65 @@ t_syntax_color_def const	g_syntax_color_sh = SYNTAX_COLOR("sh", "sh",
 			PARSER_INHERIT("sh-math-base"),
 			.tokens = PARSER_DEF_T(
 				PARSER_T(")", "end", .end=true),
+			),
+		),
+
+		PARSER_DEF("sh-control-for", "control.for", &syntax_color_parser_begin,
+			.tokens = PARSER_DEF_T(
+				PARSER_T(" ", "space"),
+				PARSER_T("\t", "space"),
+			),
+			.match = PARSER_DEF_T(
+				PARSER_T("?b?+w?b", "identifier", .end=true, .parser="sh-control-for-in"),
+				PARSER_T("?+.", "error"),
+			),
+		),
+
+		PARSER_DEF("sh-control-for-in", "control.for", &syntax_color_parser_begin,
+			.tokens = PARSER_DEF_T(
+				PARSER_T(" ", "space"),
+				PARSER_T("\t", "space"),
+			),
+			.match = PARSER_DEF_T(
+				PARSER_T("?bin?b", "keyword.in", .end=true, .parser="sh-control-for-list"),
+			),
+		),
+
+		PARSER_DEF("sh-control-for-list", "control.for", &syntax_color_parser_begin,
+			PARSER_INHERIT("sh-base"),
+			.tokens = PARSER_DEF_T(
+				PARSER_T(";", "op.semicolon", .end=true, .parser="sh-control-do"),
+				PARSER_T("&&", "error"),
+				PARSER_T("&", "error"),
+				PARSER_T("|", "error"),
+				PARSER_T("||", "error"),
+				PARSER_T("\n", "newline", .end=true, .parser="sh-control-do"),
+			),
+		),
+
+		PARSER_DEF("sh-control-do", "control.do", &syntax_color_parser_begin,
+			.tokens = PARSER_DEF_T(
+				PARSER_T(" ", "space"),
+				PARSER_T("\t", "space"),
+				PARSER_T("\n", "newline"),
+			),
+			.match = PARSER_DEF_T(
+				PARSER_T("?bdo?b", "keyword.do", .end=true, .parser="sh-control-done"),
+			),
+		),
+
+		PARSER_DEF("sh-control-done", "control.for", &syntax_color_parser_begin,
+			PARSER_INHERIT("sh"),
+			.tokens = PARSER_DEF_T(
+				PARSER_T(";", "op.semicolon", .end=true, .parser="sh-control-done"),
+				PARSER_T("&&", "error"),
+				PARSER_T("&", "error"),
+				PARSER_T("|", "error"),
+				PARSER_T("||", "error"),
+				PARSER_T("\n", "newline", .end=true, .parser="sh-control-done"),
+			),
+			.match = PARSER_DEF_T(
+				PARSER_T("?^?*sdone?b", "keyword.done"),
 			),
 		),
 
