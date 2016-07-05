@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/02/17 11:26:27 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/05 22:29:43 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "ft/term.h"
 #include "ft/tokenizer.h"
 #include "sh/cmd.h"
+#include "sh/exec.h"
 #include "sh/parser.h"
 
 #include "editor.h"
@@ -360,157 +361,68 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 ** Exec shell
 */
 
-typedef struct s_sh_context		t_sh_context;
-typedef struct s_sh_args		t_sh_args;
+// TODO: fix PARSE_EOF() from ft/parser.h
+#define PARSE_EOF2(P)	(!IN_REFRESH((P)->t.in))
 
-struct			s_sh_context
-{
-	char			*env;
-	t_hmap			var;
-};
-
-struct			s_sh_args
-{
-	t_dstr			buff;
-	t_vector		args;
-};
-
-static void		build_args(t_sh_context *context, t_sh_text const *text, t_sh_args *args)
-{
-	t_sh_token const *const	tokens = text->tokens.data;
-	uint32_t			i;
-	uint32_t			text_i;
-	t_vec2u				tmp;
-
-	i = 0;
-	text_i = 0;
-	tmp = VEC2U(0, 0);
-	while (i < text->tokens.length && tokens[i].type == SH_T_SPACE)
-		i++;
-	while (i < text->tokens.length)
-	{
-		tmp.y = 0;
-		while (i < text->tokens.length && tokens[i].type != SH_T_SPACE)
-		{
-			switch (tokens[i].type)
-			{
-			case SH_T_STRING_QUOTED:
-				tmp.y = 1;
-			case SH_T_STRING:
-				ft_dstradd(&args->buff, SUB(text->text.str + text_i, tokens[i].val.token_len));
-				text_i += tokens[i].val.token_len;
-				break ;
-			case SH_T_REDIR:
-				break ;
-			case SH_T_SUBSHELL:
-				break ;
-			case SH_T_PARAM:
-				text_i += tokens[i].val.token_len;
-				break ;
-			case SH_T_EXPR:
-				break ;
-			}
-			i++;
-		}
-		ft_dstradd(&args->buff, SUBC("\0"));
-		ft_vpush(&args->args, &tmp, 1);
-		tmp.x = args->buff.length;
-		while (i < text->tokens.length && tokens[i].type == SH_T_SPACE)
-			i++;
-	}
-}
-
-static void		destroy_args(t_sh_args *args)
-{
-	ft_dstrclear(&args->buff);
-	ft_vclear(&args->args);
-}
-
-static int		exec_cmd(t_sh_context *context, t_sh_cmd const *cmd)
-{
-	t_sh_args		args;
-
-	args = (t_sh_args){DSTR0(), VECTOR(t_vec2u)};
-	build_args(context, &cmd->text, &args);
-	{
-		uint32_t	i;
-		t_vec2u		*tmp;
-
-		i = 0;
-		while (i < args.args.length)
-		{
-			tmp = VECTOR_GET(args.args, i);
-			ft_printf("ARG#%u '%s' %u%n", i, args.buff.str + tmp->x, tmp->y);
-			i++;
-		}
-	}
-	destroy_args(&args);
-	return (0);
-}
-
-static int		exec_shell(t_sh_context *context, t_sh_cmd const *cmd)
-{
-	int				status;
-
-	status = -1;
-	while (cmd != NULL)
-	{
-		status = exec_cmd(context, cmd);
-		while (cmd != NULL)
-		{
-			while (cmd->next_type == SH_NEXT_PIPE)
-				cmd = cmd->next;
-			if (((status == 0) ? SH_NEXT_AND : SH_NEXT_OR) == cmd->next_type
-				|| cmd->next_type == SH_NEXT_NEW)
-			{
-				cmd = cmd->next;
-				break ;
-			}
-			cmd = cmd->next;
-		}
-	}
-	return (status);
-}
-
-static bool		run_shell(t_sub str)
+// TODO: move to module sh_parser
+t_sh_cmd		*sh_parse_compound(t_in *in, t_dstr *err)
 {
 	t_parse_data	p;
 	t_sh_cmd		*cmd;
 	t_sh_cmd		*first;
 
-	p = PARSE_DATA(NULL, &IN(str.str, str.length, NULL));
+	p = PARSE_DATA(NULL, in);
 	cmd = NULL;
 	first = NULL;
-	ft_printf("PARSE '%ts' [[%n", str);
-	while (!PARSE_EOF(&p) && !PARSE_ERROR(&p))
+	while (!PARSE_EOF2(&p) && !PARSE_ERROR(&p))
 	{
+
 		if (!ft_parse(&p, load_sh_parser()))
 		{
 			if (first != NULL)
 				sh_destroy_cmd(first);
-			ft_printf("Parse error: '%ts' at token '%ts'%n", p.token, p.t.token);
-			break ;
+			ft_dstradd(err, p.token);
+			return (NULL);
 		}
 		cmd = (first == NULL) ? (first = p.env) : (cmd->next = p.env);
-		if (!ASSERT(cmd != NULL))
-			break ;
 		if (cmd->next_type == SH_NEXT_NEW)
-		{
-			ft_printf("RUN%n");
-			print_cmd(first, 0);
-			exec_shell(NULL, first);
-			sh_destroy_cmd(first);
-			first = NULL;
-		}
+			return (cmd);
+
+		// TODO: return error using t_parse_data.env, change ft_parse_error to:
+		// 	bool ft_parse_error(t_parse_data *p);
+		// TODO: return error as error_code (enum),
+		// 	use UNEXPECTED_EOF and UNCLOSED_* errors to ask for more lines
+
 	}
-	if (first != NULL)
+	D_PARSE_DATA(p);
+	return (cmd);
+}
+
+static bool		run_shell(t_sub str)
+{
+	t_in			in;
+	t_sh_cmd		*cmd;
+	t_dstr			err;
+
+	ft_printf("%.20(=)%n");
+	ft_printf("PARSE '%ts' [[%n", str);
+	in = IN(str.str, str.length, NULL);
+	err = DSTR0();
+	while ((cmd = sh_parse_compound(&in, &err)) != NULL)
 	{
-		ASSERT(false, "Unexpected end of file");
-		ft_printf(">> '%ts' %u%n", p.token, p.token_data);
-		sh_destroy_cmd(first);
+		print_cmd(cmd, 0);
+		sh_exec_cmd(NULL, cmd);
+		sh_destroy_cmd(cmd);
+		if (!ASSERT(cmd->text.text.length > 0))
+			return (false);
+	}
+	if (err.length > 0)
+	{
+		ft_printf("Parse error: %ts%n", DSTR_SUB(err));
+		ft_dstrclear(&err);
+		return (false);
 	}
 	ft_printf("]]%n");
-	D_PARSE_DATA(p);
 	return (true);
 }
 

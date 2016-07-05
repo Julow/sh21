@@ -6,12 +6,12 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 18:09:57 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/05 21:03:12 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EXEC_H
-# define EXEC_H
+#ifndef CMD_H
+# define CMD_H
 
 # include "ft/ft_dstr.h"
 # include "ft/ft_vector.h"
@@ -25,6 +25,8 @@ typedef struct s_sh_cmd			t_sh_cmd;
 typedef enum e_sh_token_t		t_sh_token_t;
 typedef enum e_sh_redir_t		t_sh_redir_t;
 typedef enum e_sh_expr_t		t_sh_expr_t;
+
+// TODO: move to it's own module
 
 /*
 ** ========================================================================== **
@@ -45,13 +47,14 @@ enum		e_sh_redir_t
 
 enum		e_sh_token_t
 {
-	SH_T_STRING,
+	SH_T_STRING = 1,
 	SH_T_STRING_QUOTED,
 	SH_T_SPACE,
 	SH_T_REDIR,
 	SH_T_SUBSHELL,
 	SH_T_PARAM,
 	SH_T_EXPR,
+	// TODO: SH_T_SUBSHELL_QUOTED,
 };
 
 struct		s_sh_token

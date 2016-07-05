@@ -3,6 +3,6 @@ module sh::exec:
 	private include ./
 
 	public require ft::base
-	public require ft::list
-	public require ft::vector
 	public require ft::dstr
+	public require ft::hmap
+	public require ft::vector
