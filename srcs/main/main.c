@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/05 22:29:43 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/06 16:46:18 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -294,34 +294,35 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 	i = 0;
 	token_start = 0;
 	while (i < text->tokens.length)
-		switch ((token = VECTOR_GET(text->tokens, i++))->type)
+	{
+		token = VECTOR_GET(text->tokens, i++);
+		char const *const	quoted = (token->type & SH_F_T_QUOTED) ? " (quoted)" : "";
+		switch (token->type & ~SH_F_T_QUOTED)
 		{
 		case SH_T_STRING:
-		case SH_T_STRING_QUOTED:
-			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n",
-				(token->type == SH_T_STRING) ? "" : "_QUOTED",
+			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n", quoted,
 					SUB(text->text.str + token_start, token->val.token_len));
 			token_start += token->val.token_len;
 			break ;
 		case SH_T_SPACE:
-			PRINT_CMD(indent + 1, "SH_T_SPACE%n");
+			PRINT_CMD(indent + 1, "SH_T_SPACE%s%n", quoted);
 			break ;
 		case SH_T_SUBSHELL:
-			PRINT_CMD(indent + 1, "SH_T_SUBSHELL {%n");
+			PRINT_CMD(indent + 1, "SH_T_SUBSHELL%s {%n", quoted);
 			print_cmd(token->val.cmd, indent + 2);
 			PRINT_CMD(indent + 1, "}%n");
 			break ;
 		case SH_T_REDIR:
-			PRINT_CMD(indent + 1, "REDIR %s%n",
+			PRINT_CMD(indent + 1, "REDIR%s %s%n", quoted,
 				g_redir_types[token->val.redir_type]);
 			break ;
 		case SH_T_PARAM:
-			PRINT_CMD(indent + 1, "SH_T_PARAM ${%ts}%n",
+			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n", quoted,
 				SUB(text->text.str + token_start, token->val.token_len));
 			token_start += token->val.token_len;
 			break ;
 		case SH_T_EXPR:
-			PRINT_CMD(indent + 1, "SH_T_EXPR ${%ts%s%s%n",
+			PRINT_CMD(indent + 1, "SH_T_EXPR%s ${%ts%s%s%n", quoted,
 				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
 				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
 				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
@@ -332,6 +333,7 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 			PRINT_CMD(indent + 1, "<INVALID TOKEN TYPE> %u%n", token->type);
 			break ;
 		}
+	}
 	PRINT_CMD(indent, "]%n");
 }
 

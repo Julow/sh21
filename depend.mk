@@ -109,8 +109,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_vector/ft_vclear.o $(O_DIR)/libft/ft_vector/ft_vpush.o \
 	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/libft/ft_vector/ft_vspan.o \
 	$(O_DIR)/srcs/main/main.o $(O_DIR)/srcs/sh_cmd/destroy_cmd.o \
-	$(O_DIR)/srcs/sh_exec/exec_cmd.o $(O_DIR)/srcs/sh_parser/parser.o \
-	$(O_DIR)/srcs/sh_parser/parser_def.o \
+	$(O_DIR)/srcs/sh_exec/build_sh_exec.o $(O_DIR)/srcs/sh_exec/exec_cmd.o \
+	$(O_DIR)/srcs/sh_parser/parser.o $(O_DIR)/srcs/sh_parser/parser_def.o \
 	$(O_DIR)/srcs/syntax-color/exec_syntax_color.o \
 	$(O_DIR)/srcs/syntax-color/load_syntax_color.o \
 	$(O_DIR)/srcs/syntax-color/syntaxes.o \
@@ -722,12 +722,18 @@ $(O_DIR)/srcs/sh_cmd/destroy_cmd.o: srcs/sh_cmd/destroy_cmd.c \
 	libft/ft_vector/public/ft_vector.h srcs/sh_cmd/public/cmd.h
 
 # module sh::exec
+$(O_DIR)/srcs/sh_exec/build_sh_exec.o: srcs/sh_exec/build_sh_exec.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_hmap/public/ft_hmap.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_cmd/public/cmd.h srcs/sh_exec/p_sh_exec.h \
+	srcs/sh_exec/public/exec.h
 $(O_DIR)/srcs/sh_exec/exec_cmd.o: srcs/sh_exec/exec_cmd.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_hmap/public/ft_hmap.h libft/ft_vector/public/ft_vector.h \
 	srcs/sh_cmd/public/cmd.h srcs/sh_exec/public/exec.h
 
-$(O_DIR)/srcs/sh_exec/exec_cmd.o: INCLUDE_FLAGS += -Isrcs/sh_exec
+$(O_DIR)/srcs/sh_exec/build_sh_exec.o $(O_DIR)/srcs/sh_exec/exec_cmd.o: \
+	INCLUDE_FLAGS += -Isrcs/sh_exec
 
 # module sh::parser
 $(O_DIR)/srcs/sh_parser/parser.o: srcs/sh_parser/parser.c \

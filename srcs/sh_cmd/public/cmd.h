@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/05 21:03:12 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/06 16:40:09 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 # include "ft/ft_vector.h"
 # include "ft/libft.h"
 
-typedef struct s_sh_redir		t_sh_redir;
 typedef struct s_sh_expr		t_sh_expr;
 typedef struct s_sh_token		t_sh_token;
 typedef struct s_sh_text		t_sh_text;
@@ -25,8 +24,6 @@ typedef struct s_sh_cmd			t_sh_cmd;
 typedef enum e_sh_token_t		t_sh_token_t;
 typedef enum e_sh_redir_t		t_sh_redir_t;
 typedef enum e_sh_expr_t		t_sh_expr_t;
-
-// TODO: move to it's own module
 
 /*
 ** ========================================================================== **
@@ -45,16 +42,20 @@ enum		e_sh_redir_t
 	SH_REDIR_OPEN,
 };
 
+/*
+** Token type
+** SH_F_T_QUOTED is an extra flag
+** Quoting space or redir make no sense and can cause undefined behavior
+*/
 enum		e_sh_token_t
 {
 	SH_T_STRING = 1,
-	SH_T_STRING_QUOTED,
 	SH_T_SPACE,
 	SH_T_REDIR,
 	SH_T_SUBSHELL,
 	SH_T_PARAM,
 	SH_T_EXPR,
-	// TODO: SH_T_SUBSHELL_QUOTED,
+	SH_F_T_QUOTED = 1 << 24,
 };
 
 struct		s_sh_token

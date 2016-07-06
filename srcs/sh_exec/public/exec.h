@@ -6,38 +6,33 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/05 20:46:11 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/05 21:01:46 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/06 17:52:29 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EXEC_H
 # define EXEC_H
 
-# include "ft/ft_dstr.h"
 # include "ft/ft_hmap.h"
-# include "ft/ft_vector.h"
 # include "ft/libft.h"
 # include "sh/cmd.h"
 
 typedef struct s_sh_context		t_sh_context;
-typedef struct s_sh_args		t_sh_args;
 
 /*
 ** ========================================================================== **
 ** Sh exec
 */
 
+/*
+** Context in which commands are executed
+** env			=> env variables that are passed to programs
+** var			=> other definitions (TODO)
+*/
 struct			s_sh_context
 {
 	char			*env;
 	t_hmap			var;
-	// TODO: stdout fd (dup)
-};
-
-struct			s_sh_args
-{
-	t_dstr			buff;
-	t_vector		args;
 };
 
 /*
