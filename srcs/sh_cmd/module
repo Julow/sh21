@@ -1,9 +1,6 @@
-module sh::exec:
+module sh::cmd:
 	public include public/
-	private include ./
 
 	public require ft::base
 	public require ft::dstr
-	public require ft::hmap
 	public require ft::vector
-	public require sh::cmd

@@ -1,15 +1,16 @@
 main module sh21:
 	private include ./
-	require syntax-color
+	require ft::base
+	require ft::get_next_line
+	require ft::getkey
+	require ft::hmap
+	require ft::parser
+	require ft::printf
+	require ft::spanlist
+	require ft::term
+	require ft::tokenizer
+	require sh::cmd
 	require sh::exec
 	require sh::parser
-	require ft::term
-	require ft::spanlist
-	require ft::hmap
-	require ft::getkey
-	require ft::base
-	require ft::printf
-	require ft::get_next_line
-	require ft::tokenizer
 	require editor
-	require ft::parser
+	require syntax-color
