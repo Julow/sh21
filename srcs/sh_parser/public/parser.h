@@ -6,12 +6,12 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:27:34 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/14 12:32:46 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/07 13:02:35 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PARSER_H
-# define PARSER_H
+#ifndef SH__PARSER_H
+# define SH__PARSER_H
 
 # include "ft/libft.h"
 # include "sh/cmd.h"

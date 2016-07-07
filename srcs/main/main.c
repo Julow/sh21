@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/06 16:46:18 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/07 15:35:21 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,7 +388,7 @@ t_sh_cmd		*sh_parse_compound(t_in *in, t_dstr *err)
 		}
 		cmd = (first == NULL) ? (first = p.env) : (cmd->next = p.env);
 		if (cmd->next_type == SH_NEXT_NEW)
-			return (cmd);
+			return (first);
 
 		// TODO: return error using t_parse_data.env, change ft_parse_error to:
 		// 	bool ft_parse_error(t_parse_data *p);
@@ -397,7 +397,7 @@ t_sh_cmd		*sh_parse_compound(t_in *in, t_dstr *err)
 
 	}
 	D_PARSE_DATA(p);
-	return (cmd);
+	return (first);
 }
 
 static bool		run_shell(t_sub str)
