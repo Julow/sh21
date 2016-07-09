@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/07 15:35:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 15:16:45 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -340,8 +340,6 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
 	PRINT_CMD(indent, "{%n");
-	if (cmd->async)
-		PRINT_CMD(indent + 1, "ASYNC%n");
 	print_sh_text(&cmd->text, indent + 2);
 	PRINT_CMD(indent, "}%n");
 	if (cmd->next_type == SH_NEXT_AND)
@@ -350,8 +348,10 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		PRINT_CMD(indent, "||%n");
 	else if (cmd->next_type == SH_NEXT_PIPE)
 		PRINT_CMD(indent, "|%n");
-	else if (cmd->next_type == SH_NEXT_NEW)
+	else if (cmd->next_type == SH_NEXT_SEQ)
 		PRINT_CMD(indent, ";%n");
+	else if (cmd->next_type == SH_NEXT_ASYNC)
+		PRINT_CMD(indent, "&%n");
 	else
 		ASSERT(false, "Invalid next type");
 	if (cmd->next != NULL)
@@ -376,18 +376,18 @@ t_sh_cmd		*sh_parse_compound(t_in *in, t_dstr *err)
 	p = PARSE_DATA(NULL, in);
 	cmd = NULL;
 	first = NULL;
-	while (!PARSE_EOF2(&p) && !PARSE_ERROR(&p))
+	while (!PARSE_EOF(&p) && !PARSE_ERROR(&p))
 	{
 
 		if (!ft_parse(&p, load_sh_parser()))
 		{
 			if (first != NULL)
 				sh_destroy_cmd(first);
-			ft_dstradd(err, p.token);
+			ft_asprintf(err, "%ts at token %ts", p.token, DSTR_SUB(p.t.buff));
 			return (NULL);
 		}
 		cmd = (first == NULL) ? (first = p.env) : (cmd->next = p.env);
-		if (cmd->next_type == SH_NEXT_NEW)
+		if (cmd->next_type == SH_NEXT_SEQ)
 			return (first);
 
 		// TODO: return error using t_parse_data.env, change ft_parse_error to:

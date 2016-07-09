@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/06 16:40:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 14:43:40 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,12 +78,12 @@ struct		s_sh_text
 struct		s_sh_cmd
 {
 	t_sh_text	text;
-	bool		async;
 	enum {
 		SH_NEXT_AND,
 		SH_NEXT_OR,
 		SH_NEXT_PIPE,
-		SH_NEXT_NEW,
+		SH_NEXT_SEQ,
+		SH_NEXT_ASYNC,
 	}			next_type;
 	t_sh_cmd	*next;
 };
@@ -112,7 +112,7 @@ struct		s_sh_expr
 */
 
 #define SH_TEXT()	((t_sh_text){DSTR0(), VECTOR(t_sh_token)})
-#define SH_CMD()	((t_sh_cmd){SH_TEXT(), false, SH_NEXT_NEW, NULL})
+#define SH_CMD()	((t_sh_cmd){SH_TEXT(), SH_NEXT_SEQ, NULL})
 #define SH_EXPR(L)	((t_sh_expr){SH_EXPR_NONE, (L), SH_TEXT()})
 
 /*

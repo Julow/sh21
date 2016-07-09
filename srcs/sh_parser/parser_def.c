@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:32:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/02/15 17:49:36 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 12:47:43 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,18 +45,19 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-cmd", NULL, &sh_parse_frame_cmd,
+	PARSER_DEF("sh-cmd-base", NULL, NULL,
 		PARSER_INHERIT("sh-base-subst", "sh-base-text"),
 		.tokens = PARSER_DEF_T(
 			T("&&", NEXT, SH_NEXT_AND, .end=true),
 			T("||", NEXT, SH_NEXT_OR, .end=true),
 			T("|", NEXT, SH_NEXT_PIPE, .end=true),
-			T(";", NEXT, SH_NEXT_NEW, .end=true),
-			T("&", AMPERSAND, 0, .end=true),
-			T("\n", NEXT, SH_NEXT_NEW, .end=true),
+			T(";", NEXT, SH_NEXT_SEQ, .end=true),
+			T("&", NEXT, SH_NEXT_ASYNC, .end=true),
+			T("\n", NEXT, SH_NEXT_SEQ, .end=true),
+
 			T(" ", SPACE, 0),
 			T("\t", SPACE, 0),
-			T("#", NONE, 0, .end=true, .parser="sh-comment"),
+			T("#", NONE, 0, .end=true, .parser="sh-comment"), // TODO: do not consume last token, do not end
 
 			T(">", REDIR, SH_REDIR_OUTPUT),
 			T(">|", REDIR, SH_REDIR_OUTPUT_CLOBBER),
@@ -79,23 +80,27 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-sub", NULL, &sh_parse_frame_sub,
-		PARSER_INHERIT("sh-cmd"),
+	PARSER_DEF("sh-cmd", NULL, &sh_parse_frame_cmd,
+		PARSER_INHERIT("sh-cmd-base"),
+	),
+
+	PARSER_DEF("sh-sub", NULL, &sh_parse_frame_cmd_compound,
+		PARSER_INHERIT("sh-cmd-base"),
 		.tokens = PARSER_DEF_T(
 			T(")", NONE, 0, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-backquote", NULL, &sh_parse_frame_sub,
-		PARSER_INHERIT("sh-cmd"),
+	PARSER_DEF("sh-backquote", NULL, &sh_parse_frame_cmd_compound,
+		PARSER_INHERIT("sh-cmd-base"),
 		.tokens = PARSER_DEF_T(
 			T("`", NONE, 0, .end=true),
 			T("\\`", NONE, 0, .parser="sh-backquote-rev"),
 		),
 	),
 
-	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_frame_sub,
-		PARSER_INHERIT("sh-cmd"),
+	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_frame_cmd_compound,
+		PARSER_INHERIT("sh-cmd-base"),
 		.tokens = PARSER_DEF_T(
 			T("\\`", NONE, 0, .end=true),
 			T("`", NONE, 0, .parser="sh-backquote"),

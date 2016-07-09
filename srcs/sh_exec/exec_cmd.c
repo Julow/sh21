@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/05 20:51:34 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/06 16:48:14 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 12:45:32 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int				sh_exec_cmd(t_sh_context *context, t_sh_cmd const *cmd)
 			while (cmd->next_type == SH_NEXT_PIPE)
 				cmd = cmd->next;
 			if (((status == 0) ? SH_NEXT_AND : SH_NEXT_OR) == cmd->next_type
-				|| cmd->next_type == SH_NEXT_NEW)
+				|| cmd->next_type == SH_NEXT_SEQ)
 			{
 				cmd = cmd->next;
 				break ;

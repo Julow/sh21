@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/06 15:49:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 15:49:48 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,7 @@ bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
 	t_sh_parser_data const	*token_data;
 
 	p->frame->data = text;
-	if (!ft_parse_token(p))
-		return (true);
-	while (true)
+	while (ft_parse_token(p))
 	{
 		token_data = p->token_data;
 		if (token_data == NULL)
@@ -93,73 +91,64 @@ bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
 				ASSERT(false, "Unexpected token");
 				break ;
 			}
-		if (!ft_parse_token(p))
-			return (!PARSE_ERROR(p));
 	}
+	return (!PARSE_ERROR(p));
 }
 
 static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd)
 {
+	t_sh_token			*t;
+
 	if (p->frame->prev == NULL)
 		p->env = cmd;
 	else
-		sh_put_token((t_sh_text*)p->frame->prev->data,
-			SH_T_SUBSHELL)->val.cmd = cmd;
+	{
+		t = sh_put_token((t_sh_text*)p->frame->prev->data, SH_T_SUBSHELL);
+		t->val.cmd = cmd;
+	}
 }
 
-static t_sh_cmd		*sh_parse_cmd(t_parse_data *p)
+static bool			sh_parse_cmd(t_parse_data *p, bool compound)
 {
-	t_sh_cmd *const			cmd = NEW(t_sh_cmd);
+	t_sh_cmd				*cmd;
+	t_sh_cmd				**tmp;
 	t_sh_parser_data const	*token_data;
 
-	*cmd = SH_CMD();
-	if (!sh_parse_text(p, &cmd->text))
-		return (sh_destroy_cmd(cmd), NULL);
-	if ((token_data = p->token_data) == NULL)
-		;
-	else if (token_data->t == SH_PARSE_T_NEXT)
-		cmd->next_type = token_data->data;
-	else if (token_data->t == SH_PARSE_T_AMPERSAND)
-		cmd->async = true;
-	else
+	tmp = &cmd;
+	while (true)
 	{
-		sh_destroy_cmd(cmd);
-		return (NULL);
+		*tmp = NEW(t_sh_cmd);
+		**tmp = SH_CMD();
+		if (!sh_parse_text(p, &(*tmp)->text))
+			return (sh_destroy_cmd(cmd), false);
+		if ((*tmp)->text.tokens.length == 0)
+		{
+			sh_destroy_cmd(cmd);
+			return (ft_parse_error(p, (PARSE_EOF(p)) ?
+				SUBC("Unexpected end of line") : SUBC("Unexpected token")));
+		}
+		if ((token_data = p->token_data) != NULL
+			&& token_data->t == SH_PARSE_T_NEXT)
+		{
+			(*tmp)->next_type = token_data->data;
+			tmp = &(*tmp)->next;
+			if (compound)
+				continue ;
+		}
+		break ;
 	}
-	return (cmd);
-}
-
-bool				sh_parse_frame_cmd(t_parse_data *p)
-{
-	t_sh_cmd *const		cmd = sh_parse_cmd(p);
-
-	if (cmd == NULL)
-		return (false);
 	sh_put_cmd(p, cmd);
 	return (true);
 }
 
-bool				sh_parse_frame_sub(t_parse_data *p)
+bool				sh_parse_frame_cmd(t_parse_data *p)
 {
-	t_sh_cmd			*cmd;
-	t_sh_cmd			*tmp;
+	return (sh_parse_cmd(p, false));
+}
 
-	cmd = NULL;
-	while (true)
-	{
-		if ((tmp = sh_parse_cmd(p)) == NULL)
-			return (false);
-		if (cmd == NULL)
-			sh_put_cmd(p, tmp);
-		else
-			cmd->next = tmp;
-		cmd = tmp;
-		if (PARSE_EOF(p))
-			return (ft_parse_error(p, SUBC("Unclosed sub")));
-		if (((t_sh_parser_data const*)p->token_data)->t == SH_PARSE_T_NONE)
-			break ;
-	}
-	return (true);
+bool				sh_parse_frame_cmd_compound(t_parse_data *p)
+{
+	return (sh_parse_cmd(p, true));
 }
 
 bool				sh_parse_frame_string(t_parse_data *p)
