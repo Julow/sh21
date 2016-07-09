@@ -115,6 +115,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/main/main.o $(O_DIR)/srcs/sh_cmd/destroy_cmd.o \
 	$(O_DIR)/srcs/sh_exec/build_sh_exec.o $(O_DIR)/srcs/sh_exec/exec_cmd.o \
 	$(O_DIR)/srcs/sh_parser/parser.o $(O_DIR)/srcs/sh_parser/parser_def.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o \
 	$(O_DIR)/srcs/syntax-color/exec_syntax_color.o \
 	$(O_DIR)/srcs/syntax-color/load_syntax_color.o \
 	$(O_DIR)/srcs/syntax-color/syntaxes.o \
@@ -785,8 +786,10 @@ $(O_DIR)/srcs/sh_exec/build_sh_exec.o $(O_DIR)/srcs/sh_exec/exec_cmd.o: \
 # module sh::parser
 $(O_DIR)/srcs/sh_parser/parser.o: srcs/sh_parser/parser.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_vector/public/ft_vector.h srcs/sh_cmd/public/cmd.h \
-	srcs/sh_parser/internal.h srcs/sh_parser/public/parser.h
+	libft/ft_in/public/ft_in.h libft/ft_out/public/ft_out.h \
+	libft/ft_printf/public/ft_printf.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_cmd/public/cmd.h srcs/sh_parser/internal.h \
+	srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/parser_def.o: srcs/sh_parser/parser_def.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_hmap/public/ft_hmap.h \
@@ -795,9 +798,14 @@ $(O_DIR)/srcs/sh_parser/parser_def.o: srcs/sh_parser/parser_def.c \
 	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
 	srcs/sh_cmd/public/cmd.h srcs/sh_parser/internal.h \
 	srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o: srcs/sh_parser/sh_parse_cmd.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_cmd/public/cmd.h srcs/sh_parser/internal.h \
+	srcs/sh_parser/public/parser.h
 
-$(O_DIR)/srcs/sh_parser/parser.o $(O_DIR)/srcs/sh_parser/parser_def.o: \
-	INCLUDE_FLAGS += -Isrcs/sh_parser
+$(O_DIR)/srcs/sh_parser/parser.o $(O_DIR)/srcs/sh_parser/parser_def.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o: INCLUDE_FLAGS += -Isrcs/sh_parser
 
 # module syntax-color
 $(O_DIR)/srcs/syntax-color/exec_syntax_color.o: \

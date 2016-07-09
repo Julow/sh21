@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/09 15:16:45 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 18:11:52 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -363,66 +363,27 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 ** Exec shell
 */
 
-// TODO: fix PARSE_EOF() from ft/parser.h
-#define PARSE_EOF2(P)	(!IN_REFRESH((P)->t.in))
-
-// TODO: move to module sh_parser
-t_sh_cmd		*sh_parse_compound(t_in *in, t_dstr *err)
-{
-	t_parse_data	p;
-	t_sh_cmd		*cmd;
-	t_sh_cmd		*first;
-
-	p = PARSE_DATA(NULL, in);
-	cmd = NULL;
-	first = NULL;
-	while (!PARSE_EOF(&p) && !PARSE_ERROR(&p))
-	{
-
-		if (!ft_parse(&p, load_sh_parser()))
-		{
-			if (first != NULL)
-				sh_destroy_cmd(first);
-			ft_asprintf(err, "%ts at token %ts", p.token, DSTR_SUB(p.t.buff));
-			return (NULL);
-		}
-		cmd = (first == NULL) ? (first = p.env) : (cmd->next = p.env);
-		if (cmd->next_type == SH_NEXT_SEQ)
-			return (first);
-
-		// TODO: return error using t_parse_data.env, change ft_parse_error to:
-		// 	bool ft_parse_error(t_parse_data *p);
-		// TODO: return error as error_code (enum),
-		// 	use UNEXPECTED_EOF and UNCLOSED_* errors to ask for more lines
-
-	}
-	D_PARSE_DATA(p);
-	return (first);
-}
-
 static bool		run_shell(t_sub str)
 {
 	t_in			in;
 	t_sh_cmd		*cmd;
-	t_dstr			err;
+	t_sh_parse_err	err;
 
 	ft_printf("%.20(=)%n");
 	ft_printf("PARSE '%ts' [[%n", str);
 	in = IN(str.str, str.length, NULL);
-	err = DSTR0();
-	while ((cmd = sh_parse_compound(&in, &err)) != NULL)
+	err = SH_PARSE_ERR();
+	while (IN_REFRESH(&in))
 	{
+		if ((cmd = sh_parse_compound(&in, &err)) == NULL)
+		{
+			ft_printf("Parse error: %ts%n", DSTR_SUB(err.str));
+			D_SH_PARSE_ERR(err);
+			return (false);
+		}
 		print_cmd(cmd, 0);
 		sh_exec_cmd(NULL, cmd);
 		sh_destroy_cmd(cmd);
-		if (!ASSERT(cmd->text.text.length > 0))
-			return (false);
-	}
-	if (err.length > 0)
-	{
-		ft_printf("Parse error: %ts%n", DSTR_SUB(err));
-		ft_dstrclear(&err);
-		return (false);
 	}
 	ft_printf("]]%n");
 	return (true);

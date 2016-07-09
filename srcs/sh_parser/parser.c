@@ -6,12 +6,31 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 15:49:48 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 18:16:00 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/ft_printf.h" // TODO: move ft_{a,s,as,f}printf to ft::out || move out ft_{,d}printf to it's own module
 #include "internal.h"
+
 #include <stdlib.h>
+
+static bool			sh_parse_error(t_parse_data *p,
+						t_sh_parse_err_t err, t_sub str)
+{
+	t_sh_parse_err		*e;
+
+	ASSERT(!PARSE_ERROR(p));
+	e = ((t_sh_parse_data*)p)->err;
+	*e = (t_sh_parse_err){err, DSTR0()};
+	if (err == SH_E_UNEXPECTED_TOKEN)
+		ft_asprintf(&e->str, "Unexpected token '%ts'", str);
+	else if (err == SH_E_UNEXPECTED_EOF)
+		ft_asprintf(&e->str, "Unexpected end of file%ts", str);
+	else if (err == SH_E_UNCLOSED_STRING || err == SH_E_UNCLOSED_SUBSHELL)
+		ft_asprintf(&e->str, "Unexpected eof while looking for matching '%ts'", str);
+	return (ft_parse_error(p));
+}
 
 bool				sh_parse_frame_ignore(t_parse_data *p)
 {
@@ -52,7 +71,7 @@ static t_sh_token	*sh_put_t_string(t_sh_text *text, t_sub str, bool quoted)
 	return (token);
 }
 
-bool				sh_parse_text(t_parse_data *p, t_sh_text *text)
+bool				sh_parse_util_text(t_parse_data *p, t_sh_text *text)
 {
 	t_sh_parser_data const	*token_data;
 
@@ -100,7 +119,7 @@ static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd)
 	t_sh_token			*t;
 
 	if (p->frame->prev == NULL)
-		p->env = cmd;
+		((t_sh_parse_data*)p)->cmd = cmd;
 	else
 	{
 		t = sh_put_token((t_sh_text*)p->frame->prev->data, SH_T_SUBSHELL);
@@ -108,7 +127,7 @@ static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd)
 	}
 }
 
-static bool			sh_parse_cmd(t_parse_data *p, bool compound)
+static bool			sh_parse_util_cmd(t_parse_data *p, bool compound)
 {
 	t_sh_cmd				*cmd;
 	t_sh_cmd				**tmp;
@@ -119,13 +138,14 @@ static bool			sh_parse_cmd(t_parse_data *p, bool compound)
 	{
 		*tmp = NEW(t_sh_cmd);
 		**tmp = SH_CMD();
-		if (!sh_parse_text(p, &(*tmp)->text))
+		if (!sh_parse_util_text(p, &(*tmp)->text))
 			return (sh_destroy_cmd(cmd), false);
 		if ((*tmp)->text.tokens.length == 0)
 		{
 			sh_destroy_cmd(cmd);
-			return (ft_parse_error(p, (PARSE_EOF(p)) ?
-				SUBC("Unexpected end of line") : SUBC("Unexpected token")));
+			if (PARSE_EOF(p))
+				return (sh_parse_error(p, SH_E_UNEXPECTED_EOF, SUB0()));
+			return (sh_parse_error(p, SH_E_UNEXPECTED_TOKEN, p->token));
 		}
 		if ((token_data = p->token_data) != NULL
 			&& token_data->t == SH_PARSE_T_NEXT)
@@ -137,18 +157,21 @@ static bool			sh_parse_cmd(t_parse_data *p, bool compound)
 		}
 		break ;
 	}
+	if (PARSE_EOF(p))
+		return (sh_destroy_cmd(cmd),
+			sh_parse_error(p, SH_E_UNEXPECTED_EOF, SUB0())); // TODO: move this check to a 'subshell' frame
 	sh_put_cmd(p, cmd);
 	return (true);
 }
 
 bool				sh_parse_frame_cmd(t_parse_data *p)
 {
-	return (sh_parse_cmd(p, false));
+	return (sh_parse_util_cmd(p, false));
 }
 
 bool				sh_parse_frame_cmd_compound(t_parse_data *p)
 {
-	return (sh_parse_cmd(p, true));
+	return (sh_parse_util_cmd(p, true));
 }
 
 bool				sh_parse_frame_string(t_parse_data *p)
@@ -156,10 +179,10 @@ bool				sh_parse_frame_string(t_parse_data *p)
 	t_sh_text *const	text = (t_sh_text*)p->frame->prev->data;
 
 	sh_put_t_string(text, SUB0(), true);
-	if (!sh_parse_text(p, text))
+	if (!sh_parse_util_text(p, text))
 		return (false);
 	if (PARSE_EOF(p))
-		return (ft_parse_error(p, SUBC("Unclosed string")));
+		return (sh_parse_error(p, SH_E_UNCLOSED_STRING, SUBC("\""))); // TODO: check if "'"
 	return (true);
 }
 
@@ -170,15 +193,15 @@ bool			sh_parse_frame_expr(t_parse_data *p)
 
 	p->frame->data = NULL;
 	if (!ft_parse_token(p))
-		return (ft_parse_error(p, SUBC("Parameter expected")));
+		return (sh_parse_error(p, SH_E_UNEXPECTED_TOKEN, p->token));
 	expr = MALLOC(sizeof(t_sh_expr) + p->token.length);
 	*expr = SH_EXPR(p->token.length);
 	p->frame->data = expr;
 	ft_memcpy(ENDOF(expr), p->token.str, p->token.length);
 	if (ft_parse_token(p))
-		return (sh_destroy_expr(expr), ft_parse_error(p, SUBC("Unexpected token")));
+		return (sh_destroy_expr(expr), sh_parse_error(p, SH_E_UNEXPECTED_TOKEN, p->token));
 	if (PARSE_EOF(p))
-		return (sh_destroy_expr(expr), ft_parse_error(p, SUBC("Unexpected EOF")));
+		return (sh_destroy_expr(expr), sh_parse_error(p, SH_E_UNEXPECTED_EOF, SUB0()));
 	if (expr->type == SH_EXPR_NONE)
 	{
 		ft_dstradd(&parent->text, SUB(ENDOF(expr), expr->param_len));
@@ -198,9 +221,9 @@ bool			sh_parse_frame_expr_val(t_parse_data *p)
 	if (expr == NULL)
 		return (false);
 	if (PARSE_EOF(p))
-		return (ft_parse_error(p, SUBC("Unexpected EOF")));
+		return (sh_parse_error(p, SH_E_UNEXPECTED_EOF, SUB0()));
 	data = p->token_data;
 	ASSERT(data != NULL && data->t == SH_PARSE_T_EXPR);
 	expr->type = data->data;
-	return (sh_parse_text(p, &expr->text));
+	return (sh_parse_util_text(p, &expr->text));
 }

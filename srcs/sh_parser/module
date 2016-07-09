@@ -3,8 +3,10 @@ module sh::parser:
 	private include ./
 
 	public require ft::base
+	public require ft::in
 	public require sh::cmd
 
 	private require ft::hmap
 	private require ft::parser
+	private require ft::printf
 	private require ft::vector
