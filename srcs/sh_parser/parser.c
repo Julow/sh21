@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 18:16:00 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 19:01:57 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,13 +140,6 @@ static bool			sh_parse_util_cmd(t_parse_data *p, bool compound)
 		**tmp = SH_CMD();
 		if (!sh_parse_util_text(p, &(*tmp)->text))
 			return (sh_destroy_cmd(cmd), false);
-		if ((*tmp)->text.tokens.length == 0)
-		{
-			sh_destroy_cmd(cmd);
-			if (PARSE_EOF(p))
-				return (sh_parse_error(p, SH_E_UNEXPECTED_EOF, SUB0()));
-			return (sh_parse_error(p, SH_E_UNEXPECTED_TOKEN, p->token));
-		}
 		if ((token_data = p->token_data) != NULL
 			&& token_data->t == SH_PARSE_T_NEXT)
 		{
@@ -157,9 +150,6 @@ static bool			sh_parse_util_cmd(t_parse_data *p, bool compound)
 		}
 		break ;
 	}
-	if (PARSE_EOF(p))
-		return (sh_destroy_cmd(cmd),
-			sh_parse_error(p, SH_E_UNEXPECTED_EOF, SUB0())); // TODO: move this check to a 'subshell' frame
 	sh_put_cmd(p, cmd);
 	return (true);
 }
@@ -169,9 +159,13 @@ bool				sh_parse_frame_cmd(t_parse_data *p)
 	return (sh_parse_util_cmd(p, false));
 }
 
-bool				sh_parse_frame_cmd_compound(t_parse_data *p)
+bool				sh_parse_frame_cmd_subshell(t_parse_data *p)
 {
-	return (sh_parse_util_cmd(p, true));
+	if (!sh_parse_util_cmd(p, true))
+		return (false);
+	if (PARSE_EOF(p))
+		return (sh_parse_error(p, SH_E_UNCLOSED_SUBSHELL, SUBC(")")));
+	return (true);
 }
 
 bool				sh_parse_frame_string(t_parse_data *p)

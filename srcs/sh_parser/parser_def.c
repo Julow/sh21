@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:32:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 12:47:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 18:48:12 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,14 +84,14 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		PARSER_INHERIT("sh-cmd-base"),
 	),
 
-	PARSER_DEF("sh-sub", NULL, &sh_parse_frame_cmd_compound,
+	PARSER_DEF("sh-sub", NULL, &sh_parse_frame_cmd_subshell,
 		PARSER_INHERIT("sh-cmd-base"),
 		.tokens = PARSER_DEF_T(
 			T(")", NONE, 0, .end=true),
 		),
 	),
 
-	PARSER_DEF("sh-backquote", NULL, &sh_parse_frame_cmd_compound,
+	PARSER_DEF("sh-backquote", NULL, &sh_parse_frame_cmd_subshell,
 		PARSER_INHERIT("sh-cmd-base"),
 		.tokens = PARSER_DEF_T(
 			T("`", NONE, 0, .end=true),
@@ -99,7 +99,7 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
-	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_frame_cmd_compound,
+	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_frame_cmd_subshell,
 		PARSER_INHERIT("sh-cmd-base"),
 		.tokens = PARSER_DEF_T(
 			T("\\`", NONE, 0, .end=true),

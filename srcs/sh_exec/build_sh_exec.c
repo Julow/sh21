@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/06 15:38:16 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/06 17:49:08 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 19:11:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,11 +117,6 @@ static void		split_arg(t_sh_exec *exec, t_sh_exec_arg *arg)
 		i++;
 	}
 }
-
-// TODO: update libft
-# define VECTOR_IT(V)		((V).data - (V).element_size)
-# define VECTOR_NEXT(VC,IT)	(V(IT = V(IT) + (VC).element_size) < VECTOR_END(VC))
-# define VECTOR_END(V)		((V).data + ((V).length * (V).element_size))
 
 void			build_sh_exec(t_sh_context *context, t_sh_text const *text,
 					t_sh_exec *exec)

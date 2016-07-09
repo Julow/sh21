@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/09 17:11:23 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 18:10:16 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/09 19:08:44 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ t_sh_cmd		*sh_parse_cmd(t_in *in, t_sh_parse_err *err)
 	p = (t_sh_parse_data){PARSE_DATA(NULL, in), NULL, err};
 	r = ft_parse(V(&p), load_sh_parser());
 	D_PARSE_DATA(p.data);
+	if (!r && p.cmd != NULL)
+		sh_destroy_cmd(p.cmd);
 	return (r ? p.cmd : NULL);
 }
 
