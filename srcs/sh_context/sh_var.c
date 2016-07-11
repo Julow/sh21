@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 13:45:59 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 15:23:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 23:49:22 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,11 @@ void			sh_var_set(t_sh_context *c, t_sub key, t_sub value)
 			free(var);
 		}
 		var = MALLOC(sizeof(t_sh_var) + len + 1);
+		*var = SH_VAR(0, 0);
 		ft_set_insert(&c->vars, var, &key);
 	}
-	*var = SH_VAR(len, key.length);
+	var->length = len;
+	var->key_len = key.length;
 	dst = SH_VAR_STR(var);
 	ft_memcpy(dst, key.str, key.length);
 	dst[key.length] = '=';
@@ -50,9 +52,9 @@ void			sh_var_unset(t_sh_context *c, t_sub key)
 	}
 }
 
-t_sub			sh_var_get(t_sh_context *c, t_sub key)
+t_sub			sh_var_get(t_sh_context const *c, t_sub key)
 {
-	t_sh_var *const	var = ft_set_get(&c->vars, &key);
+	t_sh_var const *const	var = ft_set_cget(&c->vars, &key);
 
 	if (var == NULL)
 		return (SUB0());
@@ -62,6 +64,6 @@ t_sub			sh_var_get(t_sh_context *c, t_sub key)
 int				sh_var_cmp(t_sh_var const *v, t_sub const *key)
 {
 	if (v->key_len != key->length)
-		return (v->key_len != key->length);
+		return (v->key_len - key->length);
 	return (ft_memcmp(SH_VAR_STR(v), key->str, key->length));
 }

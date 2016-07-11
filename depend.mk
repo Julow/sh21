@@ -128,22 +128,131 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/syntax-color/syntaxes/utils.o \
 	$(O_DIR)/srcs/syntax-color/syntaxes/xml.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
-	$(O_DIR)/_public/ft/ft_bst.h $(O_DIR)/_public/ft/ft_colors.h \
-	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/ft_hmap.h \
+	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/ft_colors.h \
+	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/ft_bst.h \
+	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/get_next_line.h \
+	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/ft_hmap.h \
 	$(O_DIR)/_public/ft/ft_in.h $(O_DIR)/_public/ft/ft_list.h \
-	$(O_DIR)/_public/ft/ft_out.h $(O_DIR)/_public/ft/ft_printf.h \
-	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/ft_vector.h \
-	$(O_DIR)/_public/ft/ft_vprintf.h $(O_DIR)/_public/ft/ft_wchar.h \
-	$(O_DIR)/_public/ft/get_next_line.h $(O_DIR)/_public/ft/getkey.h \
-	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/parser.h \
-	$(O_DIR)/_public/ft/parser_def.h $(O_DIR)/_public/ft/regex.h \
-	$(O_DIR)/_public/ft/set.h $(O_DIR)/_public/ft/spanlist.h \
-	$(O_DIR)/_public/ft/strset.h $(O_DIR)/_public/ft/term.h \
-	$(O_DIR)/_public/ft/tokenizer.h $(O_DIR)/_public/sh/cmd.h \
+	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/ft_out.h \
+	$(O_DIR)/_public/ft/parser_def.h $(O_DIR)/_public/ft/parser.h \
+	$(O_DIR)/_public/ft/ft_printf.h $(O_DIR)/_public/ft/ft_vprintf.h \
+	$(O_DIR)/_public/ft/regex.h $(O_DIR)/_public/ft/set.h \
+	$(O_DIR)/_public/ft/spanlist.h $(O_DIR)/_public/ft/strset.h \
+	$(O_DIR)/_public/ft/term.h $(O_DIR)/_public/ft/tokenizer.h \
+	$(O_DIR)/_public/ft/ft_vector.h $(O_DIR)/_public/sh/cmd.h \
 	$(O_DIR)/_public/sh/context.h $(O_DIR)/_public/sh/exec.h \
 	$(O_DIR)/_public/sh/parser.h $(O_DIR)/_public/syntax_color.h
 
-sh21: $(O_FILES)
+sh21: $(O_DIR)/libft/ft_base/ft_subnext.o $(O_DIR)/libft/ft_base/ft_memcpy.o \
+	$(O_DIR)/libft/ft_term/ft_trestore.o $(O_DIR)/libft/ft_base/ft_atoib.o \
+	$(O_DIR)/libft/ft_base/ft_min.o $(O_DIR)/libft/ft_in/ft_read.o \
+	$(O_DIR)/libft/ft_out/ft_write.o $(O_DIR)/libft/ft_regex/parse_regs/eol.o \
+	$(O_DIR)/srcs/syntax-color/syntaxes/xml.o \
+	$(O_DIR)/libft/ft_vector/ft_vclear.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/str.o \
+	$(O_DIR)/libft/ft_out/ft_write_char.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/str.o $(O_DIR)/libft/ft_set/insert.o \
+	$(O_DIR)/srcs/sh_exec/build_sh_exec.o $(O_DIR)/libft/ft_base/ft_clock.o \
+	$(O_DIR)/libft/ft_printf/ft_logf.o $(O_DIR)/srcs/editor/binding_utils.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/group.o $(O_DIR)/libft/ft_base/ft_max.o \
+	$(O_DIR)/libft/ft_regex/exec_reg.o $(O_DIR)/libft/ft_base/ft_memrcpy.o \
+	$(O_DIR)/libft/ft_base/ft_bitset.o $(O_DIR)/libft/ft_base/ft_getenv.o \
+	$(O_DIR)/srcs/editor/editor_write.o \
+	$(O_DIR)/srcs/editor/binding/extra_mod.o \
+	$(O_DIR)/libft/ft_parser/build_tokens.o $(O_DIR)/libft/ft_term/ft_tclear.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/set.o \
+	$(O_DIR)/libft/ft_base/ft_wstrnconv.o $(O_DIR)/libft/ft_printf/ft_out.o \
+	$(O_DIR)/libft/ft_bst/ft_bstdel.o $(O_DIR)/srcs/sh_parser/parser.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o $(O_DIR)/libft/ft_out/ft_putendl.o \
+	$(O_DIR)/libft/ft_bst/ft_bstget.o $(O_DIR)/libft/ft_dstr/ft_dstrclear.o \
+	$(O_DIR)/srcs/editor/text_index.o $(O_DIR)/libft/ft_getkey/ft_getkey.o \
+	$(O_DIR)/libft/ft_base/ft_strlen.o \
+	$(O_DIR)/srcs/spanlist/ft_spanlist_iter.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/block.o \
+	$(O_DIR)/srcs/syntax-color/syntaxes/utils.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/cstr.o \
+	$(O_DIR)/libft/ft_printf/formats/str.o $(O_DIR)/libft/ft_out/ft_putstr.o \
+	$(O_DIR)/srcs/syntax-color/syntaxes.o $(O_DIR)/libft/ft_out/ft_putchar.o \
+	$(O_DIR)/libft/ft_base/ft_strchri.o \
+	$(O_DIR)/srcs/syntax-color/syntaxes/sh.o $(O_DIR)/libft/ft_hmap/ft_djb2.o \
+	$(O_DIR)/libft/ft_dstr/ft_dstrspan.o $(O_DIR)/libft/ft_base/ft_memdup.o \
+	$(O_DIR)/libft/ft_bst/ft_bstmax.o $(O_DIR)/srcs/editor/editor_out.o \
+	$(O_DIR)/libft/ft_out/out_formats.o \
+	$(O_DIR)/srcs/spanlist/ft_spanlist_push.o \
+	$(O_DIR)/libft/ft_parser/ft_parse.o $(O_DIR)/libft/ft_base/ft_memmove.o \
+	$(O_DIR)/libft/ft_base/ft_widetoa.o $(O_DIR)/libft/ft_vector/ft_vpush.o \
+	$(O_DIR)/libft/ft_base/ft_wstrconv.o $(O_DIR)/libft/ft_dstr/ft_dstradd.o \
+	$(O_DIR)/libft/ft_base/ft_memswap.o $(O_DIR)/libft/ft_base/ft_subto.o \
+	$(O_DIR)/libft/ft_hmap/ft_hmapnew.o $(O_DIR)/libft/ft_bst/ft_bstgetall.o \
+	$(O_DIR)/libft/ft_regex/parse_utils.o $(O_DIR)/srcs/editor/editor_init.o \
+	$(O_DIR)/libft/ft_base/ft_rand.o $(O_DIR)/libft/ft_regex/parse_regs/set.o \
+	$(O_DIR)/srcs/editor/binding/delete.o $(O_DIR)/libft/ft_hmap/ft_hmapput.o \
+	$(O_DIR)/libft/ft_parser/exec_parser.o $(O_DIR)/libft/ft_list/ft_listadd.o \
+	$(O_DIR)/libft/ft_base/ft_wstrlen.o \
+	$(O_DIR)/srcs/syntax-color/load_syntax_color.o \
+	$(O_DIR)/libft/ft_dstr/ft_dstrextend.o \
+	$(O_DIR)/srcs/editor/binding/putkey.o $(O_DIR)/libft/ft_regex/parse_reg.o \
+	$(O_DIR)/srcs/spanlist/ft_spanlist_clear.o \
+	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/srcs/sh_exec/exec_binary.o \
+	$(O_DIR)/libft/ft_base/ft_memcmp.o $(O_DIR)/libft/ft_base/ft_subfind.o \
+	$(O_DIR)/srcs/sh_context/context_init.o \
+	$(O_DIR)/srcs/spanlist/ft_spanlist_set.o \
+	$(O_DIR)/libft/ft_bst/bst_balance.o $(O_DIR)/libft/ft_term/ft_tinit.o \
+	$(O_DIR)/libft/ft_set/utils.o $(O_DIR)/libft/ft_in/ft_readto.o \
+	$(O_DIR)/libft/ft_set/remove.o $(O_DIR)/libft/ft_in/ft_in_refresh.o \
+	$(O_DIR)/srcs/sh_exec/exec_cmd.o $(O_DIR)/libft/ft_term/ft_tcursor.o \
+	$(O_DIR)/libft/ft_regex/ft_rcompile.o $(O_DIR)/libft/ft_hmap/ft_hmaprem.o \
+	$(O_DIR)/libft/ft_base/ft_nanoclock.o \
+	$(O_DIR)/libft/ft_parser/build_inheritance.o \
+	$(O_DIR)/libft/ft_bst/ft_bstmin.o \
+	$(O_DIR)/libft/get_next_line/get_next_line.o \
+	$(O_DIR)/libft/ft_parser/build_parser.o $(O_DIR)/libft/ft_out/ft_putsub.o \
+	$(O_DIR)/libft/ft_set/get.o $(O_DIR)/libft/ft_out/ft_putint.o \
+	$(O_DIR)/srcs/sh_parser/parser_def.o $(O_DIR)/libft/ft_regex/ft_rdestroy.o \
+	$(O_DIR)/libft/ft_hmap/ft_hmapget.o $(O_DIR)/libft/ft_hmap/ft_hmapdatas.o \
+	$(O_DIR)/libft/ft_hmap/hmap_puth.o $(O_DIR)/libft/ft_out/ft_putfloat.o \
+	$(O_DIR)/libft/ft_base/ft_bzero.o $(O_DIR)/libft/ft_hmap/ft_hmapkeys.o \
+	$(O_DIR)/libft/ft_regex/exec_regs/wbound.o \
+	$(O_DIR)/libft/ft_printf/ft_aprintf.o \
+	$(O_DIR)/libft/ft_printf/ft_vprintf.o $(O_DIR)/libft/ft_list/ft_listsort.o \
+	$(O_DIR)/libft/ft_printf/ft_printf.o $(O_DIR)/libft/ft_base/ft_assert.o \
+	$(O_DIR)/libft/ft_set/iter.o $(O_DIR)/libft/ft_printf/ft_putf.o \
+	$(O_DIR)/libft/ft_base/ft_clock_stack.o \
+	$(O_DIR)/libft/ft_vector/ft_vspan.o $(O_DIR)/libft/ft_getkey/next_char.o \
+	$(O_DIR)/libft/ft_printf/formats/misc.o $(O_DIR)/libft/ft_set/first.o \
+	$(O_DIR)/libft/ft_base/ft_emalloc.o $(O_DIR)/libft/ft_base/ft_is.o \
+	$(O_DIR)/libft/ft_regex/ft_rmatch.o $(O_DIR)/libft/ft_term/ft_tput.o \
+	$(O_DIR)/libft/ft_regex/parse_regs/wbound.o \
+	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/libft/ft_base/ft_memset.o \
+	$(O_DIR)/libft/ft_tokenizer/ft_token_map.o \
+	$(O_DIR)/libft/ft_tokenizer/ft_tokenize.o \
+	$(O_DIR)/libft/ft_base/ft_escape.o $(O_DIR)/libft/ft_base/ft_unescape.o \
+	$(O_DIR)/libft/ft_base/ft_memfill.o $(O_DIR)/srcs/sh_context/sh_env.o \
+	$(O_DIR)/libft/ft_bst/ft_bstput.o $(O_DIR)/libft/ft_printf/exec_format.o \
+	$(O_DIR)/libft/ft_base/ft_sub.o $(O_DIR)/srcs/sh_cmd/destroy_cmd.o \
+	$(O_DIR)/libft/ft_base/ft_abs.o $(O_DIR)/libft/ft_regex/exec_regs/eol.o \
+	$(O_DIR)/libft/ft_printf/exec_subformat.o \
+	$(O_DIR)/srcs/editor/binding/paste.o $(O_DIR)/libft/ft_printf/args_utils.o \
+	$(O_DIR)/srcs/editor/editor_set_cursor.o \
+	$(O_DIR)/srcs/editor/binding/write.o $(O_DIR)/libft/ft_getkey/get_seq.o \
+	$(O_DIR)/libft/ft_out/ft_write_nchar.o \
+	$(O_DIR)/libft/ft_bst/ft_bst_destroy.o \
+	$(O_DIR)/libft/ft_base/ft_memstart.o \
+	$(O_DIR)/libft/ft_printf/formats/char.o $(O_DIR)/libft/ft_out/ft_putpad.o \
+	$(O_DIR)/srcs/editor/editor_bind.o $(O_DIR)/libft/ft_list/ft_listremove.o \
+	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_out/ft_putuint.o \
+	$(O_DIR)/srcs/main/main.o $(O_DIR)/libft/ft_regex/parse_regs/group.o \
+	$(O_DIR)/libft/ft_term/ft_tupdate.o $(O_DIR)/libft/ft_bst/ft_bstiter.o \
+	$(O_DIR)/srcs/sh_context/sh_var.o \
+	$(O_DIR)/srcs/syntax-color/exec_syntax_color.o \
+	$(O_DIR)/libft/ft_printf/formats/int.o \
+	$(O_DIR)/srcs/editor/binding/cursor_move.o \
+	$(O_DIR)/libft/ft_hmap/ft_hmapdestroy.o \
+	$(O_DIR)/libft/ft_out/ft_putnchar.o \
+	$(O_DIR)/libft/ft_parser/subparser_resolver.o \
+	$(O_DIR)/libft/ft_out/ft_str_out.o $(O_DIR)/srcs/strset/strset.o \
+	$(O_DIR)/libft/ft_hmap/ft_hmapputp.o \
+	$(O_DIR)/libft/ft_term/term_out_flush.o
 
 # module editor
 $(O_DIR)/srcs/editor/binding/cursor_move.o: srcs/editor/binding/cursor_move.c \

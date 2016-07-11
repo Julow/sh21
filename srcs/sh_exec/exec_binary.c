@@ -6,13 +6,17 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 17:59:18 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 18:26:04 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 22:33:42 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/ft_dstr.h"
 #include "ft/ft_printf.h"
+#include "ft/ft_vector.h"
+
 #include "p_sh_exec.h"
 
+#include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -29,18 +33,49 @@ static void		args_build(t_sh_exec const *exec, char const **args)
 		*args = exec->buff.str + arg->offset;
 		args++;
 	}
+	*args = NULL;
+}
+
+static char		*get_binary_name(t_sh_context const *c, t_sub arg0)
+{
+	t_dstr			buff;
+	t_sub const		path = sh_var_get(c, SUBC("PATH"));
+	t_sub			sub;
+
+	buff = DSTR0();
+	sub = SUB_START(path);
+	while (ft_subnext_c(path, &sub, ':'))
+	{
+		buff.length = 0;
+		ft_dstradd(&buff, sub);
+		DSTR_APPEND(&buff, '/');
+		ft_dstradd(&buff, arg0);
+		if (access(buff.str, X_OK) == 0)
+			return (buff.str);
+		if (errno != ENOENT)
+			ft_dprintf(2, "%ts: %s%n", DSTR_SUB(buff), strerror(errno));
+	}
+	ft_dstrclear(&buff);
+	return (NULL);
 }
 
 static int		exec_binary_run(t_sh_context *context, t_sh_exec const *exec)
 {
-	char const		*args[exec->args.length];
-	char const		*env[SH_ENV_SIZE(*context)];
+	char const		*args[exec->args.length + 1];
+	char const		*env[SH_ENV_SIZE(*context) + 1];
+	char			*binary;
 
 	args_build(exec, args);
 	sh_env_build(context, env);
 
-	TRACE("fork");
-	return (127);
+	if ((binary = get_binary_name(context, ft_sub(args[0], 0, -1))) == NULL)
+	{
+		ft_dprintf(2, "%s: command not found%n", args[0]);
+		return (127);
+	}
+	// FUCK EXECVE
+	execve(binary, (char**)args, (char**)env);
+	return (-1);
 }
 
 static int		wait_child(t_sh_context *context, pid_t pid)

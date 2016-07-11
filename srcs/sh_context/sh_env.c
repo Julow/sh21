@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 14:06:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 15:13:10 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 23:50:16 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ void			sh_env_build(t_sh_context const *c, char const **env)
 		env++;
 		key = ft_set_cnext(key);
 	}
+	*env = NULL;
 }
 
 void			sh_env_export(t_sh_context *c, t_sub key, bool exported)
