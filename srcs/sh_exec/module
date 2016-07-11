@@ -7,4 +7,5 @@ module sh::exec:
 	public require sh::context
 
 	private require ft::dstr
+	private require ft::printf
 	private require ft::vector

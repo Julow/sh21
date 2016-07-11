@@ -118,8 +118,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/main/main.o $(O_DIR)/srcs/sh_cmd/destroy_cmd.o \
 	$(O_DIR)/srcs/sh_context/context_init.o $(O_DIR)/srcs/sh_context/sh_env.o \
 	$(O_DIR)/srcs/sh_context/sh_var.o $(O_DIR)/srcs/sh_exec/build_sh_exec.o \
-	$(O_DIR)/srcs/sh_exec/exec_cmd.o $(O_DIR)/srcs/sh_parser/parser.o \
-	$(O_DIR)/srcs/sh_parser/parser_def.o \
+	$(O_DIR)/srcs/sh_exec/exec_binary.o $(O_DIR)/srcs/sh_exec/exec_cmd.o \
+	$(O_DIR)/srcs/sh_parser/parser.o $(O_DIR)/srcs/sh_parser/parser_def.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o \
 	$(O_DIR)/srcs/syntax-color/exec_syntax_color.o \
 	$(O_DIR)/srcs/syntax-color/load_syntax_color.o \
@@ -827,6 +827,13 @@ $(O_DIR)/srcs/sh_exec/build_sh_exec.o: srcs/sh_exec/build_sh_exec.c \
 	srcs/sh_cmd/public/cmd.h srcs/sh_context/public/context.h \
 	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
 	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_exec/exec_binary.o: srcs/sh_exec/exec_binary.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_cmd/public/cmd.h srcs/sh_context/public/context.h \
+	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
+	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/exec_cmd.o: srcs/sh_exec/exec_cmd.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
@@ -834,8 +841,8 @@ $(O_DIR)/srcs/sh_exec/exec_cmd.o: srcs/sh_exec/exec_cmd.c \
 	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
 	srcs/strset/public/strset.h
 
-$(O_DIR)/srcs/sh_exec/build_sh_exec.o $(O_DIR)/srcs/sh_exec/exec_cmd.o: \
-	INCLUDE_FLAGS += -Isrcs/sh_exec
+$(O_DIR)/srcs/sh_exec/build_sh_exec.o $(O_DIR)/srcs/sh_exec/exec_binary.o \
+$(O_DIR)/srcs/sh_exec/exec_cmd.o: INCLUDE_FLAGS += -Isrcs/sh_exec
 
 # module sh::parser
 $(O_DIR)/srcs/sh_parser/parser.o: srcs/sh_parser/parser.c \

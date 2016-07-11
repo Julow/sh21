@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/06 15:38:31 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/06 17:06:31 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 17:59:47 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,11 @@ struct			s_sh_exec
 */
 void			build_sh_exec(t_sh_context *context, t_sh_text const *text,
 					t_sh_exec *dst);
+
+/*
+** Exec a binary
+*/
+int				exec_binary(t_sh_context *context, t_sh_exec const *exec);
 
 /*
 ** Destroy a sh_exec object

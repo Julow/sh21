@@ -6,61 +6,35 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/05 20:51:34 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/11 13:42:22 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 18:20:12 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "sh/exec.h"
 #include "p_sh_exec.h"
 
-static int		exec_cmd(t_sh_context *context, t_sh_cmd const *cmd)
+static void		update_status(t_sh_context *context, int status)
 {
-	t_sh_exec		exec;
-	char const		*env[SH_ENV_SIZE(*context)];
+	char			buff[16];
+	uint32_t		len;
 
-	exec = (t_sh_exec){DSTR0(), VECTOR(t_vec2u), VECTOR(t_sh_exec_redir)};
-	sh_env_build(context, env);
-	build_sh_exec(context, &cmd->text, &exec);
-	{
-		uint32_t		i;
-
-		ft_printf("EXEC [%n");
-		i = 0;
-		while (i < exec.args.length)
-		{
-			t_sh_exec_arg	*arg = VECTOR_GET(exec.args, i);
-			ft_printf("\tARG#%u '%s' %u%n", i, exec.buff.str + arg->offset, arg->quoted);
-			i++;
-		}
-
-		i = 0;
-		while (i < exec.redirs.length)
-		{
-			t_sh_exec_redir	*redir = VECTOR_GET(exec.redirs, i);
-			ft_printf("\tREDIR#%u %u%n", i, *redir);
-			i++;
-		}
-
-		i = 0;
-		while (i < SH_ENV_SIZE(*context))
-		{
-			ft_printf("\tENV#%u %s%n", i, env[i]);
-			i++;
-		}
-		ft_printf("]%n");
-	}
-	destroy_sh_exec(&exec);
-	return (0);
+	len = ft_sprintf(buff, "%d", status);
+	sh_var_set(context, SUBC("?"), SUB(buff, len));
 }
 
 int				sh_exec_cmd(t_sh_context *context, t_sh_cmd const *cmd)
 {
 	int				status;
+	t_sh_exec		exec;
 
 	status = -1;
 	while (cmd != NULL)
 	{
-		status = exec_cmd(context, cmd);
+		exec = (t_sh_exec){DSTR0(), VECTOR(t_vec2u), VECTOR(t_sh_exec_redir)};
+		build_sh_exec(context, &cmd->text, &exec);
+		status = exec_binary(context, &exec);
+		update_status(context, status);
+		destroy_sh_exec(&exec);
 		while (cmd != NULL)
 		{
 			while (cmd->next_type == SH_NEXT_PIPE)
