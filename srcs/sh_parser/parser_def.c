@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:32:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 18:48:12 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 16:46:23 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,20 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 		),
 	),
 
+	PARSER_DEF("sh-sub-quoted", NULL, &sh_parse_frame_cmd_subshell_quoted,
+		PARSER_INHERIT("sh-sub"),
+	),
+
 	PARSER_DEF("sh-backquote", NULL, &sh_parse_frame_cmd_subshell,
 		PARSER_INHERIT("sh-cmd-base"),
 		.tokens = PARSER_DEF_T(
 			T("`", NONE, 0, .end=true),
 			T("\\`", NONE, 0, .parser="sh-backquote-rev"),
 		),
+	),
+
+	PARSER_DEF("sh-backquote-quoted", NULL, &sh_parse_frame_cmd_subshell_quoted,
+		PARSER_INHERIT("sh-backquote"),
 	),
 
 	PARSER_DEF("sh-backquote-rev", NULL, &sh_parse_frame_cmd_subshell,
@@ -141,6 +149,8 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 	PARSER_DEF("sh-string", NULL, &sh_parse_frame_string,
 		PARSER_INHERIT("sh-base-subst"),
 		.tokens = PARSER_DEF_T(
+			T("$(", NONE, 0, .parser="sh-sub-quoted"),
+			T("`", NONE, 0, .parser="sh-backquote-quoted"),
 			T("\"", NONE, 0, .end=true),
 			T("\\\"", ESCAPED, 0),
 		),

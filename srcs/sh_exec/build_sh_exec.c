@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/06 15:38:16 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 19:11:22 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 17:08:19 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,8 @@ static uint32_t	build_args_param(t_sh_context *context, t_sh_exec *exec,
 {
 	t_sub const		param = SUB_LEN(text, token->val.token_len);
 
-	// TODO: build_args_param
+	ft_dstradd(&exec->buff, sh_var_get(context, param));
 	return (param.length);
-	(void)context;
-	(void)exec;
 }
 
 static uint32_t	build_args_expr(t_sh_context *context, t_sh_exec *exec,
@@ -88,19 +86,7 @@ static void		push_arg(t_sh_exec *exec, t_sh_exec_arg *arg)
 	*arg = SH_EXEC_ARG(exec);
 }
 
-// TODO: tests: (split_arg)
-// ""$TEST
-// $TEST""
-// $TEST
-//  $TEST
-// "a"$TEST
-// "a"$TEST"b"
-// TEST=""
-// TEST="a"
-// TEST="a b"
-// TEST="a  b"
-// TEST=" a  b"
-// TEST=" "
+//TODO: fix: `$TEST` with TEST=" "
 static void		split_arg(t_sh_exec *exec, t_sh_exec_arg *arg)
 {
 	uint32_t		i;
@@ -108,7 +94,7 @@ static void		split_arg(t_sh_exec *exec, t_sh_exec_arg *arg)
 	i = arg->offset;
 	while (i < exec->buff.length)
 	{
-		if (IS(exec->buff.str[i], IS_BLANK) && (i > arg->offset || arg->quoted))
+		if (IS(exec->buff.str[i], IS_BLANK) && (i >= arg->offset || arg->quoted))
 		{
 			exec->buff.str[i] = '\0';
 			ft_vpush(&exec->args, arg, 1);

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:26:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 19:01:57 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 16:49:46 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,12 @@ bool				sh_parse_frame_ignore(t_parse_data *p)
 	return (true);
 }
 
-static t_sh_token	*sh_put_token(t_sh_text *text, t_sh_token_t type)
+static t_sh_token	*sh_put_token(t_sh_text *text, t_sh_token_t type, bool quoted)
 {
 	t_sh_token *const	token = ft_vpush(&text->tokens, NULL, 1);
 
+	if (quoted)
+		type |= SH_F_T_QUOTED;
 	token->type = type;
 	return (token);
 }
@@ -71,7 +73,7 @@ static t_sh_token	*sh_put_t_string(t_sh_text *text, t_sub str, bool quoted)
 	return (token);
 }
 
-bool				sh_parse_util_text(t_parse_data *p, t_sh_text *text)
+bool				sh_parse_util_text(t_parse_data *p, t_sh_text *text, bool quoted)
 {
 	t_sh_parser_data const	*token_data;
 
@@ -80,7 +82,7 @@ bool				sh_parse_util_text(t_parse_data *p, t_sh_text *text)
 	{
 		token_data = p->token_data;
 		if (token_data == NULL)
-			sh_put_t_string(text, p->token, false);
+			sh_put_t_string(text, p->token, quoted);
 		else
 			switch (token_data->t)
 			{
@@ -88,7 +90,7 @@ bool				sh_parse_util_text(t_parse_data *p, t_sh_text *text)
 				if (text->tokens.length == 0 || VGET(t_sh_token, text->tokens,
 						text->tokens.length - 1).type == SH_T_SPACE)
 					break ;
-				sh_put_token(text, SH_T_SPACE);
+				sh_put_token(text, SH_T_SPACE, quoted);
 				break ;
 			case SH_PARSE_T_ESCAPED:
 				sh_put_t_string(text, SUB_FOR(p->token, 1), true);
@@ -97,12 +99,12 @@ bool				sh_parse_util_text(t_parse_data *p, t_sh_text *text)
 				sh_put_t_string(text, SUB0(), true);
 				break ;
 			case SH_PARSE_T_REDIR:
-				sh_put_token(text, SH_T_REDIR)->val.redir_type =
+				sh_put_token(text, SH_T_REDIR, quoted)->val.redir_type =
 					token_data->data;
 				break ;
 			case SH_PARSE_T_PARAM:
 			case SH_PARSE_T_PARAM_SPECIAL:
-				sh_put_token(text, SH_T_PARAM)->val.token_len =
+				sh_put_token(text, SH_T_PARAM, quoted)->val.token_len =
 					p->token.length - 1;
 				ft_dstradd(&text->text, SUB_FOR(p->token, 1));
 				break ;
@@ -114,7 +116,7 @@ bool				sh_parse_util_text(t_parse_data *p, t_sh_text *text)
 	return (!PARSE_ERROR(p));
 }
 
-static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd)
+static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd, bool quoted)
 {
 	t_sh_token			*t;
 
@@ -122,12 +124,12 @@ static void			sh_put_cmd(t_parse_data *p, t_sh_cmd *cmd)
 		((t_sh_parse_data*)p)->cmd = cmd;
 	else
 	{
-		t = sh_put_token((t_sh_text*)p->frame->prev->data, SH_T_SUBSHELL);
+		t = sh_put_token((t_sh_text*)p->frame->prev->data, SH_T_SUBSHELL, quoted);
 		t->val.cmd = cmd;
 	}
 }
 
-static bool			sh_parse_util_cmd(t_parse_data *p, bool compound)
+static bool			sh_parse_util_cmd(t_parse_data *p, bool compound, bool quoted)
 {
 	t_sh_cmd				*cmd;
 	t_sh_cmd				**tmp;
@@ -138,7 +140,7 @@ static bool			sh_parse_util_cmd(t_parse_data *p, bool compound)
 	{
 		*tmp = NEW(t_sh_cmd);
 		**tmp = SH_CMD();
-		if (!sh_parse_util_text(p, &(*tmp)->text))
+		if (!sh_parse_util_text(p, &(*tmp)->text, false))
 			return (sh_destroy_cmd(cmd), false);
 		if ((token_data = p->token_data) != NULL
 			&& token_data->t == SH_PARSE_T_NEXT)
@@ -150,22 +152,32 @@ static bool			sh_parse_util_cmd(t_parse_data *p, bool compound)
 		}
 		break ;
 	}
-	sh_put_cmd(p, cmd);
+	sh_put_cmd(p, cmd, quoted);
 	return (true);
 }
 
 bool				sh_parse_frame_cmd(t_parse_data *p)
 {
-	return (sh_parse_util_cmd(p, false));
+	return (sh_parse_util_cmd(p, false, false));
 }
 
-bool				sh_parse_frame_cmd_subshell(t_parse_data *p)
+static bool			parse_subshell(t_parse_data *p, bool quoted)
 {
-	if (!sh_parse_util_cmd(p, true))
+	if (!sh_parse_util_cmd(p, true, quoted))
 		return (false);
 	if (PARSE_EOF(p))
 		return (sh_parse_error(p, SH_E_UNCLOSED_SUBSHELL, SUBC(")")));
 	return (true);
+}
+
+bool				sh_parse_frame_cmd_subshell(t_parse_data *p)
+{
+	return (parse_subshell(p, false));
+}
+
+bool				sh_parse_frame_cmd_subshell_quoted(t_parse_data *p)
+{
+	return (parse_subshell(p, true));
 }
 
 bool				sh_parse_frame_string(t_parse_data *p)
@@ -173,7 +185,7 @@ bool				sh_parse_frame_string(t_parse_data *p)
 	t_sh_text *const	text = (t_sh_text*)p->frame->prev->data;
 
 	sh_put_t_string(text, SUB0(), true);
-	if (!sh_parse_util_text(p, text))
+	if (!sh_parse_util_text(p, text, true))
 		return (false);
 	if (PARSE_EOF(p))
 		return (sh_parse_error(p, SH_E_UNCLOSED_STRING, SUBC("\""))); // TODO: check if "'"
@@ -199,11 +211,11 @@ bool			sh_parse_frame_expr(t_parse_data *p)
 	if (expr->type == SH_EXPR_NONE)
 	{
 		ft_dstradd(&parent->text, SUB(ENDOF(expr), expr->param_len));
-		sh_put_token(parent, SH_T_PARAM)->val.token_len = expr->param_len;
+		sh_put_token(parent, SH_T_PARAM, false)->val.token_len = expr->param_len;
 		sh_destroy_expr(expr);
 		return (true);
 	}
-	sh_put_token(parent, SH_T_EXPR)->val.expr = expr;
+	sh_put_token(parent, SH_T_EXPR, false)->val.expr = expr;
 	return (true);
 }
 
@@ -219,5 +231,5 @@ bool			sh_parse_frame_expr_val(t_parse_data *p)
 	data = p->token_data;
 	ASSERT(data != NULL && data->t == SH_PARSE_T_EXPR);
 	expr->type = data->data;
-	return (sh_parse_util_text(p, &expr->text));
+	return (sh_parse_util_text(p, &expr->text, false));
 }

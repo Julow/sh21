@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 14:25:44 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 18:48:24 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 16:44:36 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,11 @@ struct			s_sh_parse_data
 	t_sh_parse_err	*err;
 };
 
-bool			sh_parse_util_text(t_parse_data *p, t_sh_text *text);
+bool			sh_parse_util_text(t_parse_data *p, t_sh_text *text, bool quoted);
 
 bool			sh_parse_frame_cmd(t_parse_data *p);
 bool			sh_parse_frame_cmd_subshell(t_parse_data *p);
+bool			sh_parse_frame_cmd_subshell_quoted(t_parse_data *p);
 
 // bool			sh_parse_frame_math(t_parse_data *p);
 bool			sh_parse_frame_string(t_parse_data *p);

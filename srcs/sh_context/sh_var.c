@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 13:45:59 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 15:13:11 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 15:23:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ t_sub			sh_var_get(t_sh_context *c, t_sub key)
 
 	if (var == NULL)
 		return (SUB0());
-	return (SUB(SH_VAR_VAL(var), var->length - var->key_len - 1));
+	return (SUB_FOR(SUB(SH_VAR_STR(var), var->length), var->key_len + 1));
 }
 
 int				sh_var_cmp(t_sh_var const *v, t_sub const *key)

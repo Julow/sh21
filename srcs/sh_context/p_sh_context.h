@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 15:11:57 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 15:12:40 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 15:20:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ struct			s_sh_var
 };
 
 # define SH_VAR_STR(V)		(ENDOF(V))
-# define SH_VAR_VAL(V)		(SH_VAR_STR(V) + (V)->key_len + 1)
 # define SH_VAR(LEN,KLEN)	((t_sh_var){SET_HEAD(), (LEN), (KLEN)})
 
 int				sh_var_cmp(t_sh_var const *v, t_sub const *key);
