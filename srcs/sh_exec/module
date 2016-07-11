@@ -3,8 +3,8 @@ module sh::exec:
 	private include ./
 
 	public require ft::base
-	public require ft::hmap
 	public require sh::cmd
+	public require sh::context
 
 	private require ft::dstr
 	private require ft::vector

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/05 20:51:34 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/09 12:45:32 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 13:42:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@
 static int		exec_cmd(t_sh_context *context, t_sh_cmd const *cmd)
 {
 	t_sh_exec		exec;
+	char const		*env[SH_ENV_SIZE(*context)];
 
 	exec = (t_sh_exec){DSTR0(), VECTOR(t_vec2u), VECTOR(t_sh_exec_redir)};
+	sh_env_build(context, env);
 	build_sh_exec(context, &cmd->text, &exec);
 	{
 		uint32_t		i;
@@ -36,6 +38,13 @@ static int		exec_cmd(t_sh_context *context, t_sh_cmd const *cmd)
 		{
 			t_sh_exec_redir	*redir = VECTOR_GET(exec.redirs, i);
 			ft_printf("\tREDIR#%u %u%n", i, *redir);
+			i++;
+		}
+
+		i = 0;
+		while (i < SH_ENV_SIZE(*context))
+		{
+			ft_printf("\tENV#%u %s%n", i, env[i]);
 			i++;
 		}
 		ft_printf("]%n");

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/09 18:11:52 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/11 15:13:24 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ struct			s_main
 	t_editor			*editor;
 	uint32_t			flags;
 	t_syntax_color const	*syntax_color;
+	t_sh_context		sh_context;
 };
 
 #define DEFAULT_SYNTAX_COLOR	"sh"
@@ -363,7 +364,7 @@ static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
 ** Exec shell
 */
 
-static bool		run_shell(t_sub str)
+static bool		run_shell(t_sh_context *context, t_sub str)
 {
 	t_in			in;
 	t_sh_cmd		*cmd;
@@ -382,7 +383,7 @@ static bool		run_shell(t_sub str)
 			return (false);
 		}
 		print_cmd(cmd, 0);
-		sh_exec_cmd(NULL, cmd);
+		sh_exec_cmd(context, cmd);
 		sh_destroy_cmd(cmd);
 	}
 	ft_printf("]]%n");
@@ -398,7 +399,7 @@ static bool		run_shell(t_sub str)
 
 static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 {
-	if (!run_shell(DSTR_SUB(editor->text)))
+	if (!run_shell(&main->sh_context, DSTR_SUB(editor->text)))
 		ft_printf("RUN SHELL FAILED%n");
 	return (true);
 	(void)main;
@@ -436,6 +437,7 @@ static bool		init_main(t_main *main)
 				DEFAULT_SYNTAX_COLOR);
 		main->flags |= FLAG_INTERACTIVE;
 	}
+	sh_context_init(&main->sh_context);
 	return (true);
 }
 
