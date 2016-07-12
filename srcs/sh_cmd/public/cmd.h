@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/12 13:26:15 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/12 19:24:34 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,16 @@ typedef enum e_sh_expr_t		t_sh_expr_t;
 
 enum		e_sh_redir_t
 {
-	SH_REDIR_OUTPUT,
-	SH_REDIR_OUTPUT_CLOBBER,
-	SH_REDIR_APPEND,
-	SH_REDIR_INPUT,
-	SH_REDIR_HEREDOC,
-	SH_REDIR_INPUT_FD,
-	SH_REDIR_OUTPUT_FD,
-	SH_REDIR_OPEN,
+	SH_REDIR_OUTPUT,			// [n]>word		// 1
+	SH_REDIR_OUTPUT_CLOBBER,	// [n]>|word	// 1
+	SH_REDIR_APPEND,			// [n]>>word	// 1
+	SH_REDIR_INPUT,				// [n]<word		// 0
+	SH_REDIR_HEREDOC,			// [n]<<word	// 0
+	SH_REDIR_INPUT_FD,			// [n]<&word	// 0
+	// SH_REDIR_INPUT_CLOSE		// [n]<&-		// 0
+	SH_REDIR_OUTPUT_FD,			// [n]>&word	// 1
+	// SH_REDIR_OUTPUT_CLOSE,	// [n]>&-		// 1
+	SH_REDIR_OPEN,				// [n]<>word	// 1
 };
 
 /*

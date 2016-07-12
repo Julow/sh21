@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/06 15:38:31 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/12 15:04:18 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/12 19:46:49 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,12 @@ struct			s_sh_exec_arg
 */
 struct			s_sh_exec_redir
 {
-	uint32_t		fd_in;
-	uint32_t		fd_out;
-	bool			out_opened;
+	t_vec2u			fd;
+	uint32_t		flags;
 };
+
+# define SH_REDIR_F_OPENED	(1 << 0)
+# define SH_REDIR_F_CLOSE	(1 << 1)
 
 /*
 ** Represent a command to execute
