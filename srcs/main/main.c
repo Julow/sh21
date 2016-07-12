@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/11 15:13:24 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/12 13:46:39 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,8 +270,8 @@ static char const *const	g_redir_types[] = {
 	[SH_REDIR_APPEND] = "APPEND",
 	[SH_REDIR_INPUT] = "INPUT",
 	[SH_REDIR_HEREDOC] = "HEREDOC",
-	[SH_REDIR_DUP_INPUT] = "DUP_INPUT",
-	[SH_REDIR_DUP_OUTPUT] = "DUP_OUTPUT",
+	[SH_REDIR_INPUT_FD] = "INPUT FD",
+	[SH_REDIR_OUTPUT_FD] = "OUTPUT FD",
 	[SH_REDIR_OPEN] = "OPEN",
 };
 

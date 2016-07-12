@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:32:08 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 16:46:23 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/12 13:24:55 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,8 @@ static t_vector const	g_sh_parser = VECTORC(((t_parser_def const[]){
 			T(">>", REDIR, SH_REDIR_APPEND),
 			T("<", REDIR, SH_REDIR_INPUT),
 			T("<<", REDIR, SH_REDIR_HEREDOC),
-			T("<&", REDIR, SH_REDIR_DUP_INPUT),
-			T(">&", REDIR, SH_REDIR_DUP_OUTPUT),
+			T("<&", REDIR, SH_REDIR_INPUT_FD),
+			T(">&", REDIR, SH_REDIR_OUTPUT_FD),
 			T("<>", REDIR, SH_REDIR_OPEN),
 
 			T("\\ ", ESCAPED, 0),

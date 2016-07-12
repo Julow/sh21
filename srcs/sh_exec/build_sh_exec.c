@@ -6,129 +6,77 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/06 15:38:16 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 17:08:19 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/12 15:04:38 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_exec.h"
 
-static void		never_called(void)
-{
-	HARD_ASSERT(!"never_called called");
-}
-
-static uint32_t	build_args_string(t_sh_context *context, t_sh_exec *exec,
-					t_sub text, t_sh_token const *token)
-{
-	uint32_t const	len = token->val.token_len;
-
-	ft_dstradd(&exec->buff, SUB_LEN(text, len));
-	return (len);
-	(void)context;
-}
-
-static uint32_t	build_args_redir(t_sh_context *context, t_sh_exec *exec,
-					t_sub text, t_sh_token const *token)
-{
-	return (0);
-	(void)context;
-	(void)exec;
-	(void)text;
-	(void)token;
-}
-
-static uint32_t	build_args_subshell(t_sh_context *context, t_sh_exec *exec,
-					t_sub text, t_sh_token const *token)
-{
-	return (0);
-	(void)context;
-	(void)exec;
-	(void)text;
-	(void)token;
-}
-
-static uint32_t	build_args_param(t_sh_context *context, t_sh_exec *exec,
-					t_sub text, t_sh_token const *token)
-{
-	t_sub const		param = SUB_LEN(text, token->val.token_len);
-
-	ft_dstradd(&exec->buff, sh_var_get(context, param));
-	return (param.length);
-}
-
-static uint32_t	build_args_expr(t_sh_context *context, t_sh_exec *exec,
-					t_sub text, t_sh_token const *token)
-{
-	return (0);
-	(void)context;
-	(void)exec;
-	(void)text;
-	(void)token;
-}
-
-static uint32_t	(*const g_build_args[])(t_sh_context *, t_sh_exec *, t_sub,
-											t_sh_token const *) =
+static bool		(*const g_build_args[])(t_sh_exec_builder *, t_sh_token const *) =
 {
 	[SH_T_STRING] = &build_args_string,
-	[SH_T_SPACE] = V(&never_called),
+	[SH_T_SPACE] = &build_args_space,
 	[SH_T_REDIR] = &build_args_redir,
 	[SH_T_SUBSHELL] = &build_args_subshell,
 	[SH_T_PARAM] = &build_args_param,
 	[SH_T_EXPR] = &build_args_expr,
 };
 
-static void		push_arg(t_sh_exec *exec, t_sh_exec_arg *arg)
-{
-	if (arg->offset >= exec->buff.length && !arg->quoted)
-		return ;
-	DSTR_APPEND(&exec->buff, '\0');
-	ft_vpush(&exec->args, arg, 1);
-	*arg = SH_EXEC_ARG(exec);
-}
-
 //TODO: fix: `$TEST` with TEST=" "
-static void		split_arg(t_sh_exec *exec, t_sh_exec_arg *arg)
+static void		split_arg(t_sh_exec_builder *b)
 {
 	uint32_t		i;
 
-	i = arg->offset;
-	while (i < exec->buff.length)
+	i = b->arg.offset;
+	while (i < b->dst->buff.length)
 	{
-		if (IS(exec->buff.str[i], IS_BLANK) && (i >= arg->offset || arg->quoted))
+		if (IS(b->dst->buff.str[i], IS_BLANK)
+			&& (i >= b->arg.offset || b->arg.quoted))
 		{
-			exec->buff.str[i] = '\0';
-			ft_vpush(&exec->args, arg, 1);
-			*arg = (t_sh_exec_arg){i + 1, false};
+			b->dst->buff.str[i] = '\0';
+			ft_vpush(&b->dst->args, &b->arg, 1);
+			b->arg = (t_sh_exec_arg){i + 1, false};
 		}
 		i++;
 	}
 }
 
-void			build_sh_exec(t_sh_context *context, t_sh_text const *text,
+bool			build_sh_exec_next(t_sh_exec_builder *b)
+{
+	t_sh_token const *const	token = VECTOR_GET(b->text->tokens, b->token_i++);
+
+	if (!g_build_args[token->type & ~SH_F_T_QUOTED](b, token))
+		return (false);
+	if (token->type & SH_F_T_QUOTED)
+		b->arg.quoted = true;
+	else
+		split_arg(b);
+	return (true);
+}
+
+void			build_sh_exec_push(t_sh_exec_builder *b)
+{
+	if (b->arg.offset >= b->dst->buff.length && !b->arg.quoted)
+		return ;
+	DSTR_APPEND(&b->dst->buff, '\0');
+	ft_vpush(&b->dst->args, &b->arg, 1);
+	b->arg = SH_EXEC_ARG(b->dst);
+}
+
+bool			build_sh_exec(t_sh_context *context, t_sh_text const *text,
 					t_sh_exec *exec)
 {
-	t_sh_token const	*token;
-	t_sh_exec_arg		arg;
-	uint32_t			text_i;
+	t_sh_exec_builder	b;
 
-	text_i = 0;
-	arg = SH_EXEC_ARG(exec);
-	token = VECTOR_IT(text->tokens);
-	while (VECTOR_NEXT(text->tokens, token))
-	{
-		if (token->type == SH_T_SPACE)
+	b = (t_sh_exec_builder){context, text, 0, 0, SH_EXEC_ARG(exec), exec};
+	while (b.token_i < text->tokens.length)
+		if (!build_sh_exec_next(&b))
 		{
-			push_arg(exec, &arg);
-			continue ;
+			destroy_sh_exec(exec);
+			return (false);
 		}
-		text_i += g_build_args[token->type & ~SH_F_T_QUOTED](context, exec,
-				SUB_FOR(DSTR_SUB(text->text), text_i), token);
-		if (token->type & SH_F_T_QUOTED)
-			arg.quoted = true;
-		else
-			split_arg(exec, &arg);
-	}
-	push_arg(exec, &arg);
+	build_sh_exec_push(&b);
+	return (true);
 }
 
 void			destroy_sh_exec(t_sh_exec *exec)

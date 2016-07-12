@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/06 15:38:31 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 17:59:47 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/12 15:04:18 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,10 @@
 # include "ft/libft.h"
 # include "sh/exec.h"
 
-typedef struct s_sh_exec_arg	t_sh_exec_arg;
-typedef t_sh_redir_t			t_sh_exec_redir; // TODO
-typedef struct s_sh_exec		t_sh_exec;
+typedef struct s_sh_exec_redir		t_sh_exec_redir;
+typedef struct s_sh_exec_arg		t_sh_exec_arg;
+typedef struct s_sh_exec			t_sh_exec;
+typedef struct s_sh_exec_builder	t_sh_exec_builder;
 
 /*
 ** ========================================================================== **
@@ -35,6 +36,16 @@ struct			s_sh_exec_arg
 {
 	uint32_t		offset:31;
 	bool			quoted:1;
+};
+
+/*
+** A redirection
+*/
+struct			s_sh_exec_redir
+{
+	uint32_t		fd_in;
+	uint32_t		fd_out;
+	bool			out_opened;
 };
 
 /*
@@ -55,8 +66,9 @@ struct			s_sh_exec
 /*
 ** Build a sh_exec object from a command's text
 ** Mutually recursive with sh_exec_cmd
+** TODO: check fail
 */
-void			build_sh_exec(t_sh_context *context, t_sh_text const *text,
+bool			build_sh_exec(t_sh_context *context, t_sh_text const *text,
 					t_sh_exec *dst);
 
 /*
@@ -68,5 +80,29 @@ int				exec_binary(t_sh_context *context, t_sh_exec const *exec);
 ** Destroy a sh_exec object
 */
 void			destroy_sh_exec(t_sh_exec *exec);
+
+/*
+** sh_exec builder
+*/
+
+struct			s_sh_exec_builder
+{
+	t_sh_context	*context;
+	t_sh_text const	*text;
+	uint32_t		text_i;
+	uint32_t		token_i;
+	t_sh_exec_arg	arg;
+	t_sh_exec		*dst;
+};
+
+bool			build_args_expr(t_sh_exec_builder *b, t_sh_token const *t);
+bool			build_args_subshell(t_sh_exec_builder *b, t_sh_token const *t);
+bool			build_args_redir(t_sh_exec_builder *b, t_sh_token const *t);
+bool			build_args_string(t_sh_exec_builder *b, t_sh_token const *t);
+bool			build_args_param(t_sh_exec_builder *b, t_sh_token const *t);
+bool			build_args_space(t_sh_exec_builder *b, t_sh_token const *t);
+
+void			build_sh_exec_push(t_sh_exec_builder *b);
+bool			build_sh_exec_next(t_sh_exec_builder *b);
 
 #endif

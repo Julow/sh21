@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/11 12:25:51 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/09 14:43:40 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/12 13:26:15 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ enum		e_sh_redir_t
 	SH_REDIR_APPEND,
 	SH_REDIR_INPUT,
 	SH_REDIR_HEREDOC,
-	SH_REDIR_DUP_INPUT,
-	SH_REDIR_DUP_OUTPUT,
+	SH_REDIR_INPUT_FD,
+	SH_REDIR_OUTPUT_FD,
 	SH_REDIR_OPEN,
 };
 
