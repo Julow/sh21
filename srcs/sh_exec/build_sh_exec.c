@@ -6,11 +6,12 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/06 15:38:16 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/12 15:04:38 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/13 15:33:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_exec.h"
+#include <unistd.h>
 
 static bool		(*const g_build_args[])(t_sh_exec_builder *, t_sh_token const *) =
 {
@@ -79,8 +80,24 @@ bool			build_sh_exec(t_sh_context *context, t_sh_text const *text,
 	return (true);
 }
 
+static void		close_redirs(t_vector *redirs)
+{
+	t_sh_exec_redir const	*redir;
+
+	redir = VECTOR_IT(*redirs);
+	while (VECTOR_NEXT(*redirs, redir))
+	{
+		if (redir->flags & SH_REDIR_F_OPENED)
+		{
+			ft_printf("OPENED %u%n", redir->fd.y);
+			close(redir->fd.y);
+		}
+	}
+}
+
 void			destroy_sh_exec(t_sh_exec *exec)
 {
+	close_redirs(&exec->redirs);
 	ft_dstrclear(&exec->buff);
 	ft_vclear(&exec->args);
 	ft_vclear(&exec->redirs);

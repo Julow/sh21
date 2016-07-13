@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 17:59:18 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 22:33:42 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/13 15:36:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,20 @@ static char		*get_binary_name(t_sh_context const *c, t_sub arg0)
 	return (NULL);
 }
 
+static void		apply_redirs(t_vector const *redirs)
+{
+	t_sh_exec_redir const	*redir;
+
+	redir = VECTOR_IT(*redirs);
+	while (VECTOR_NEXT(*redirs, redir))
+	{
+		if (redir->flags & SH_REDIR_F_CLOSE)
+			close(redir->fd.x);
+		else
+			dup2(redir->fd.y, redir->fd.x);
+	}
+}
+
 static int		exec_binary_run(t_sh_context *context, t_sh_exec const *exec)
 {
 	char const		*args[exec->args.length + 1];
@@ -67,6 +81,18 @@ static int		exec_binary_run(t_sh_context *context, t_sh_exec const *exec)
 
 	args_build(exec, args);
 	sh_env_build(context, env);
+	apply_redirs(&exec->redirs);
+
+	{
+		uint32_t		i;
+
+		i = 0;
+		while (i < exec->args.length)
+		{
+			ft_printf("ARG#%u '%s'%n", i, args[i]);
+			i++;
+		}
+	}
 
 	if ((binary = get_binary_name(context, ft_sub(args[0], 0, -1))) == NULL)
 	{

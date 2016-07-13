@@ -6,18 +6,17 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/12 14:43:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/12 19:50:04 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/13 15:35:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_exec.h"
 #include <fcntl.h>
 
-static bool		build_redir(t_sh_exec_redir *redir, char *path, uint32_t oflags)
+static bool		redir_output(t_sh_exec_redir *redir, char *path, uint32_t oflags)
 {
 	int				fd;
 
-	ft_printf("open %s%n", path);
 	if ((fd = open(path, oflags, 0644)) < 0)
 		return (ASSERT(!"Cannot open file"), false); // TODO: report error
 	redir->fd.y = fd;
@@ -25,98 +24,108 @@ static bool		build_redir(t_sh_exec_redir *redir, char *path, uint32_t oflags)
 	return (true);
 }
 
-static bool		build_redir_output(t_sh_exec_builder *b, t_sh_redir_t type,
+static bool		build_redir_output(t_sh_exec_builder *b,
 					t_sh_exec_redir *redir, char *path)
 {
+	// TODO: noclobber option
 	// noclobber: add O_EXCL flag
-	return (build_redir(redir, path, O_WRONLY | O_CREAT | O_TRUNC));
+	return (redir_output(redir, path, O_WRONLY | O_CREAT | O_TRUNC));
 	(void)b;
-	(void)type;
 }
 
-static bool		build_redir_output_clobber(t_sh_exec_builder *b, t_sh_redir_t type,
+static bool		build_redir_output_clobber(t_sh_exec_builder *b,
 					t_sh_exec_redir *redir, char *path)
 {
-	return (build_redir(redir, path, O_WRONLY | O_CREAT | O_TRUNC));
+	return (redir_output(redir, path, O_WRONLY | O_CREAT | O_TRUNC));
 	(void)b;
-	(void)type;
 }
 
-static bool		build_redir_append(t_sh_exec_builder *b, t_sh_redir_t type,
+static bool		build_redir_append(t_sh_exec_builder *b,
 					t_sh_exec_redir *redir, char *path)
 {
-	return (build_redir(redir, path, O_WRONLY | O_CREAT | O_APPEND));
+	return (redir_output(redir, path, O_WRONLY | O_CREAT | O_APPEND));
 	(void)b;
-	(void)type;
 }
 
-static bool		build_redir_input(t_sh_exec_builder *b, t_sh_redir_t type,
+static bool		build_redir_input(t_sh_exec_builder *b,
+					t_sh_exec_redir *redir, char *path)
+{
+	int				fd;
+
+	if ((fd = open(path, O_RDONLY)) < 0)
+		return (ASSERT(!"Cannot open file"), false);
+	redir->fd.y = fd;
+	redir->flags |= SH_REDIR_F_OPENED;
+	return (true);
+	(void)b;
+}
+
+static bool		build_redir_heredoc(t_sh_exec_builder *b,
 					t_sh_exec_redir *redir, char *path)
 {
 	ASSERT(!"input redir not implemented");
 	return (false);
 	(void)b;
-	(void)type;
 	(void)redir;
 	(void)path;
 }
 
-static bool		build_redir_heredoc(t_sh_exec_builder *b, t_sh_redir_t type,
-					t_sh_exec_redir *redir, char *path)
+static bool		redir_close(t_sh_exec_builder *b, t_sh_exec_redir *redir)
 {
-	ASSERT(!"input redir not implemented");
-	return (false);
+	redir->flags |= SH_REDIR_F_CLOSE;
+	return (true);
 	(void)b;
-	(void)type;
-	(void)redir;
-	(void)path;
 }
 
-static bool		build_redir_input_fd(t_sh_exec_builder *b, t_sh_redir_t type,
+static bool		build_redir_input_fd(t_sh_exec_builder *b,
 					t_sh_exec_redir *redir, char *path)
 {
-	ASSERT(!"input redir not implemented");
+	t_sub const		left = ft_sub(path, 0, -1);
+	uint32_t		fd;
+
+	if (SUB_EQU(left, SUBC("-")))
+		return (redir_close(b, redir));
+	if (ft_subto_uint(left, &fd) != left.length)
+		return (build_redir_input(b, redir, path));
+	ASSERT(!"fd redir not implemented");
 	return (false);
-	(void)b;
-	(void)type;
-	(void)redir;
-	(void)path;
 }
 
-static bool		build_redir_output_fd(t_sh_exec_builder *b, t_sh_redir_t type,
+static bool		build_redir_output_fd(t_sh_exec_builder *b,
 					t_sh_exec_redir *redir, char *path)
 {
-	ASSERT(!"input redir not implemented");
+	t_sub const		left = ft_sub(path, 0, -1);
+	uint32_t		fd;
+
+	if (SUB_EQU(left, SUBC("-")))
+		return (redir_close(b, redir));
+	if (ft_subto_uint(left, &fd) != left.length)
+		return (build_redir_output(b, redir, path));
+	ASSERT(!"fd redir not implemented");
 	return (false);
-	(void)b;
-	(void)type;
-	(void)redir;
-	(void)path;
 }
 
-static bool		build_redir_open(t_sh_exec_builder *b, t_sh_redir_t type,
+static bool		build_redir_open(t_sh_exec_builder *b,
 					t_sh_exec_redir *redir, char *path)
 {
 	ASSERT(!"input redir not implemented");
 	return (false);
 	(void)b;
-	(void)type;
 	(void)redir;
 	(void)path;
 }
 
 static struct
 {
-	bool			(*f)(t_sh_exec_builder *, t_sh_redir_t,
-						t_sh_exec_redir *, char *);
+	bool			(*f)(t_sh_exec_builder *, t_sh_exec_redir *, char *);
 	t_vec2u			def_fd;
 } const			g_build_args_redirs[] = {
 	[SH_REDIR_OUTPUT] = {&build_redir_output, VEC2U(1, 0)},
 	[SH_REDIR_OUTPUT_CLOBBER] = {&build_redir_output_clobber, VEC2U(1, 0)},
 	[SH_REDIR_APPEND] = {&build_redir_append, VEC2U(1, 0)},
-	[SH_REDIR_INPUT] = {&build_redir_input, VEC2U(0, 1)},
-	[SH_REDIR_HEREDOC] = {&build_redir_heredoc, VEC2U(0, 1)},
-	[SH_REDIR_INPUT_FD] = {&build_redir_input_fd, VEC2U(0, 1)},
+	[SH_REDIR_INPUT] = {&build_redir_input, VEC2U(0, 0)},
+	[SH_REDIR_HEREDOC] = {&build_redir_heredoc, VEC2U(0, 0)},
+	[SH_REDIR_INPUT_FD] = {&build_redir_input_fd, VEC2U(0, 0)},
 	[SH_REDIR_OUTPUT_FD] = {&build_redir_output_fd, VEC2U(1, 0)},
 	[SH_REDIR_OPEN] = {&build_redir_open, VEC2U(1, 0)},
 };
@@ -142,9 +151,9 @@ static bool		redir_right(t_sh_exec_builder *b, t_sh_redir_t type,
 	uint32_t const	arg_count = b->dst->args.length;
 	t_sh_exec_arg	*last;
 
-	while (b->dst->args.length < arg_count)
+	while (b->dst->args.length <= arg_count)
 	{
-		if (b->text_i >= b->text->tokens.length)
+		if (b->token_i >= b->text->tokens.length)
 		{
 			build_sh_exec_push(b);
 			if (b->dst->args.length <= arg_count)
@@ -157,7 +166,7 @@ static bool		redir_right(t_sh_exec_builder *b, t_sh_redir_t type,
 	if ((b->dst->args.length - arg_count) > 1)
 		return (ASSERT(!"Ambiguous redirect"), false); // TODO: report error
 	last = VECTOR_GET(b->dst->args, arg_count);
-	if (!g_build_args_redirs[type].f(b, type, redir, b->dst->buff.str + last->offset))
+	if (!g_build_args_redirs[type].f(b, redir, b->dst->buff.str + last->offset))
 		return (false);
 	b->dst->buff.length = last->offset;
 	b->dst->args.length--;
