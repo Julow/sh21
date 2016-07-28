@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/12 13:46:39 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/07/28 18:17:46 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,15 @@
 #include "ft/spanlist.h"
 #include "ft/term.h"
 #include "ft/tokenizer.h"
-#include "sh/cmd.h"
-#include "sh/exec.h"
+#include "sh/ast.h"
+
+// #include "sh/exec.h"
 #include "sh/parser.h"
 
 #include "editor.h"
 #include "editor_bindings.h"
-#include "syntax_color.h"
+
+// #include "syntax_color.h"
 
 #include <termios.h>
 #include <unistd.h>
@@ -58,8 +60,8 @@ struct			s_main
 	t_term				*term;
 	t_editor			*editor;
 	uint32_t			flags;
-	t_syntax_color const	*syntax_color;
-	t_sh_context		sh_context;
+	// t_syntax_color const	*syntax_color;
+	// t_sh_context		sh_context;
 };
 
 #define DEFAULT_SYNTAX_COLOR	"sh"
@@ -215,40 +217,40 @@ static void		put_key(t_out *out, t_key key)
 ** ========================================================================== **
 */
 
-#define SCOPE(S,C)	{SUBC(S), &STYLE C}
+// #define SCOPE(S,C)	{SUBC(S), &STYLE C}
 
-static t_vector const	g_color_scheme = VECTOR(t_color_scheme,
-	SCOPE("string.simple", (S_YELLOW, 0, 0)),
-	SCOPE("string", (S_LIGHT(S_YELLOW), 0, 0)),
-	SCOPE("escaped", (S_LIGHT(S_RED), 0, 0)),
-	SCOPE("number", (S_YELLOW, 0, 0)),
-	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
-	SCOPE("subst", (S_CYAN, 0, 0)),
-	SCOPE("comment", (0, S_BLUE, 0)),
-	SCOPE("identifier.key", (S_LIGHT(S_CYAN), 0, 0)),
-	SCOPE("identifier", (S_GREEN, 0, 0)),
-	SCOPE("keyword", (S_MAGENTA, 0, 0)),
-	SCOPE("error", (0, S_RED, 0)),
-);
+// static t_vector const	g_color_scheme = VECTOR(t_color_scheme,
+// 	SCOPE("string.simple", (S_YELLOW, 0, 0)),
+// 	SCOPE("string", (S_LIGHT(S_YELLOW), 0, 0)),
+// 	SCOPE("escaped", (S_LIGHT(S_RED), 0, 0)),
+// 	SCOPE("number", (S_YELLOW, 0, 0)),
+// 	SCOPE("op", (S_LIGHT(S_WHITE), 0, 0)),
+// 	SCOPE("subst", (S_CYAN, 0, 0)),
+// 	SCOPE("comment", (0, S_BLUE, 0)),
+// 	SCOPE("identifier.key", (S_LIGHT(S_CYAN), 0, 0)),
+// 	SCOPE("identifier", (S_GREEN, 0, 0)),
+// 	SCOPE("keyword", (S_MAGENTA, 0, 0)),
+// 	SCOPE("error", (0, S_RED, 0)),
+// );
 
-static void		sh_spanlist_fill(t_spanlist *spanlist,
-					t_vec2u range, t_style const *style)
-{
-	t_style			*tmp;
+// static void		sh_spanlist_fill(t_spanlist *spanlist,
+// 					t_vec2u range, t_style const *style)
+// {
+// 	t_style			*tmp;
 
-	tmp = ft_spanlist_push(spanlist, range.y - range.x, 1);
-	*tmp = (style == NULL) ? STYLE(0, 0, 0) : *style;
-}
+// 	tmp = ft_spanlist_push(spanlist, range.y - range.x, 1);
+// 	*tmp = (style == NULL) ? STYLE(0, 0, 0) : *style;
+// }
 
-static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
-{
-	t_in			parse_in;
+// static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
+// {
+// 	t_in			parse_in;
 
-	parse_in = IN(editor->text.str, editor->text.length, NULL);
-	ft_spanlist_clear(&editor->spans, 1);
-	exec_syntax_color(&parse_in, s, &g_color_scheme,
-		CALLBACK(sh_spanlist_fill, &editor->spans));
-}
+// 	parse_in = IN(editor->text.str, editor->text.length, NULL);
+// 	ft_spanlist_clear(&editor->spans, 1);
+// 	exec_syntax_color(&parse_in, s, &g_color_scheme,
+// 		CALLBACK(sh_spanlist_fill, &editor->spans));
+// }
 
 /*
 ** ========================================================================== **
@@ -260,135 +262,134 @@ static void		refresh_syntax(t_editor *editor, t_syntax_color const *s)
 ** Shell parser
 */
 
-#define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, (INDENT) * 4 + 1, ' ', ##__VA_ARGS__)
+// #define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, (INDENT) * 4 + 1, ' ', ##__VA_ARGS__)
 
-static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent);
+// static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent);
 
-static char const *const	g_redir_types[] = {
-	[SH_REDIR_OUTPUT] = "OUTPUT",
-	[SH_REDIR_OUTPUT_CLOBBER] = "OUTPUT_CLOBBER",
-	[SH_REDIR_APPEND] = "APPEND",
-	[SH_REDIR_INPUT] = "INPUT",
-	[SH_REDIR_HEREDOC] = "HEREDOC",
-	[SH_REDIR_INPUT_FD] = "INPUT FD",
-	[SH_REDIR_OUTPUT_FD] = "OUTPUT FD",
-	[SH_REDIR_OPEN] = "OPEN",
-};
+// static char const *const	g_redir_types[] = {
+// 	[SH_REDIR_OUTPUT] = "OUTPUT",
+// 	[SH_REDIR_OUTPUT_CLOBBER] = "OUTPUT_CLOBBER",
+// 	[SH_REDIR_APPEND] = "APPEND",
+// 	[SH_REDIR_INPUT] = "INPUT",
+// 	[SH_REDIR_INPUT_FD] = "INPUT FD",
+// 	[SH_REDIR_OUTPUT_FD] = "OUTPUT FD",
+// 	[SH_REDIR_OPEN] = "OPEN",
+// };
 
-static char const *const	g_expr_types[] = {
-	[SH_EXPR_USE_DEF] = "-",
-	[SH_EXPR_SET_DEF] = "=",
-	[SH_EXPR_ISSET] = "?",
-	[SH_EXPR_USE_ALT] = "+",
-	[SH_EXPR_SUFFIX] = "%",
-	[SH_EXPR_PREFIX] = "#",
-};
+// static char const *const	g_expr_types[] = {
+// 	[SH_EXPR_USE_DEF] = "-",
+// 	[SH_EXPR_SET_DEF] = "=",
+// 	[SH_EXPR_ISSET] = "?",
+// 	[SH_EXPR_USE_ALT] = "+",
+// 	[SH_EXPR_SUFFIX] = "%",
+// 	[SH_EXPR_PREFIX] = "#",
+// };
 
-static void		print_sh_text(t_sh_text const *text, uint32_t indent)
-{
-	uint32_t			i;
-	uint32_t			token_start;
-	t_sh_token const	*token;
+// static void		print_sh_text(t_sh_text const *text, uint32_t indent)
+// {
+// 	uint32_t			i;
+// 	uint32_t			token_start;
+// 	t_sh_token const	*token;
 
-	PRINT_CMD(indent, "TEXT DATA: '%ts'%n", DSTR_SUB(text->text));
-	PRINT_CMD(indent, "TOKENS: [%n");
-	i = 0;
-	token_start = 0;
-	while (i < text->tokens.length)
-	{
-		token = VECTOR_GET(text->tokens, i++);
-		char const *const	quoted = (token->type & SH_F_T_QUOTED) ? " (quoted)" : "";
-		switch (token->type & ~SH_F_T_QUOTED)
-		{
-		case SH_T_STRING:
-			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n", quoted,
-					SUB(text->text.str + token_start, token->val.token_len));
-			token_start += token->val.token_len;
-			break ;
-		case SH_T_SPACE:
-			PRINT_CMD(indent + 1, "SH_T_SPACE%s%n", quoted);
-			break ;
-		case SH_T_SUBSHELL:
-			PRINT_CMD(indent + 1, "SH_T_SUBSHELL%s {%n", quoted);
-			print_cmd(token->val.cmd, indent + 2);
-			PRINT_CMD(indent + 1, "}%n");
-			break ;
-		case SH_T_REDIR:
-			PRINT_CMD(indent + 1, "REDIR%s %s%n", quoted,
-				g_redir_types[token->val.redir_type]);
-			break ;
-		case SH_T_PARAM:
-			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n", quoted,
-				SUB(text->text.str + token_start, token->val.token_len));
-			token_start += token->val.token_len;
-			break ;
-		case SH_T_EXPR:
-			PRINT_CMD(indent + 1, "SH_T_EXPR%s ${%ts%s%s%n", quoted,
-				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
-				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
-				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
-			print_sh_text(&token->val.expr->text, indent + 2);
-			PRINT_CMD(indent + 1, "}%n");
-			break ;
-		default:
-			PRINT_CMD(indent + 1, "<INVALID TOKEN TYPE> %u%n", token->type);
-			break ;
-		}
-	}
-	PRINT_CMD(indent, "]%n");
-}
+// 	PRINT_CMD(indent, "TEXT DATA: '%ts'%n", DSTR_SUB(text->text));
+// 	PRINT_CMD(indent, "TOKENS: [%n");
+// 	i = 0;
+// 	token_start = 0;
+// 	while (i < text->tokens.length)
+// 	{
+// 		token = VECTOR_GET(text->tokens, i++);
+// 		char const *const	quoted = (token->type & SH_F_T_QUOTED) ? " (quoted)" : "";
+// 		switch (token->type & ~SH_F_T_QUOTED)
+// 		{
+// 		case SH_T_STRING:
+// 			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n", quoted,
+// 					SUB(text->text.str + token_start, token->val.token_len));
+// 			token_start += token->val.token_len;
+// 			break ;
+// 		case SH_T_SPACE:
+// 			PRINT_CMD(indent + 1, "SH_T_SPACE%s%n", quoted);
+// 			break ;
+// 		case SH_T_SUBSHELL:
+// 			PRINT_CMD(indent + 1, "SH_T_SUBSHELL%s {%n", quoted);
+// 			print_cmd(token->val.cmd, indent + 2);
+// 			PRINT_CMD(indent + 1, "}%n");
+// 			break ;
+// 		case SH_T_REDIR:
+// 			PRINT_CMD(indent + 1, "REDIR%s %s%n", quoted,
+// 				g_redir_types[token->val.redir_type]);
+// 			break ;
+// 		case SH_T_PARAM:
+// 			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n", quoted,
+// 				SUB(text->text.str + token_start, token->val.token_len));
+// 			token_start += token->val.token_len;
+// 			break ;
+// 		case SH_T_EXPR:
+// 			PRINT_CMD(indent + 1, "SH_T_EXPR%s ${%ts%s%s%n", quoted,
+// 				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
+// 				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
+// 				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
+// 			print_sh_text(&token->val.expr->text, indent + 2);
+// 			PRINT_CMD(indent + 1, "}%n");
+// 			break ;
+// 		default:
+// 			PRINT_CMD(indent + 1, "<INVALID TOKEN TYPE> %u%n", token->type);
+// 			break ;
+// 		}
+// 	}
+// 	PRINT_CMD(indent, "]%n");
+// }
 
-static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
-{
-	PRINT_CMD(indent, "{%n");
-	print_sh_text(&cmd->text, indent + 2);
-	PRINT_CMD(indent, "}%n");
-	if (cmd->next_type == SH_NEXT_AND)
-		PRINT_CMD(indent, "&&%n");
-	else if (cmd->next_type == SH_NEXT_OR)
-		PRINT_CMD(indent, "||%n");
-	else if (cmd->next_type == SH_NEXT_PIPE)
-		PRINT_CMD(indent, "|%n");
-	else if (cmd->next_type == SH_NEXT_SEQ)
-		PRINT_CMD(indent, ";%n");
-	else if (cmd->next_type == SH_NEXT_ASYNC)
-		PRINT_CMD(indent, "&%n");
-	else
-		ASSERT(false, "Invalid next type");
-	if (cmd->next != NULL)
-		print_cmd(cmd->next, indent);
-}
+// static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
+// {
+// 	PRINT_CMD(indent, "{%n");
+// 	print_sh_text(&cmd->text, indent + 2);
+// 	PRINT_CMD(indent, "}%n");
+// 	if (cmd->next_type == SH_NEXT_AND)
+// 		PRINT_CMD(indent, "&&%n");
+// 	else if (cmd->next_type == SH_NEXT_OR)
+// 		PRINT_CMD(indent, "||%n");
+// 	else if (cmd->next_type == SH_NEXT_PIPE)
+// 		PRINT_CMD(indent, "|%n");
+// 	else if (cmd->next_type == SH_NEXT_SEQ)
+// 		PRINT_CMD(indent, ";%n");
+// 	else if (cmd->next_type == SH_NEXT_ASYNC)
+// 		PRINT_CMD(indent, "&%n");
+// 	else
+// 		ASSERT(false, "Invalid next type");
+// 	if (cmd->next != NULL)
+// 		print_cmd(cmd->next, indent);
+// }
 
 /*
 ** ========================================================================== **
 ** Exec shell
 */
 
-static bool		run_shell(t_sh_context *context, t_sub str)
-{
-	t_in			in;
-	t_sh_cmd		*cmd;
-	t_sh_parse_err	err;
+// static bool		run_shell(t_sh_context *context, t_sub str)
+// {
+	// t_in			in;
+	// t_sh_cmd		*cmd;
+	// t_sh_parse_err	err;
 
-	ft_printf("%.20(=)%n");
-	ft_printf("PARSE '%ts' [[%n", str);
-	in = IN(str.str, str.length, NULL);
-	err = SH_PARSE_ERR();
-	while (IN_REFRESH(&in))
-	{
-		if ((cmd = sh_parse_compound(&in, &err)) == NULL)
-		{
-			ft_printf("Parse error: %ts%n", DSTR_SUB(err.str));
-			D_SH_PARSE_ERR(err);
-			return (false);
-		}
-		print_cmd(cmd, 0);
-		sh_exec_cmd(context, cmd);
-		sh_destroy_cmd(cmd);
-	}
-	ft_printf("]]%n");
-	return (true);
-}
+	// ft_printf("%.20(=)%n");
+	// ft_printf("PARSE '%ts' [[%n", str);
+	// in = IN(str.str, str.length, NULL);
+	// err = SH_PARSE_ERR();
+	// while (IN_REFRESH(&in))
+	// {
+	// 	if ((cmd = sh_parse_compound(&in, &err)) == NULL)
+	// 	{
+	// 		ft_printf("Parse error: %ts%n", DSTR_SUB(err.str));
+	// 		D_SH_PARSE_ERR(err);
+	// 		return (false);
+	// 	}
+	// 	print_cmd(cmd, 0);
+	// 	sh_exec_cmd(context, cmd);
+	// 	sh_destroy_cmd(cmd);
+	// }
+	// ft_printf("]]%n");
+	// return (true);
+// }
 
 /*
 ** ========================================================================== **
@@ -399,8 +400,8 @@ static bool		run_shell(t_sh_context *context, t_sub str)
 
 static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 {
-	if (!run_shell(&main->sh_context, DSTR_SUB(editor->text)))
-		ft_printf("RUN SHELL FAILED%n");
+	// if (!run_shell(&main->sh_context, DSTR_SUB(editor->text)))
+		// ft_printf("RUN SHELL FAILED%n");
 	return (true);
 	(void)main;
 	(void)key;
@@ -431,13 +432,13 @@ static bool		init_main(t_main *main)
 		editor_bind(main->editor, KEY('m', MOD_CTRL | MOD_CTRL_X), CALLBACK(binding_runshell, main), 0);
 		editor_bind(main->editor, KEY('n', MOD_CTRL), CALLBACK(editor_bind_write, "\n"), 0);
 
-		if ((main->syntax_color
-				= load_syntax_color(SUBC(DEFAULT_SYNTAX_COLOR))) == NULL)
-			ft_dprintf(2, WARNING_MSG("Cannot load syntax coloration: %s%n"),
-				DEFAULT_SYNTAX_COLOR);
+		// if ((main->syntax_color
+		// 		= load_syntax_color(SUBC(DEFAULT_SYNTAX_COLOR))) == NULL)
+		// 	ft_dprintf(2, WARNING_MSG("Cannot load syntax coloration: %s%n"),
+		// 		DEFAULT_SYNTAX_COLOR);
 		main->flags |= FLAG_INTERACTIVE;
 	}
-	sh_context_init(&main->sh_context);
+	// sh_context_init(&main->sh_context);
 	return (true);
 }
 
@@ -457,7 +458,7 @@ static void		interactive_loop(t_main *main)
 	while (!(main->flags & FLAG_EXIT))
 	{
 		cursor = editor_rowcol(main->editor, main->editor->cursor);
-		refresh_syntax(main->editor, main->syntax_color);
+		// refresh_syntax(main->editor, main->syntax_color);
 		ft_fprintf(&main->term->out, "[[ ");
 		if (key_used >= 0)
 		{

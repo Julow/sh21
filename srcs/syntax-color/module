@@ -3,6 +3,7 @@ module syntax-color:
 	private include ./
 
 	public require ft::base
-	private require ft::parser
+
 	private require ft::hmap
+	private require ft::parser
 	private require ft::vector

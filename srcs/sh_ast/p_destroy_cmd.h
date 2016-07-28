@@ -1,31 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec.h                                             :+:      :+:    :+:   */
+/*   p_destroy_cmd.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/07/05 20:46:11 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/28 18:10:45 by juloo            ###   ########.fr       */
+/*   Created: 2016/07/24 18:54:55 by juloo             #+#    #+#             */
+/*   Updated: 2016/07/24 18:55:36 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EXEC_H
-# define EXEC_H
+#ifndef P_DESTROY_CMD_H
+# define P_DESTROY_CMD_H
 
 # include "ft/libft.h"
 # include "sh/ast.h"
-# include "sh/context.h"
 
-/*
-** ========================================================================== **
-** Sh exec
-*/
-
-/*
-** Execute a compound list of command
-** Return the return status of the last command
-*/
-int				sh_exec_cmd(t_sh_context *context, t_sh_cmd const *cmd);
+void			sh_destroy_if_clause(t_sh_if *c);
+void			sh_destroy_for_clause(t_sh_for *c);
+void			sh_destroy_while_clause(t_sh_while *c);
 
 #endif

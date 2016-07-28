@@ -4,7 +4,7 @@ module sh::parser:
 
 	public require ft::base
 	public require ft::in
-	public require sh::cmd
+	public require sh::ast
 
 	private require ft::hmap
 	private require ft::parser
