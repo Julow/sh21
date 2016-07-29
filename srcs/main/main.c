@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/28 18:17:46 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/29 02:14:29 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,134 +262,154 @@ static void		put_key(t_out *out, t_key key)
 ** Shell parser
 */
 
-// #define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, (INDENT) * 4 + 1, ' ', ##__VA_ARGS__)
+#define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, (INDENT) * 4 + 1, ' ', ##__VA_ARGS__)
 
-// static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent);
+static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent);
 
-// static char const *const	g_redir_types[] = {
-// 	[SH_REDIR_OUTPUT] = "OUTPUT",
-// 	[SH_REDIR_OUTPUT_CLOBBER] = "OUTPUT_CLOBBER",
-// 	[SH_REDIR_APPEND] = "APPEND",
-// 	[SH_REDIR_INPUT] = "INPUT",
-// 	[SH_REDIR_INPUT_FD] = "INPUT FD",
-// 	[SH_REDIR_OUTPUT_FD] = "OUTPUT FD",
-// 	[SH_REDIR_OPEN] = "OPEN",
-// };
+static char const *const	g_redir_types[] = {
+	[SH_REDIR_OUTPUT] = "OUTPUT",
+	[SH_REDIR_OUTPUT_CLOBBER] = "OUTPUT_CLOBBER",
+	[SH_REDIR_APPEND] = "APPEND",
+	[SH_REDIR_INPUT] = "INPUT",
+	[SH_REDIR_INPUT_FD] = "INPUT FD",
+	[SH_REDIR_OUTPUT_FD] = "OUTPUT FD",
+	[SH_REDIR_OPEN] = "OPEN",
+};
 
-// static char const *const	g_expr_types[] = {
-// 	[SH_EXPR_USE_DEF] = "-",
-// 	[SH_EXPR_SET_DEF] = "=",
-// 	[SH_EXPR_ISSET] = "?",
-// 	[SH_EXPR_USE_ALT] = "+",
-// 	[SH_EXPR_SUFFIX] = "%",
-// 	[SH_EXPR_PREFIX] = "#",
-// };
+static char const *const	g_expr_types[] = {
+	[SH_EXPR_USE_DEF] = "-",
+	[SH_EXPR_SET_DEF] = "=",
+	[SH_EXPR_ISSET] = "?",
+	[SH_EXPR_USE_ALT] = "+",
+	[SH_EXPR_SUFFIX] = "%",
+	[SH_EXPR_PREFIX] = "#",
+};
 
-// static void		print_sh_text(t_sh_text const *text, uint32_t indent)
-// {
-// 	uint32_t			i;
-// 	uint32_t			token_start;
-// 	t_sh_token const	*token;
+static void		print_sh_text(t_sh_text const *text, uint32_t indent)
+{
+	uint32_t			i;
+	uint32_t			token_start;
+	t_sh_token const	*token;
 
-// 	PRINT_CMD(indent, "TEXT DATA: '%ts'%n", DSTR_SUB(text->text));
-// 	PRINT_CMD(indent, "TOKENS: [%n");
-// 	i = 0;
-// 	token_start = 0;
-// 	while (i < text->tokens.length)
-// 	{
-// 		token = VECTOR_GET(text->tokens, i++);
-// 		char const *const	quoted = (token->type & SH_F_T_QUOTED) ? " (quoted)" : "";
-// 		switch (token->type & ~SH_F_T_QUOTED)
-// 		{
-// 		case SH_T_STRING:
-// 			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n", quoted,
-// 					SUB(text->text.str + token_start, token->val.token_len));
-// 			token_start += token->val.token_len;
-// 			break ;
-// 		case SH_T_SPACE:
-// 			PRINT_CMD(indent + 1, "SH_T_SPACE%s%n", quoted);
-// 			break ;
-// 		case SH_T_SUBSHELL:
-// 			PRINT_CMD(indent + 1, "SH_T_SUBSHELL%s {%n", quoted);
-// 			print_cmd(token->val.cmd, indent + 2);
-// 			PRINT_CMD(indent + 1, "}%n");
-// 			break ;
-// 		case SH_T_REDIR:
-// 			PRINT_CMD(indent + 1, "REDIR%s %s%n", quoted,
-// 				g_redir_types[token->val.redir_type]);
-// 			break ;
-// 		case SH_T_PARAM:
-// 			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n", quoted,
-// 				SUB(text->text.str + token_start, token->val.token_len));
-// 			token_start += token->val.token_len;
-// 			break ;
-// 		case SH_T_EXPR:
-// 			PRINT_CMD(indent + 1, "SH_T_EXPR%s ${%ts%s%s%n", quoted,
-// 				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
-// 				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
-// 				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
-// 			print_sh_text(&token->val.expr->text, indent + 2);
-// 			PRINT_CMD(indent + 1, "}%n");
-// 			break ;
-// 		default:
-// 			PRINT_CMD(indent + 1, "<INVALID TOKEN TYPE> %u%n", token->type);
-// 			break ;
-// 		}
-// 	}
-// 	PRINT_CMD(indent, "]%n");
-// }
+	PRINT_CMD(indent, "TEXT DATA: '%ts'%n", DSTR_SUB(text->text));
+	PRINT_CMD(indent, "TOKENS: [%n");
+	i = 0;
+	token_start = 0;
+	while (i < text->tokens.length)
+	{
+		token = VECTOR_GET(text->tokens, i++);
+		char const *const	quoted = (token->type & SH_F_T_QUOTED) ? " (quoted)" : "";
+		switch (token->type & ~SH_F_T_QUOTED)
+		{
+		case SH_T_STRING:
+			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n", quoted,
+					SUB(text->text.str + token_start, token->val.token_len));
+			token_start += token->val.token_len;
+			break ;
+		case SH_T_SPACE:
+			PRINT_CMD(indent + 1, "SH_T_SPACE%s%n", quoted);
+			break ;
+		case SH_T_SUBSHELL:
+			PRINT_CMD(indent + 1, "SH_T_SUBSHELL%s {%n", quoted);
+			print_sh_compound(token->val.cmd, indent + 2);
+			PRINT_CMD(indent + 1, "}%n");
+			break ;
+		case SH_T_REDIR:
+			PRINT_CMD(indent + 1, "REDIR%s %s%n", quoted,
+				g_redir_types[token->val.redir_type]);
+			break ;
+		case SH_T_PARAM:
+			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n", quoted,
+				SUB(text->text.str + token_start, token->val.token_len));
+			token_start += token->val.token_len;
+			break ;
+		case SH_T_EXPR:
+			PRINT_CMD(indent + 1, "SH_T_EXPR%s ${%ts%s%s%n", quoted,
+				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
+				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
+				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
+			print_sh_text(&token->val.expr->text, indent + 2);
+			PRINT_CMD(indent + 1, "}%n");
+			break ;
+		default:
+			PRINT_CMD(indent + 1, "<INVALID TOKEN TYPE> %u%n", token->type);
+			break ;
+		}
+	}
+	PRINT_CMD(indent, "]%n");
+}
 
-// static void		print_cmd(t_sh_cmd const *cmd, uint32_t indent)
-// {
-// 	PRINT_CMD(indent, "{%n");
-// 	print_sh_text(&cmd->text, indent + 2);
-// 	PRINT_CMD(indent, "}%n");
-// 	if (cmd->next_type == SH_NEXT_AND)
-// 		PRINT_CMD(indent, "&&%n");
-// 	else if (cmd->next_type == SH_NEXT_OR)
-// 		PRINT_CMD(indent, "||%n");
-// 	else if (cmd->next_type == SH_NEXT_PIPE)
-// 		PRINT_CMD(indent, "|%n");
-// 	else if (cmd->next_type == SH_NEXT_SEQ)
-// 		PRINT_CMD(indent, ";%n");
-// 	else if (cmd->next_type == SH_NEXT_ASYNC)
-// 		PRINT_CMD(indent, "&%n");
-// 	else
-// 		ASSERT(false, "Invalid next type");
-// 	if (cmd->next != NULL)
-// 		print_cmd(cmd->next, indent);
-// }
+static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
+{
+	switch (cmd->type)
+	{
+	case SH_CMD_SIMPLE:
+		print_sh_text(&cmd->cmd.simple.text, indent + 1);
+		break ;
+	case SH_CMD_SUBSHELL:
+	case SH_CMD_IF_CLAUSE:
+	case SH_CMD_FOR_CLAUSE:
+	case SH_CMD_WHILE_CLAUSE:
+	case SH_CMD_UNTIL_CLAUSE:
+		ASSERT(!"Not yet implemented");
+		break ;
+	}
+}
+
+static void		print_sh_pipeline(t_sh_pipeline const *cmd, uint32_t indent)
+{
+	while (cmd != NULL)
+	{
+		print_sh_cmd(&cmd->cmd, indent + 1);
+		if (cmd->next == NULL)
+			break ;
+		PRINT_CMD(indent, "|");
+		cmd = cmd->next;
+	}
+}
+
+static void		print_sh_list(t_sh_list const *cmd, uint32_t indent)
+{
+	while (true)
+	{
+		print_sh_pipeline(&cmd->pipeline, indent + 1);
+		if (cmd->next == NULL)
+			break ;
+		PRINT_CMD(indent, "%s%n",
+				(cmd->next->type == SH_LIST_AND) ? "&&" : "||");
+		cmd = &cmd->next->next;
+	}
+}
+
+static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
+{
+	while (cmd != NULL)
+	{
+		print_sh_list(&cmd->list, indent + 1);
+		PRINT_CMD(indent, "%s%n", (cmd->flags & SH_COMPOUND_ASYNC) ? "&" : ";");
+		cmd = cmd->next;
+	}
+}
 
 /*
 ** ========================================================================== **
 ** Exec shell
 */
 
-// static bool		run_shell(t_sh_context *context, t_sub str)
-// {
-	// t_in			in;
-	// t_sh_cmd		*cmd;
-	// t_sh_parse_err	err;
+static void		debug_sh_parser(t_sub str)
+{
+	t_in			in;
+	t_sh_compound	cmd;
 
-	// ft_printf("%.20(=)%n");
-	// ft_printf("PARSE '%ts' [[%n", str);
-	// in = IN(str.str, str.length, NULL);
-	// err = SH_PARSE_ERR();
-	// while (IN_REFRESH(&in))
-	// {
-	// 	if ((cmd = sh_parse_compound(&in, &err)) == NULL)
-	// 	{
-	// 		ft_printf("Parse error: %ts%n", DSTR_SUB(err.str));
-	// 		D_SH_PARSE_ERR(err);
-	// 		return (false);
-	// 	}
-	// 	print_cmd(cmd, 0);
-	// 	sh_exec_cmd(context, cmd);
-	// 	sh_destroy_cmd(cmd);
-	// }
-	// ft_printf("]]%n");
-	// return (true);
-// }
+	in = IN(str.str, str.length, NULL);
+	if (!sh_parse_line(&in, &cmd, NULL))
+	{
+		ft_printf("ERROR%n");
+		return ;
+	}
+	print_sh_compound(&cmd, 0);
+	sh_destroy_compound(&cmd);
+}
 
 /*
 ** ========================================================================== **
@@ -400,8 +420,7 @@ static void		put_key(t_out *out, t_key key)
 
 static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 {
-	// if (!run_shell(&main->sh_context, DSTR_SUB(editor->text)))
-		// ft_printf("RUN SHELL FAILED%n");
+	debug_sh_parser(DSTR_SUB(editor->text));
 	return (true);
 	(void)main;
 	(void)key;

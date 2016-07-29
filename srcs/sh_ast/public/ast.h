@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/28 18:04:44 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/29 01:32:39 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,8 @@ struct			s_sh_token
 	}				val;
 };
 
+# define SH_TOKEN(T,V)	((t_sh_token){SH_T_##T, {V}})
+
 /*
 ** Text
 */
@@ -100,7 +102,7 @@ struct			s_sh_text
 	t_vector		tokens;
 };
 
-#define SH_TEXT()	((t_sh_text){DSTR0(), VECTOR(t_sh_token)})
+# define SH_TEXT()	((t_sh_text){DSTR0(), VECTOR(t_sh_token)})
 
 /*
 ** Expr
