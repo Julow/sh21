@@ -1,9 +1,9 @@
-module syntax-color:
-	public include public/
-	private include ./
+# module syntax-color:
+# 	public include public/
+# 	private include ./
 
-	public require ft::base
+# 	public require ft::base
 
-	private require ft::hmap
-	private require ft::parser
-	private require ft::vector
+# 	private require ft::hmap
+# 	private require ft::parser
+# 	private require ft::vector

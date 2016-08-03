@@ -7,6 +7,6 @@ module sh::parser:
 	public require sh::ast
 
 	private require ft::hmap
-	private require ft::parser
+	private require ft::lexer
 	private require ft::printf
 	private require ft::vector

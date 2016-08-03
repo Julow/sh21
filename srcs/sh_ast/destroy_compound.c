@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 17:19:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/28 18:10:40 by juloo            ###   ########.fr       */
+/*   Updated: 2016/07/30 14:46:34 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,25 +20,25 @@ static void		sh_destroy_cmd(t_sh_cmd *cmd)
 	switch (cmd->type)
 	{
 	case SH_CMD_SIMPLE:
-		sh_destroy_text(&cmd->cmd.simple.text);
+		sh_destroy_text(&cmd->simple.text);
 		break ;
 	case SH_CMD_SUBSHELL:
-		sh_destroy_text(&cmd->cmd.subshell->text);
-		sh_destroy_compound(&cmd->cmd.subshell->compound);
-		free(cmd->cmd.subshell);
+		sh_destroy_text(&cmd->subshell->text);
+		sh_destroy_compound(&cmd->subshell->compound);
+		free(cmd->subshell);
 		break ;
 	case SH_CMD_IF_CLAUSE:
-		sh_destroy_if_clause(cmd->cmd.if_clause);
-		free(cmd->cmd.if_clause);
+		sh_destroy_if_clause(cmd->if_clause);
+		free(cmd->if_clause);
 		break ;
 	case SH_CMD_FOR_CLAUSE:
-		sh_destroy_for_clause(cmd->cmd.for_clause);
-		free(cmd->cmd.for_clause);
+		sh_destroy_for_clause(cmd->for_clause);
+		free(cmd->for_clause);
 		break ;
 	case SH_CMD_WHILE_CLAUSE:
 	case SH_CMD_UNTIL_CLAUSE:
-		sh_destroy_while_clause(cmd->cmd.while_clause);
-		free(cmd->cmd.while_clause);
+		sh_destroy_while_clause(cmd->while_clause);
+		free(cmd->while_clause);
 		break ;
 	}
 }

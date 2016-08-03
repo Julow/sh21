@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/29 01:32:39 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/04 00:20:22 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,12 @@ typedef struct s_sh_if			t_sh_if;
 typedef struct s_sh_while		t_sh_while;
 typedef struct s_sh_while		t_sh_until;
 
+typedef enum e_sh_cmd_t			t_sh_cmd_t;
 typedef struct s_sh_cmd			t_sh_cmd;
+typedef struct s_sh_pipeline	t_sh_pipeline;
+typedef enum e_sh_list_next_t	t_sh_list_next_t;
 typedef struct s_sh_list_next	t_sh_list_next;
 typedef struct s_sh_list		t_sh_list;
-typedef struct s_sh_pipeline	t_sh_pipeline;
 typedef struct s_sh_compound	t_sh_compound;
 
 /*
@@ -160,16 +162,19 @@ struct			s_sh_simple
 ** Pipeline
 */
 
+enum			e_sh_cmd_t
+{
+	SH_CMD_SIMPLE,
+	SH_CMD_SUBSHELL,
+	SH_CMD_IF_CLAUSE,
+	SH_CMD_FOR_CLAUSE,
+	SH_CMD_WHILE_CLAUSE,
+	SH_CMD_UNTIL_CLAUSE,
+};
+
 struct			s_sh_cmd
 {
-	enum {
-		SH_CMD_SIMPLE,
-		SH_CMD_SUBSHELL,
-		SH_CMD_IF_CLAUSE,
-		SH_CMD_FOR_CLAUSE,
-		SH_CMD_WHILE_CLAUSE,
-		SH_CMD_UNTIL_CLAUSE,
-	}				type;
+	t_sh_cmd_t		type;
 	union {
 		t_sh_simple		simple;
 		t_sh_subshell	*subshell;
@@ -177,7 +182,7 @@ struct			s_sh_cmd
 		t_sh_for		*for_clause;
 		t_sh_while		*while_clause;
 		t_sh_until		*until_clause;
-	}				cmd;
+	};
 };
 
 struct			s_sh_pipeline
@@ -196,13 +201,16 @@ struct			s_sh_list
 	t_sh_list_next	*next;
 };
 
+enum			e_sh_list_next_t
+{
+	SH_LIST_AND,
+	SH_LIST_OR,
+};
+
 struct			s_sh_list_next
 {
-	t_sh_list		next;
-	enum {
-		SH_LIST_AND,
-		SH_LIST_OR,
-	}				type;
+	t_sh_list			next;
+	t_sh_list_next_t	type;
 };
 
 /*
