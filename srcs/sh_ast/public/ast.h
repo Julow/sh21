@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/04 00:20:22 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/06 14:18:36 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ enum			e_sh_token_t
 	SH_T_HEREDOC,
 	SH_T_SUBSHELL,
 	SH_T_PARAM,
+	SH_T_PARAM_POS,
 	SH_T_EXPR,
 	SH_F_T_QUOTED = 1 << 24,
 };
@@ -85,9 +86,11 @@ struct			s_sh_token
 	t_sh_token_t	type;
 	union {
 		uint32_t		token_len;
-		t_sh_compound	*cmd;
 		t_sh_redir_t	redir_type;
 		t_sh_heredoc	*heredoc;
+		t_sh_compound	*cmd;
+		uint32_t		param_len;
+		uint32_t		param_pos;
 		t_sh_expr		*expr;
 	}				val;
 };
@@ -170,6 +173,8 @@ enum			e_sh_cmd_t
 	SH_CMD_FOR_CLAUSE,
 	SH_CMD_WHILE_CLAUSE,
 	SH_CMD_UNTIL_CLAUSE,
+	SH_CMD_TIME_CLAUSE, // rec
+	SH_CMD_NOT_CLAUSE, // rec
 };
 
 struct			s_sh_cmd
@@ -182,6 +187,7 @@ struct			s_sh_cmd
 		t_sh_for		*for_clause;
 		t_sh_while		*while_clause;
 		t_sh_until		*until_clause;
+		t_sh_cmd		*rec;
 	};
 };
 

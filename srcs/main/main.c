@@ -6,12 +6,11 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/05 19:59:51 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/06 15:14:11 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/ft_colors.h"
-#include "ft/ft_hmap.h"
 #include "ft/ft_printf.h"
 #include "ft/get_next_line.h"
 #include "ft/getkey.h"
@@ -263,13 +262,13 @@ static void		put_key(t_out *out, t_key key)
 static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent);
 
 static char const *const	g_redir_types[] = {
-	[SH_REDIR_OUTPUT] = "OUTPUT",
-	[SH_REDIR_OUTPUT_CLOBBER] = "OUTPUT_CLOBBER",
-	[SH_REDIR_APPEND] = "APPEND",
-	[SH_REDIR_INPUT] = "INPUT",
-	[SH_REDIR_INPUT_FD] = "INPUT FD",
-	[SH_REDIR_OUTPUT_FD] = "OUTPUT FD",
-	[SH_REDIR_OPEN] = "OPEN",
+	[SH_REDIR_OUTPUT] = ">",
+	[SH_REDIR_OUTPUT_CLOBBER] = ">|",
+	[SH_REDIR_APPEND] = ">>",
+	[SH_REDIR_INPUT] = "<",
+	[SH_REDIR_INPUT_FD] = "<&",
+	[SH_REDIR_OUTPUT_FD] = ">&",
+	[SH_REDIR_OPEN] = "<>",
 };
 
 static char const *const	g_expr_types[] = {
@@ -287,52 +286,58 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 	uint32_t			token_start;
 	t_sh_token const	*token;
 
-	PRINT_CMD(indent, "TEXT DATA: '%ts'%n", DSTR_SUB(text->text));
-	PRINT_CMD(indent, "TOKENS: [%n");
 	i = 0;
 	token_start = 0;
 	while (i < text->tokens.length)
 	{
 		token = VECTOR_GET(text->tokens, i++);
-		char const *const	quoted = (token->type & SH_F_T_QUOTED) ? " (quoted)" : "";
+		if (token->type & SH_F_T_QUOTED)
+			ft_printf("\033[93m\"");
 		switch (token->type & ~SH_F_T_QUOTED)
 		{
 		case SH_T_STRING:
-			PRINT_CMD(indent + 1, "SH_T_STRING%s '%ts'%n", quoted,
-					SUB(text->text.str + token_start, token->val.token_len));
-			token_start += token->val.token_len;
-			break ;
-		case SH_T_SPACE:
-			PRINT_CMD(indent + 1, "SH_T_SPACE%s%n", quoted);
-			break ;
-		case SH_T_SUBSHELL:
-			PRINT_CMD(indent + 1, "SH_T_SUBSHELL%s {%n", quoted);
-			print_sh_compound(token->val.cmd, indent + 2);
-			PRINT_CMD(indent + 1, "}%n");
-			break ;
-		case SH_T_REDIR:
-			PRINT_CMD(indent + 1, "REDIR%s %s%n", quoted,
-				g_redir_types[token->val.redir_type]);
-			break ;
-		case SH_T_PARAM:
-			PRINT_CMD(indent + 1, "SH_T_PARAM%s ${%ts}%n", quoted,
+			ft_printf("%ts",
 				SUB(text->text.str + token_start, token->val.token_len));
 			token_start += token->val.token_len;
 			break ;
+		case SH_T_SPACE:
+			ASSERT(!(token->type & SH_F_T_QUOTED), "quoted space");
+			ft_printf(" ");
+			break ;
+		case SH_T_SUBSHELL:
+			ft_printf("\033[36m$(\033[0m%n");
+			print_sh_compound(token->val.cmd, indent + 1);
+			PRINT_CMD(indent, "\033[36m)\033[0m");
+			break ;
+		case SH_T_REDIR:
+			ASSERT(!(token->type & SH_F_T_QUOTED), "quoted redir");
+			ft_printf("%s", g_redir_types[token->val.redir_type]);
+			break ;
+		case SH_T_PARAM:
+			ft_printf("\033[36m${\033[0m%ts\033[36m}\033[0m",
+				SUB(text->text.str + token_start, token->val.param_len));
+			token_start += token->val.param_len;
+			break ;
+		case SH_T_PARAM_POS:
+			ft_printf("\033[36m$%d\033[0m", token->val.param_pos);
+			break ;
 		case SH_T_EXPR:
-			PRINT_CMD(indent + 1, "SH_T_EXPR%s ${%ts%s%s%n", quoted,
+			ft_printf("\033[36m${%ts%s%s\033[0m",
 				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
 				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
 				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
-			print_sh_text(&token->val.expr->text, indent + 2);
-			PRINT_CMD(indent + 1, "}%n");
+			print_sh_text(&token->val.expr->text, indent + 1);
+			ft_printf("\033[36m}\033[0m");
 			break ;
 		default:
+			ft_printf("%n");
 			PRINT_CMD(indent + 1, "<INVALID TOKEN TYPE> %u%n", token->type);
+			PRINT_CMD(indent, "");
 			break ;
 		}
+		if (token->type & SH_F_T_QUOTED)
+			ft_printf("\033[93m\"\033[0m");
 	}
-	PRINT_CMD(indent, "]%n");
 }
 
 static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
@@ -340,14 +345,22 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 	switch (cmd->type)
 	{
 	case SH_CMD_SIMPLE:
-		print_sh_text(&cmd->simple.text, indent + 1);
+		print_sh_text(&cmd->simple.text, indent);
 		break ;
 	case SH_CMD_SUBSHELL:
 	case SH_CMD_IF_CLAUSE:
 	case SH_CMD_FOR_CLAUSE:
 	case SH_CMD_WHILE_CLAUSE:
 	case SH_CMD_UNTIL_CLAUSE:
-		ASSERT(!"Not yet implemented");
+		ASSERT(false);
+		break ;
+	case SH_CMD_TIME_CLAUSE:
+		ft_printf("\033[33mtime\033[0m ");
+		print_sh_cmd(cmd->rec, indent);
+		break ;
+	case SH_CMD_NOT_CLAUSE:
+		ft_printf("\033[33m!\033[0m ");
+		print_sh_cmd(cmd->rec, indent);
 		break ;
 	}
 }
@@ -356,10 +369,10 @@ static void		print_sh_pipeline(t_sh_pipeline const *cmd, uint32_t indent)
 {
 	while (cmd != NULL)
 	{
-		print_sh_cmd(&cmd->cmd, indent + 1);
+		print_sh_cmd(&cmd->cmd, indent);
 		if (cmd->next == NULL)
 			break ;
-		PRINT_CMD(indent, "|%n");
+		ft_printf(" \033[97m|\033[0m ");
 		cmd = cmd->next;
 	}
 }
@@ -368,21 +381,21 @@ static void		print_sh_list(t_sh_list const *cmd, uint32_t indent)
 {
 	while (true)
 	{
-		print_sh_pipeline(&cmd->pipeline, indent + 1);
+		print_sh_pipeline(&cmd->pipeline, indent);
 		if (cmd->next == NULL)
 			break ;
-		PRINT_CMD(indent, "%s%n",
-				(cmd->next->type == SH_LIST_AND) ? "&&" : "||");
+		ft_printf(" \033[97m%s\033[0m ", (cmd->next->type == SH_LIST_AND) ? "&&" : "||");
 		cmd = &cmd->next->next;
 	}
 }
 
-static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
+static void 	print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
 {
 	while (cmd != NULL)
 	{
-		print_sh_list(&cmd->list, indent + 1);
-		PRINT_CMD(indent, "%s%n", (cmd->flags & SH_COMPOUND_ASYNC) ? "&" : ";");
+		PRINT_CMD(indent, "");
+		print_sh_list(&cmd->list, indent);
+		ft_printf(" \033[97m%s\033[0m%n", (cmd->flags & SH_COMPOUND_ASYNC) ? "&" : ";");
 		cmd = cmd->next;
 	}
 }

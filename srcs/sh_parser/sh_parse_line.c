@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/05 23:00:26 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/06 15:11:33 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 		LEXER_T("${", T(SUBST, .subst=SH(SUBST_EXPR))),
 		LEXER_T("$(", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-subshell"),
 		LEXER_T("$((", T(SUBST, .subst=SH(SUBST_MATH))),
-		LEXER_T("`", T(SUBST, .subst=SH(SUBST_BACKQUOTE))),
+		LEXER_T("`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote"),
 		LEXER_T("$", T(SUBST, .subst=SH(SUBST_DOLLAR))),
 		LEXER_T("\\`", T(ESCAPED)),
 		LEXER_T("\\$", T(ESCAPED)),
@@ -77,6 +77,18 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 	LEXER_STATE("sh-subst-subshell", ("sh-base-cmd"),
 		LEXER_T("\n", T(COMPOUND_END, .compound_end=0)),
 		LEXER_T(")", T(COMPOUND_END, .compound_end=SH(COMPOUND_STOP)), .pop=true),
+	),
+
+	LEXER_STATE("sh-subst-backquote", ("sh-base-cmd"),
+		LEXER_T("\n", T(COMPOUND_END, .compound_end=0)),
+		LEXER_T("\\`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote-rev"),
+		LEXER_T("`", T(COMPOUND_END, .compound_end=SH(COMPOUND_STOP)), .pop=true),
+	),
+
+	LEXER_STATE("sh-subst-backquote-rev", ("sh-base-cmd"),
+		LEXER_T("\n", T(COMPOUND_END, .compound_end=0)),
+		LEXER_T("`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote"),
+		LEXER_T("\\`", T(COMPOUND_END, .compound_end=SH(COMPOUND_STOP)), .pop=true),
 	),
 
 	LEXER_STATE("sh-string", ("sh-base-subst"),
@@ -143,7 +155,7 @@ static void		push_token_string(t_sh_text *text, t_sub str, bool quoted)
 	push_token(text, str, token, quoted);
 }
 
-static bool		sh_parse_text_subst(t_sh_parser *p, t_sh_text *dst, bool quoted)
+static bool		sh_parse_subst_subshell(t_sh_parser *p, t_sh_text *dst, bool quoted)
 {
 	t_sh_compound *const	cmd = NEW(t_sh_compound);
 	bool					r;
@@ -161,6 +173,45 @@ static bool		sh_parse_text_subst(t_sh_parser *p, t_sh_text *dst, bool quoted)
 	return (r);
 }
 
+static bool		sh_parse_subst_expr(t_sh_parser *p, t_sh_text *dst, bool quoted) { return (ASSERT(false)); (void)p; (void)dst; (void)quoted; }
+static bool		sh_parse_subst_math(t_sh_parser *p, t_sh_text *dst, bool quoted) { return (ASSERT(false)); (void)p; (void)dst; (void)quoted; }
+
+static bool		sh_parse_subst_dollar(t_sh_parser *p, t_sh_text *dst, bool quoted)
+{
+	t_sub			str;
+	uint32_t		i;
+
+	if (!ft_lexer_next(&p->l))
+		return (sh_parse_error(p, SH_E_EOF));
+	str = p->l.t.token;
+	if (p->l.token == NULL && IS(str.str[0], IS_DIGIT))
+	{
+		i = 1;
+		push_token(dst, SUB0(),
+			SH_TOKEN(PARAM_POS, .param_pos=str.str[0] - '0'), quoted);
+	}
+	else
+	{
+		i = 0;
+		if (p->l.token == NULL)
+			while (i < str.length && IS(str.str[i], IS_WORD))
+				i++;
+		// TODO: special params ($@, $#, $!, ...) (token?)
+		push_token(dst, (i == 0) ? SUBC("$") : SUB_LEN(str, i),
+			SH_TOKEN(PARAM, .param_len=i), quoted);
+	}
+	if (i < str.length)
+		push_token_string(dst, SUB_FOR(str, i), quoted);
+	return (true);
+}
+
+static bool		(*const g_sh_parse_subst[])(t_sh_parser*, t_sh_text*, bool) = {
+	[SH_PARSE_T_SUBST_EXPR] = &sh_parse_subst_expr,
+	[SH_PARSE_T_SUBST_MATH] = &sh_parse_subst_math,
+	[SH_PARSE_T_SUBST_SUBSHELL] = &sh_parse_subst_subshell,
+	[SH_PARSE_T_SUBST_DOLLAR] = &sh_parse_subst_dollar,
+};
+
 static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst)
 {
 	t_sh_parse_token const	*t;
@@ -173,7 +224,7 @@ static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst)
 		if ((t = SH_T(p)) == NULL)
 			push_token_string(dst, p->l.t.token, true);
 		else if (t->type == SH_PARSE_T_SUBST)
-			r = sh_parse_text_subst(p, dst, true);
+			r = g_sh_parse_subst[t->subst](p, dst, true);
 		else if (t->type == SH_PARSE_T_ESCAPED)
 			push_token_string(dst, SUB_FOR(p->l.t.token, 1), true);
 		else if (t->type == SH_PARSE_T_STRING)
@@ -190,7 +241,7 @@ static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst)
 	return (true);
 }
 
-static bool		sh_parse_text_comment(t_sh_parser *p, t_sh_text *dst)
+static bool		sh_parse_text_comment(t_sh_parser *p)
 {
 	t_sh_parse_token const	*t;
 
@@ -211,6 +262,8 @@ static bool		sh_parse_text_heredoc(t_sh_parser *p, t_sh_text *dst)
 {
 	ASSERT(false);
 	return (false);
+	(void)p;
+	(void)dst;
 }
 
 static bool		sh_parse_text(t_sh_parser *p, t_sh_text *dst)
@@ -227,11 +280,11 @@ static bool		sh_parse_text(t_sh_parser *p, t_sh_text *dst)
 		else if (t->type == SH_PARSE_T_SPACE)
 			push_token(dst, SUB0(), SH_TOKEN(SPACE, 0), false);
 		else if (t->type == SH_PARSE_T_SUBST)
-			r = sh_parse_text_subst(p, dst, false);
+			r = g_sh_parse_subst[t->subst](p, dst, false);
 		else if (t->type == SH_PARSE_T_STRING)
 			r = sh_parse_text_string(p, dst);
 		else if (t->type == SH_PARSE_T_COMMENT)
-			r = sh_parse_text_comment(p, dst);
+			r = sh_parse_text_comment(p);
 		else if (t->type == SH_PARSE_T_COMPOUND_END
 			|| t->type == SH_PARSE_T_LIST_END
 			|| t->type == SH_PARSE_T_PIPELINE_END)
@@ -257,62 +310,92 @@ static bool		sh_parse_text(t_sh_parser *p, t_sh_text *dst)
 ** Cmd
 */
 
-static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_cmd *dst)
-{
-	dst->type = SH_CMD_SIMPLE;
-	return (sh_parse_text(p, &dst->simple.text));
-}
-
 static bool		sh_parse_if_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	dst->type = SH_CMD_IF_CLAUSE;
-	if (!ft_lexer_next(&p->l) || !sh_ignore_spaces(p))
+	if (!sh_ignore_spaces(p))
 		return (sh_parse_error(p, SH_E_EOF));
 	ASSERT(!"if not implemented yet");
 	return (false);
+	(void)dst;
 }
 
 static bool		sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	dst->type = SH_CMD_FOR_CLAUSE;
 	ASSERT(!"for not implemented yet");
 	return (false);
+	(void)p;
+	(void)dst;
 }
 
 static bool		sh_parse_while_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	dst->type = SH_CMD_WHILE_CLAUSE;
 	ASSERT(!"while not implemented yet");
 	return (false);
+	(void)p;
+	(void)dst;
 }
 
 static bool		sh_parse_until_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	dst->type = SH_CMD_UNTIL_CLAUSE;
 	ASSERT(!"until not implemented yet");
 	return (false);
+	(void)p;
+	(void)dst;
 }
 
-static bool		sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
+static bool		sh_parse_rec_cmd(t_sh_parser *p, t_sh_cmd *dst)
 {
+	bool			r;
+
+	if (!ft_lexer_next(&p->l))
+		return (sh_parse_error(p, SH_E_EOF));
+	if (SH_T(p)->type != SH_PARSE_T_SPACE)
+		return (sh_parse_error(p, SH_E_UNEXPECTED));
+	if (!sh_ignore_spaces(p))
+		return (sh_parse_error(p, SH_E_EOF));
+	dst->rec = NEW(t_sh_cmd);
+	if (!(r = sh_parse_cmd(p, dst->rec)))
+		free(dst->rec);
+	return (r);
+}
+
+bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
+{
+	static struct {
+		t_sub			name;
+		t_sh_cmd_t		type;
+		bool			(*f)(t_sh_parser *p, t_sh_cmd *dst);
+	} const					clauses[] = {
+		{SUBC("if"), SH_CMD_IF_CLAUSE, &sh_parse_if_clause},
+		{SUBC("for"), SH_CMD_FOR_CLAUSE, &sh_parse_for_clause},
+		{SUBC("while"), SH_CMD_WHILE_CLAUSE, &sh_parse_while_clause},
+		{SUBC("until"), SH_CMD_UNTIL_CLAUSE, &sh_parse_until_clause},
+		{SUBC("time"), SH_CMD_TIME_CLAUSE, &sh_parse_rec_cmd},
+		{SUBC("!"), SH_CMD_NOT_CLAUSE, &sh_parse_rec_cmd},
+	};
 	t_sh_parse_token const	*t;
 	t_sub					token_str;
+	uint32_t				i;
 
 	if (!ft_lexer_ahead(&p->l, &token_str, V(&t)))
 		return (sh_parse_error(p, SH_E_EOF));
+	i = 0;
 	if (t == NULL)
 	{
 		// HERE alias
-		if (SUB_EQU(token_str, SUBC("if")))
-			return (sh_parse_if_clause(p, cmd));
-		else if (SUB_EQU(token_str, SUBC("for")))
-			return (sh_parse_for_clause(p, cmd));
-		else if (SUB_EQU(token_str, SUBC("while")))
-			return (sh_parse_while_clause(p, cmd));
-		else if (SUB_EQU(token_str, SUBC("until")))
-			return (sh_parse_until_clause(p, cmd));
+		while (i < ARRAY_LEN(clauses))
+			if (SUB_EQU(token_str, clauses[i].name))
+			{
+				if (!ft_lexer_next(&p->l))
+					ASSERT(false);
+				cmd->type = clauses[i].type;
+				return (clauses[i].f(p, cmd));
+			}
+			else
+				i++;
 	}
-	return (sh_parse_simple_cmd(p, cmd));
+	cmd->type = SH_CMD_SIMPLE;
+	return (sh_parse_text(p, &cmd->simple.text));
 }
 
 /*

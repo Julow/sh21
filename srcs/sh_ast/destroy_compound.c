@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 17:19:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/30 14:46:34 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/06 14:49:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,11 @@ static void		sh_destroy_cmd(t_sh_cmd *cmd)
 	case SH_CMD_UNTIL_CLAUSE:
 		sh_destroy_while_clause(cmd->while_clause);
 		free(cmd->while_clause);
+		break ;
+	case SH_CMD_TIME_CLAUSE:
+	case SH_CMD_NOT_CLAUSE:
+		sh_destroy_cmd(cmd->rec);
+		free(cmd);
 		break ;
 	}
 }

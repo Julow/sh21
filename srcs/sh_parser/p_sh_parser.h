@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/05 22:56:42 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/06 15:11:23 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ struct			s_sh_parse_token
 			SH_PARSE_T_SUBST_EXPR,
 			SH_PARSE_T_SUBST_MATH,
 			SH_PARSE_T_SUBST_SUBSHELL,
-			SH_PARSE_T_SUBST_BACKQUOTE,
 			SH_PARSE_T_SUBST_DOLLAR,
 		}					subst;
 
@@ -80,6 +79,8 @@ struct			s_sh_parser
 # define SH_T_EQU(P,T)	(SH_T(P) != NULL && SH_T(P)->type == SH_PARSE_T_##T)
 
 # define SH_T_STR_EQU(P,S)	(SH_T(P) == NULL && SUB_EQU((P).l.t.token, S))
+
+bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd);
 
 bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst);
 
