@@ -4,7 +4,6 @@ main module sh21:
 	require ft::get_next_line
 	require ft::getkey
 	require ft::hmap
-	require ft::parser
 	require ft::printf
 	require ft::spanlist
 	require ft::term

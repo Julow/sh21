@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:09:25 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/03 23:45:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/05 19:59:35 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,9 @@ typedef struct s_sh_parse_err	t_sh_parse_err;
 
 enum			e_sh_parse_err_t
 {
-	SH_E_UNEXPECTED_ERROR,
-	SH_E_UNEXPECTED_TOKEN,
-	SH_E_UNEXPECTED_EOF,
+	SH_E_ERROR,
+	SH_E_UNEXPECTED,
+	SH_E_EOF,
 	SH_E_UNCLOSED_STRING,
 	SH_E_UNCLOSED_SUBSHELL,
 };
@@ -37,7 +37,6 @@ enum			e_sh_parse_err_t
 struct			s_sh_parse_err
 {
 	t_sh_parse_err_t	err;
-	t_dstr				str;
 };
 
 /*
@@ -55,6 +54,6 @@ struct			s_sh_parse_err
 ** -
 ** If 'err' is NULL, no error is reported
 */
-bool			sh_parse_line(t_in *in, t_sh_compound *dst, t_sh_parse_err *err);
+bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err);
 
 #endif

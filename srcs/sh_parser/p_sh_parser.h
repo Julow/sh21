@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/04 01:08:18 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/05 22:56:42 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,8 @@ struct			s_sh_parse_token
 		}					string;
 
 		enum {
-			SH_PARSE_T_END_SEMICOLON,
-			SH_PARSE_T_END_AMPERSAND,
-			SH_PARSE_T_END_NEWLINE,
+			SH_PARSE_T_COMPOUND_ASYNC = 1 << 0,
+			SH_PARSE_T_COMPOUND_STOP = 1 << 1,
 		}					compound_end;
 
 		t_sh_list_next_t	list_end;
@@ -73,10 +72,15 @@ struct			s_sh_parser
 {
 	t_lexer			l;
 	t_sh_parse_err	*err;
+	bool			error_set;
 };
 
 # define SH_T(P)	((t_sh_parse_token const*)((P)->l.token))
 
 # define SH_T_EQU(P,T)	(SH_T(P) != NULL && SH_T(P)->type == SH_PARSE_T_##T)
+
+# define SH_T_STR_EQU(P,S)	(SH_T(P) == NULL && SUB_EQU((P).l.t.token, S))
+
+bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst);
 
 #endif

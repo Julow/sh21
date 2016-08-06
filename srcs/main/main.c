@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/29 02:14:29 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/05 19:59:51 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 #include "ft/ft_printf.h"
 #include "ft/get_next_line.h"
 #include "ft/getkey.h"
-#include "ft/parser.h"
-#include "ft/parser_def.h"
 #include "ft/spanlist.h"
 #include "ft/term.h"
 #include "ft/tokenizer.h"
@@ -36,8 +34,6 @@
 #include <sys/select.h>
 
 /*
-** TODO: parser: multi inherit
-** TODO: parser: .tail=true to change parser without recursion
 ** TODO: editor: multi cursor
 ** TODO: editor: undo/redo history
 ** TODO: tokenizer: reuse buffer
@@ -344,7 +340,7 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 	switch (cmd->type)
 	{
 	case SH_CMD_SIMPLE:
-		print_sh_text(&cmd->cmd.simple.text, indent + 1);
+		print_sh_text(&cmd->simple.text, indent + 1);
 		break ;
 	case SH_CMD_SUBSHELL:
 	case SH_CMD_IF_CLAUSE:
@@ -363,7 +359,7 @@ static void		print_sh_pipeline(t_sh_pipeline const *cmd, uint32_t indent)
 		print_sh_cmd(&cmd->cmd, indent + 1);
 		if (cmd->next == NULL)
 			break ;
-		PRINT_CMD(indent, "|");
+		PRINT_CMD(indent, "|%n");
 		cmd = cmd->next;
 	}
 }
@@ -402,12 +398,13 @@ static void		debug_sh_parser(t_sub str)
 	t_sh_compound	cmd;
 
 	in = IN(str.str, str.length, NULL);
-	if (!sh_parse_line(&in, &cmd, NULL))
+	if (!sh_parse(&in, &cmd, NULL))
 	{
 		ft_printf("ERROR%n");
 		return ;
 	}
 	print_sh_compound(&cmd, 0);
+	ft_printf("%n");
 	sh_destroy_compound(&cmd);
 }
 
