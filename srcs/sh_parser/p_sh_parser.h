@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/06 15:11:23 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/09 22:31:19 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,16 @@ struct			s_sh_parse_token
 		}					string;
 
 		enum {
-			SH_PARSE_T_COMPOUND_ASYNC = 1 << 0,
-			SH_PARSE_T_COMPOUND_STOP = 1 << 1,
+			SH_PARSE_T_COMPOUND_SEMICOLON,
+			SH_PARSE_T_COMPOUND_AMPERSAND,
+			SH_PARSE_T_COMPOUND_NEWLINE,
+			SH_PARSE_T_COMPOUND_SUBSHELL,
+			SH_PARSE_T_COMPOUND_DO,
+			SH_PARSE_T_COMPOUND_DONE,
+			SH_PARSE_T_COMPOUND_THEN,
+			SH_PARSE_T_COMPOUND_ELSE,
+			SH_PARSE_T_COMPOUND_ELIF,
+			SH_PARSE_T_COMPOUND_FI,
 		}					compound_end;
 
 		t_sh_list_next_t	list_end;
@@ -74,14 +82,17 @@ struct			s_sh_parser
 	bool			error_set;
 };
 
+# define T(T, ...)	(&(t_sh_parse_token){SH_PARSE_T_##T, {__VA_ARGS__}})
+# define SH(T)		SH_PARSE_T_##T
+
 # define SH_T(P)	((t_sh_parse_token const*)((P)->l.token))
 
 # define SH_T_EQU(P,T)	(SH_T(P) != NULL && SH_T(P)->type == SH_PARSE_T_##T)
-
 # define SH_T_STR_EQU(P,S)	(SH_T(P) == NULL && SUB_EQU((P).l.t.token, S))
 
 bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd);
 
-bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst);
+bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
+					bool allow_newline);
 
 #endif

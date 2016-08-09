@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/06 15:11:33 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/09 23:13:48 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,6 @@
 #include "p_sh_parser.h"
 
 #include <stdlib.h>
-
-#define T(T, ...)	(&(t_sh_parse_token){SH_PARSE_T_##T, {__VA_ARGS__}})
-#define SH(T)		SH_PARSE_T_##T
 
 static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 
@@ -51,9 +48,9 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 		LEXER_T("|", T(PIPELINE_END)),
 		LEXER_T("&&", T(LIST_END, .list_end=SH_LIST_AND)),
 		LEXER_T("||", T(LIST_END, .list_end=SH_LIST_OR)),
-		LEXER_T(";", T(COMPOUND_END, .compound_end=0)),
-		LEXER_T("&", T(COMPOUND_END, .compound_end=SH(COMPOUND_ASYNC))),
-		LEXER_T("\n", T(COMPOUND_END, .compound_end=SH(COMPOUND_STOP))),
+		LEXER_T(";", T(COMPOUND_END, .compound_end=SH(COMPOUND_SEMICOLON))),
+		LEXER_T("&", T(COMPOUND_END, .compound_end=SH(COMPOUND_AMPERSAND))),
+		LEXER_T("\n", T(COMPOUND_END, .compound_end=SH(COMPOUND_NEWLINE))),
 
 		LEXER_T(">", T(REDIR, .redir=SH_REDIR_OUTPUT)),
 		LEXER_T(">|", T(REDIR, .redir=SH_REDIR_OUTPUT_CLOBBER)),
@@ -75,20 +72,17 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 	LEXER_STATE("sh-compound", ("sh-base-cmd")),
 
 	LEXER_STATE("sh-subst-subshell", ("sh-base-cmd"),
-		LEXER_T("\n", T(COMPOUND_END, .compound_end=0)),
-		LEXER_T(")", T(COMPOUND_END, .compound_end=SH(COMPOUND_STOP)), .pop=true),
+		LEXER_T(")", T(COMPOUND_END, .compound_end=SH(COMPOUND_SUBSHELL)), .pop=true),
 	),
 
 	LEXER_STATE("sh-subst-backquote", ("sh-base-cmd"),
-		LEXER_T("\n", T(COMPOUND_END, .compound_end=0)),
 		LEXER_T("\\`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote-rev"),
-		LEXER_T("`", T(COMPOUND_END, .compound_end=SH(COMPOUND_STOP)), .pop=true),
+		LEXER_T("`", T(COMPOUND_END, .compound_end=SH(COMPOUND_SUBSHELL)), .pop=true),
 	),
 
 	LEXER_STATE("sh-subst-backquote-rev", ("sh-base-cmd"),
-		LEXER_T("\n", T(COMPOUND_END, .compound_end=0)),
 		LEXER_T("`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote"),
-		LEXER_T("\\`", T(COMPOUND_END, .compound_end=SH(COMPOUND_STOP)), .pop=true),
+		LEXER_T("\\`", T(COMPOUND_END, .compound_end=SH(COMPOUND_SUBSHELL)), .pop=true),
 	),
 
 	LEXER_STATE("sh-string", ("sh-base-subst"),
@@ -126,6 +120,21 @@ static bool		sh_ignore_spaces(t_sh_parser *p)
 	return (false);
 }
 
+static bool		sh_ignore_newlines(t_sh_parser *p)
+{
+	t_sh_parse_token const	*t;
+
+	while (ft_lexer_ahead(&p->l, NULL, V(&t)))
+	{
+		if (t == NULL || (t->type != SH_PARSE_T_SPACE
+				&& !(t->type == SH_PARSE_T_COMPOUND_END
+					&& t->compound_end == SH_PARSE_T_COMPOUND_NEWLINE)))
+			return (true);
+		ft_lexer_next(&p->l);
+	}
+	return (false);
+}
+
 static bool		sh_parse_error(t_sh_parser *p, t_sh_parse_err_t t)
 {
 	if (ASSERT(!p->error_set, "Double error") && p->err != NULL)
@@ -158,18 +167,19 @@ static void		push_token_string(t_sh_text *text, t_sub str, bool quoted)
 static bool		sh_parse_subst_subshell(t_sh_parser *p, t_sh_text *dst, bool quoted)
 {
 	t_sh_compound *const	cmd = NEW(t_sh_compound);
+	t_lexer_state const		*prev;
 	bool					r;
 
-	ft_lexer_push(&p->l);
-	if ((r = sh_parse_compound(p, cmd)
+	ft_lexer_push(&p->l, &prev);
+	if ((r = sh_parse_compound(p, cmd, true)
 			&& (!p->l.eof || sh_parse_error(p, SH_E_EOF))
 			&& (SH_T(p)->type == SH_PARSE_T_COMPOUND_END || sh_parse_error(p, SH_E_ERROR))
-			&& (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_STOP)
+			&& (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL)
 		))
 		push_token(dst, SUB0(), SH_TOKEN(SUBSHELL, .cmd=cmd), quoted);
 	else
 		free(cmd);
-	ft_lexer_pop(&p->l);
+	ft_lexer_pop(&p->l, prev);
 	return (r);
 }
 
@@ -215,9 +225,10 @@ static bool		(*const g_sh_parse_subst[])(t_sh_parser*, t_sh_text*, bool) = {
 static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst)
 {
 	t_sh_parse_token const	*t;
+	t_lexer_state const		*prev;
 	bool					r;
 
-	ft_lexer_push(&p->l);
+	ft_lexer_push(&p->l, &prev);
 	r = true;
 	while (ft_lexer_next(&p->l))
 	{
@@ -237,15 +248,16 @@ static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst)
 		if (!r)
 			return (false);
 	}
-	ft_lexer_pop(&p->l);
+	ft_lexer_pop(&p->l, prev);
 	return (true);
 }
 
 static bool		sh_parse_text_comment(t_sh_parser *p)
 {
 	t_sh_parse_token const	*t;
+	t_lexer_state const		*prev;
 
-	ft_lexer_push(&p->l);
+	ft_lexer_push(&p->l, &prev);
 	while (true)
 	{
 		if (!ft_lexer_ahead(&p->l, NULL, V(&t))
@@ -254,7 +266,7 @@ static bool		sh_parse_text_comment(t_sh_parser *p)
 		if (!ft_lexer_next(&p->l))
 			ASSERT(false);
 	}
-	ft_lexer_pop(&p->l);
+	ft_lexer_pop(&p->l, prev);
 	return (true);
 }
 
@@ -312,7 +324,7 @@ static bool		sh_parse_text(t_sh_parser *p, t_sh_text *dst)
 
 static bool		sh_parse_if_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	if (!sh_ignore_spaces(p))
+	if (!sh_ignore_newlines(p))
 		return (sh_parse_error(p, SH_E_EOF));
 	ASSERT(!"if not implemented yet");
 	return (false);
@@ -412,7 +424,7 @@ static bool		sh_parse_pipeline(t_sh_parser *p, t_sh_pipeline *dst)
 			return (false);
 		if (p->l.eof || !SH_T_EQU(p, PIPELINE_END))
 			break ;
-		if (!sh_ignore_spaces(p))
+		if (!sh_ignore_newlines(p))
 			return (sh_parse_error(p, SH_E_EOF));
 		dst->next = NEW(t_sh_pipeline);
 		dst = dst->next;
@@ -432,7 +444,7 @@ static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 		if (p->l.eof || !SH_T_EQU(p, LIST_END))
 			break ;
 		next_t = SH_T(p)->list_end;
-		if (!sh_ignore_spaces(p))
+		if (!sh_ignore_newlines(p))
 			return (sh_parse_error(p, SH_E_EOF));
 		dst->next = NEW(t_sh_list_next);
 		dst->next->type = next_t;
@@ -441,7 +453,41 @@ static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 	return (true);
 }
 
-bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst)
+static bool		compound_end_keyword(t_sh_parser *p)
+{
+	static struct {
+		t_sub				name;
+		t_sh_parse_token	t;
+	} const			end_keywords[] = {
+		{SUBC("do"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_DO}}},
+		{SUBC("done"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_DONE}}},
+		{SUBC("then"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_THEN}}},
+		{SUBC("else"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_ELSE}}},
+		{SUBC("elif"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_ELIF}}},
+		{SUBC("fi"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_FI}}},
+	};
+	uint32_t		i;
+	t_sub			word;
+	void const		*t;
+
+	i = 0;
+	if (ft_lexer_ahead(&p->l, &word, &t) && t == NULL)
+		while (i < ARRAY_LEN(end_keywords))
+		{
+			if (SUB_EQU(end_keywords[i].name, word))
+			{
+				ft_lexer_next(&p->l);
+				p->l.token = &end_keywords[i].t;
+				return (true);
+			}
+			i++;
+		}
+	return (false);
+}
+
+// TODO: destroy on error
+bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
+					bool allow_newline)
 {
 	while (true)
 	{
@@ -451,11 +497,13 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst)
 			return (false);
 		if (p->l.eof || !ASSERT(SH_T_EQU(p, COMPOUND_END)))
 			break ;
-		if (SH_T(p)->compound_end & SH_PARSE_T_COMPOUND_ASYNC)
+		if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
 			dst->flags |= SH_COMPOUND_ASYNC;
-		if (SH_T(p)->compound_end & SH_PARSE_T_COMPOUND_STOP)
+		else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL
+			|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
+				&& !allow_newline))
 			break ;
-		if (!sh_ignore_spaces(p))
+		if (!sh_ignore_newlines(p) || compound_end_keyword(p))
 			break ;
 		dst->next = NEW(t_sh_compound);
 		dst = dst->next;
@@ -475,10 +523,13 @@ bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
 
 	if (lexer_state == NULL)
 		lexer_state = ft_lexer_build(&g_sh_lexer, SUBC("sh-compound"));
-	ft_lexer_init(in, lexer_state, &p.l);
-	p.err = err;
-	r = (sh_ignore_spaces(&p) || ASSERT(!"Empty line"))
-		&& sh_parse_compound(&p, dst);
-	ft_lexer_destroy(&p.l, true);
+	p = (t_sh_parser){LEXER(in, lexer_state), err, false};
+	r = (sh_ignore_newlines(&p) || ASSERT(!"Empty line"))
+		&& sh_parse_compound(&p, dst, false)
+		&& (p.l.eof || (SH_T_EQU(&p, COMPOUND_END)
+				&& SH_T(&p)->compound_end == SH(COMPOUND_NEWLINE))
+			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED)));
+	ft_lexer_pop(&p.l, NULL);
+	ft_lexer_destroy(&p.l);
 	return (r);
 }
