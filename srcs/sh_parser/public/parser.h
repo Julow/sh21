@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:09:25 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/05 19:59:35 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/10 12:41:28 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ typedef struct s_sh_parse_err	t_sh_parse_err;
 
 enum			e_sh_parse_err_t
 {
-	SH_E_ERROR,
+	SH_E_ERROR = 0,
 	SH_E_UNEXPECTED,
 	SH_E_EOF,
 	SH_E_UNCLOSED_STRING,

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/06 14:18:36 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/10 19:20:42 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,7 +267,7 @@ struct			s_sh_else
 	union {
 		t_sh_if			elif_clause;
 		t_sh_compound	else_clause;
-	}				c;
+	};
 };
 
 struct			s_sh_while

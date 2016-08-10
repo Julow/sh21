@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/09 22:31:19 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/10 19:42:26 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ struct			s_sh_parse_token
 		SH_PARSE_T_HEREDOC,
 	}				type;
 	union {
-		bool				_nil;
+		uint32_t			_nil;
 
 		enum {
 			SH_PARSE_T_SUBST_EXPR,

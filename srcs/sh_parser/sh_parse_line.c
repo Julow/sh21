@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/09 23:13:48 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/10 22:03:51 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,7 @@ static bool		sh_ignore_newlines(t_sh_parser *p)
 			return (true);
 		ft_lexer_next(&p->l);
 	}
+	ft_lexer_next(&p->l);
 	return (false);
 }
 
@@ -322,13 +323,85 @@ static bool		sh_parse_text(t_sh_parser *p, t_sh_text *dst)
 ** Cmd
 */
 
+static bool		sh_parse_if_cond(t_sh_parser *p, t_sh_if *if_clause);
+
+static bool		sh_parse_if_else(t_sh_parser *p, t_sh_else **dst, bool elif)
+{
+	ft_lexer_next(&p->l);
+	*dst = NEW(t_sh_else);
+	if (elif)
+	{
+		(*dst)->type = SH_ELSE_ELIF;
+		if (sh_parse_if_cond(p, &(*dst)->elif_clause))
+			return (true);
+	}
+	else
+	{
+		(*dst)->type = SH_ELSE_ELSE;
+		if (sh_parse_compound(p, &(*dst)->else_clause, true))
+		{
+			if (!SH_T_EQU(p, COMPOUND_END)
+				|| SH_T(p)->compound_end != SH_PARSE_T_COMPOUND_FI)
+				sh_parse_error(p, SH_E_UNEXPECTED);
+			else
+				return (true);
+		}
+	}
+	free(*dst);
+	return (false);
+}
+
+static bool		sh_parse_if_end(t_sh_parser *p, t_sh_else **dst)
+{
+	if (p->l.eof)
+		return (sh_parse_error(p, SH_E_EOF));
+	if (!SH_T_EQU(p, COMPOUND_END))
+		return (sh_parse_error(p, SH_E_UNEXPECTED));
+	if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_ELSE)
+		return (sh_parse_if_else(p, dst, false));
+	else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_ELIF)
+		return (sh_parse_if_else(p, dst, true));
+	else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_FI)
+	{
+		*dst = NULL;
+		return (true);
+	}
+	return (false);
+}
+
+static bool		sh_parse_if_then(t_sh_parser *p, t_sh_if *if_clause)
+{
+	return ((!p->l.eof || sh_parse_error(p, SH_E_EOF))
+		&& ((SH_T_EQU(p, COMPOUND_END)
+			&& SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_THEN)
+				|| sh_parse_error(p, SH_E_UNEXPECTED))
+		&& (sh_ignore_newlines(p) || sh_parse_error(p, SH_E_EOF))
+		&& sh_parse_compound(p, &if_clause->body, true)
+		&& (sh_parse_if_end(p, &if_clause->else_clause)
+			|| (sh_destroy_compound(&if_clause->body), false)));
+}
+
+static bool		sh_parse_if_cond(t_sh_parser *p, t_sh_if *if_clause)
+{
+	if (p->l.eof)
+		return (sh_parse_error(p, SH_E_EOF));
+	return (sh_parse_compound(p, &if_clause->cond, true)
+		&& (sh_parse_if_then(p, if_clause)
+			|| (sh_destroy_compound(&if_clause->cond), false)));
+}
+
 static bool		sh_parse_if_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
 	if (!sh_ignore_newlines(p))
 		return (sh_parse_error(p, SH_E_EOF));
-	ASSERT(!"if not implemented yet");
-	return (false);
-	(void)dst;
+	dst->if_clause = NEW(t_sh_if);
+	if (!sh_parse_if_cond(p, dst->if_clause))
+	{
+		free(dst->if_clause);
+		return (false);
+	}
+	dst->if_clause->text = SH_TEXT();
+	return (true);
 }
 
 static bool		sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
@@ -459,12 +532,12 @@ static bool		compound_end_keyword(t_sh_parser *p)
 		t_sub				name;
 		t_sh_parse_token	t;
 	} const			end_keywords[] = {
-		{SUBC("do"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_DO}}},
-		{SUBC("done"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_DONE}}},
-		{SUBC("then"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_THEN}}},
-		{SUBC("else"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_ELSE}}},
-		{SUBC("elif"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_ELIF}}},
-		{SUBC("fi"), {SH_PARSE_T_COMPOUND_END, {SH_PARSE_T_COMPOUND_FI}}},
+		{SUBC("do"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_DO)}}},
+		{SUBC("done"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_DONE)}}},
+		{SUBC("then"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_THEN)}}},
+		{SUBC("else"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELSE)}}},
+		{SUBC("elif"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELIF)}}},
+		{SUBC("fi"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_FI)}}},
 	};
 	uint32_t		i;
 	t_sub			word;

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/06 15:14:11 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/10 21:41:00 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -340,6 +340,25 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 	}
 }
 
+static void		print_sh_if_clause(t_sh_if const *cmd, uint32_t indent)
+{
+	print_sh_compound(&cmd->cond, indent + 1);
+	PRINT_CMD(indent, "\033[33mthen\033[0m%n");
+	print_sh_compound(&cmd->body, indent + 1);
+	if (cmd->else_clause == NULL)
+		PRINT_CMD(indent, "\033[33mfi\033[0m");
+	else if (cmd->else_clause->type == SH_ELSE_ELIF)
+	{
+		PRINT_CMD(indent, "\033[33melif\033[0m%n");
+		print_sh_if_clause(&cmd->else_clause->elif_clause, indent);
+	}
+	else if (cmd->else_clause->type == SH_ELSE_ELSE)
+	{
+		PRINT_CMD(indent, "\033[33melse\033[0m%n");
+		print_sh_compound(&cmd->else_clause->else_clause, indent + 1);
+	}
+}
+
 static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
 	switch (cmd->type)
@@ -348,7 +367,12 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		print_sh_text(&cmd->simple.text, indent);
 		break ;
 	case SH_CMD_SUBSHELL:
+		ASSERT(false);
+		break ;
 	case SH_CMD_IF_CLAUSE:
+		ft_printf("\033[33mif\033[0m%n");
+		print_sh_if_clause(cmd->if_clause, indent);
+		break ;
 	case SH_CMD_FOR_CLAUSE:
 	case SH_CMD_WHILE_CLAUSE:
 	case SH_CMD_UNTIL_CLAUSE:
@@ -409,16 +433,23 @@ static void		debug_sh_parser(t_sub str)
 {
 	t_in			in;
 	t_sh_compound	cmd;
+	t_sh_parse_err	err;
 
 	in = IN(str.str, str.length, NULL);
-	if (!sh_parse(&in, &cmd, NULL))
+	if (!sh_parse(&in, &cmd, &err))
 	{
-		ft_printf("ERROR%n");
+		ft_printf("ERROR: %s%n", ((char const*[]){
+			[SH_E_ERROR] = "wtf",
+			[SH_E_UNEXPECTED] = "unexpected token",
+			[SH_E_EOF] = "unexpected end of file",
+			[SH_E_UNCLOSED_STRING] = "unclosed string",
+			[SH_E_UNCLOSED_SUBSHELL] = "unclosed subshell",
+		})[err.err]);
 		return ;
 	}
 	print_sh_compound(&cmd, 0);
-	ft_printf("%n");
 	sh_destroy_compound(&cmd);
+	ft_printf("%n");
 }
 
 /*
