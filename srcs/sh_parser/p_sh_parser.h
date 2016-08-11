@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/10 19:42:26 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/11 11:25:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,9 +90,18 @@ struct			s_sh_parser
 # define SH_T_EQU(P,T)	(SH_T(P) != NULL && SH_T(P)->type == SH_PARSE_T_##T)
 # define SH_T_STR_EQU(P,S)	(SH_T(P) == NULL && SUB_EQU((P).l.t.token, S))
 
-bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd);
-
 bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 					bool allow_newline);
+
+bool			sh_ignore_spaces(t_sh_parser *p);
+bool			sh_ignore_newlines(t_sh_parser *p);
+bool			sh_parse_error(t_sh_parser *p, t_sh_parse_err_t t);
+
+bool			sh_parse_text(t_sh_parser *p, t_sh_text *dst);
+
+bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd);
+
+bool			sh_parse_if_clause(t_sh_parser *p, t_sh_cmd *dst);
+bool			sh_parse_while_clause(t_sh_parser *p, t_sh_cmd *dst);
 
 #endif

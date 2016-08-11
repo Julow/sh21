@@ -89,8 +89,13 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/libft/ft_vector/ft_vspan.o \
 	$(O_DIR)/srcs/main/main.o $(O_DIR)/srcs/sh_ast/destroy_cmd.o \
 	$(O_DIR)/srcs/sh_ast/destroy_compound.o \
-	$(O_DIR)/srcs/sh_ast/destroy_text.o \
-	$(O_DIR)/srcs/sh_parser/sh_parse_line.o
+	$(O_DIR)/srcs/sh_ast/destroy_text.o $(O_DIR)/srcs/sh_parser/sh_parse_cmd.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_compound.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_if_clause.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_line.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_text.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/ft_bst.h $(O_DIR)/_public/ft/ft_colors.h \
 	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/ft_in.h \
@@ -642,14 +647,60 @@ $(O_DIR)/srcs/sh_ast/destroy_cmd.o $(O_DIR)/srcs/sh_ast/destroy_compound.o \
 $(O_DIR)/srcs/sh_ast/destroy_text.o: INCLUDE_FLAGS += -Isrcs/sh_ast
 
 # module sh::parser
+$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o: srcs/sh_parser/sh_parse_cmd.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_compound.o: \
+	srcs/sh_parser/sh_parse_compound.c libft/ft_base/public/libft.h \
+	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_if_clause.o: \
+	srcs/sh_parser/sh_parse_if_clause.c libft/ft_base/public/libft.h \
+	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_line.o: srcs/sh_parser/sh_parse_line.c \
 	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
 	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
 	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
 	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_text.o: srcs/sh_parser/sh_parse_text.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_utils.o: srcs/sh_parser/sh_parse_utils.c \
+	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o: \
+	srcs/sh_parser/sh_parse_while_clause.c libft/ft_base/public/libft.h \
+	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
 
-$(O_DIR)/srcs/sh_parser/sh_parse_line.o: INCLUDE_FLAGS += -Isrcs/sh_parser
+$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_compound.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_if_clause.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_line.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_text.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o: INCLUDE_FLAGS += \
+	-Isrcs/sh_parser
 
 # public links
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h

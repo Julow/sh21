@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/10 19:20:42 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/11 12:04:24 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ typedef struct s_sh_for			t_sh_for;
 typedef struct s_sh_else		t_sh_else;
 typedef struct s_sh_if			t_sh_if;
 typedef struct s_sh_while		t_sh_while;
-typedef struct s_sh_while		t_sh_until;
 
 typedef enum e_sh_cmd_t			t_sh_cmd_t;
 typedef struct s_sh_cmd			t_sh_cmd;
@@ -171,8 +170,8 @@ enum			e_sh_cmd_t
 	SH_CMD_SUBSHELL,
 	SH_CMD_IF_CLAUSE,
 	SH_CMD_FOR_CLAUSE,
-	SH_CMD_WHILE_CLAUSE,
-	SH_CMD_UNTIL_CLAUSE,
+	SH_CMD_WHILE_CLAUSE, // while_clause
+	SH_CMD_UNTIL_CLAUSE, // while_clause
 	SH_CMD_TIME_CLAUSE, // rec
 	SH_CMD_NOT_CLAUSE, // rec
 };
@@ -186,7 +185,6 @@ struct			s_sh_cmd
 		t_sh_if			*if_clause;
 		t_sh_for		*for_clause;
 		t_sh_while		*while_clause;
-		t_sh_until		*until_clause;
 		t_sh_cmd		*rec;
 	};
 };

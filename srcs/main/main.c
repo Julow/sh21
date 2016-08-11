@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/10 21:41:00 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/11 11:59:30 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -340,6 +340,15 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 	}
 }
 
+static void		print_sh_while_clause(t_sh_while const *cmd, uint32_t indent)
+{
+	print_sh_compound(&cmd->cond, indent + 1);
+	PRINT_CMD(indent, "\033[33mdo\033[0m%n");
+	print_sh_compound(&cmd->body, indent + 1);
+	PRINT_CMD(indent, "\033[33mdone\033[0m");
+	print_sh_text(&cmd->text, indent);
+}
+
 static void		print_sh_if_clause(t_sh_if const *cmd, uint32_t indent)
 {
 	print_sh_compound(&cmd->cond, indent + 1);
@@ -374,9 +383,15 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		print_sh_if_clause(cmd->if_clause, indent);
 		break ;
 	case SH_CMD_FOR_CLAUSE:
-	case SH_CMD_WHILE_CLAUSE:
-	case SH_CMD_UNTIL_CLAUSE:
 		ASSERT(false);
+		break ;
+	case SH_CMD_WHILE_CLAUSE:
+		ft_printf("\033[33mwhile\033[0m%n");
+		print_sh_while_clause(cmd->while_clause, indent);
+		break ;
+	case SH_CMD_UNTIL_CLAUSE:
+		ft_printf("\033[33muntil\033[0m%n");
+		print_sh_while_clause(cmd->while_clause, indent);
 		break ;
 	case SH_CMD_TIME_CLAUSE:
 		ft_printf("\033[33mtime\033[0m ");
