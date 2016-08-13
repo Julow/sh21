@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 17:19:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/06 14:49:02 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/12 18:20:32 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ static void		sh_destroy_cmd(t_sh_cmd *cmd)
 		sh_destroy_text(&cmd->simple.text);
 		break ;
 	case SH_CMD_SUBSHELL:
-		sh_destroy_text(&cmd->subshell->text);
 		sh_destroy_compound(&cmd->subshell->compound);
 		free(cmd->subshell);
 		break ;

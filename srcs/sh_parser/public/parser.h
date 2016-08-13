@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:09:25 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/10 12:41:28 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/12 16:14:07 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ enum			e_sh_parse_err_t
 	SH_E_ERROR = 0,
 	SH_E_UNEXPECTED,
 	SH_E_EOF,
+	SH_E_INVALID_ID,
 	SH_E_UNCLOSED_STRING,
 	SH_E_UNCLOSED_SUBSHELL,
 };

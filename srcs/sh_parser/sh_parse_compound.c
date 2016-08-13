@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 11:23:15 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/13 19:19:40 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,31 +50,35 @@ static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 	return (true);
 }
 
-static bool		compound_end_keyword(t_sh_parser *p)
+static struct {
+	t_sub				name;
+	t_sh_parse_token	t;
+} const			g_end_keywords[] = {
+	{SUBC("do"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_DO)}}},
+	{SUBC("done"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_DONE)}}},
+	{SUBC("then"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_THEN)}}},
+	{SUBC("else"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELSE)}}},
+	{SUBC("elif"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELIF)}}},
+	{SUBC("fi"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_FI)}}},
+};
+
+bool			sh_parse_compound_end(t_sh_parser *p)
 {
-	static struct {
-		t_sub				name;
-		t_sh_parse_token	t;
-	} const			end_keywords[] = {
-		{SUBC("do"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_DO)}}},
-		{SUBC("done"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_DONE)}}},
-		{SUBC("then"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_THEN)}}},
-		{SUBC("else"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELSE)}}},
-		{SUBC("elif"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELIF)}}},
-		{SUBC("fi"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_FI)}}},
-	};
 	uint32_t		i;
 	t_sub			word;
 	void const		*t;
 
 	i = 0;
-	if (ft_lexer_ahead(&p->l, &word, &t) && t == NULL)
-		while (i < ARRAY_LEN(end_keywords))
+	if ((SH_T(p)->compound_end == SH(COMPOUND_SEMICOLON)
+			|| SH_T(p)->compound_end == SH(COMPOUND_NEWLINE))
+		&& sh_ignore_newlines(p)
+		&& ft_lexer_ahead(&p->l, &word, &t) && t == NULL)
+		while (i < ARRAY_LEN(g_end_keywords))
 		{
-			if (SUB_EQU(end_keywords[i].name, word))
+			if (SUB_EQU(g_end_keywords[i].name, word))
 			{
 				ft_lexer_next(&p->l);
-				p->l.token = &end_keywords[i].t;
+				p->l.token = &g_end_keywords[i].t;
 				return (true);
 			}
 			i++;
@@ -100,7 +104,7 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 			|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
 				&& !allow_newline))
 			break ;
-		if (!sh_ignore_newlines(p) || compound_end_keyword(p))
+		if (sh_parse_compound_end(p))
 			break ;
 		dst->next = NEW(t_sh_compound);
 		dst = dst->next;

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:24:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 11:46:49 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/13 19:30:27 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,12 +135,18 @@ static bool		sh_parse_text_comment(t_sh_parser *p)
 	return (true);
 }
 
-static bool		sh_parse_text_heredoc(t_sh_parser *p, t_sh_text *dst)
+static bool		sh_parse_text_backslash(t_sh_parser *p, t_sh_text *dst)
 {
-	ASSERT(false);
-	return (false);
-	(void)p;
-	(void)dst;
+	t_sh_parse_token const	*t;
+
+	TRACE();
+	if (!ft_lexer_ahead(&p->l, NULL, V(&t)))
+		return (sh_parse_error(p, SH_E_EOF));
+	if (t->type == SH(COMPOUND_END) && t->compound_end == SH(COMPOUND_NEWLINE))
+		ft_lexer_next(&p->l); // TODO: '\\\n' token 'IGNORE'
+	else
+		push_token_string(dst, SUB0(), true);
+	return (true);
 }
 
 bool			sh_parse_text(t_sh_parser *p, t_sh_text *dst)
@@ -148,9 +154,8 @@ bool			sh_parse_text(t_sh_parser *p, t_sh_text *dst)
 	t_sh_parse_token const	*t;
 	bool					r;
 
-	*dst = SH_TEXT();
 	r = true;
-	while (ft_lexer_next(&p->l))
+	while (r && ft_lexer_next(&p->l))
 	{
 		if ((t = SH_T(p)) == NULL)
 			push_token_string(dst, p->l.t.token, false);
@@ -162,22 +167,12 @@ bool			sh_parse_text(t_sh_parser *p, t_sh_text *dst)
 			r = sh_parse_text_string(p, dst);
 		else if (t->type == SH_PARSE_T_COMMENT)
 			r = sh_parse_text_comment(p);
-		else if (t->type == SH_PARSE_T_COMPOUND_END
-			|| t->type == SH_PARSE_T_LIST_END
-			|| t->type == SH_PARSE_T_PIPELINE_END)
-			break ;
 		else if (t->type == SH_PARSE_T_BACKSLASH)
-			push_token_string(dst, SUB0(), true);
+			r = sh_parse_text_backslash(p, dst);
 		else if (t->type == SH_PARSE_T_ESCAPED)
 			push_token_string(dst, SUB_FOR(p->l.t.token, 1), true);
-		else if (t->type == SH_PARSE_T_REDIR)
-			push_token(dst, SUB0(), SH_TOKEN(REDIR, .redir_type=t->redir), false);
-		else if (t->type == SH_PARSE_T_HEREDOC)
-			r = sh_parse_text_heredoc(p, dst);
 		else
-			ASSERT(false, "Invalid token");
-		if (!r)
-			return (false);
+			break ;
 	}
-	return (true);
+	return (r);
 }

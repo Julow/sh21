@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 18:55:49 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/10 22:01:05 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/12 18:20:47 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 void			sh_destroy_if_clause(t_sh_if *c)
 {
-	sh_destroy_text(&c->text);
 	sh_destroy_compound(&c->cond);
 	sh_destroy_compound(&c->body);
 	if (c->else_clause != NULL)
@@ -30,14 +29,12 @@ void			sh_destroy_if_clause(t_sh_if *c)
 
 void			sh_destroy_for_clause(t_sh_for *c)
 {
-	sh_destroy_text(&c->text);
 	sh_destroy_text(&c->data);
 	sh_destroy_compound(&c->body);
 }
 
 void			sh_destroy_while_clause(t_sh_while *c)
 {
-	sh_destroy_text(&c->text);
 	sh_destroy_compound(&c->cond);
 	sh_destroy_compound(&c->body);
 }

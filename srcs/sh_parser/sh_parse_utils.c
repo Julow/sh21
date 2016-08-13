@@ -6,11 +6,20 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:21:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 11:22:00 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/13 14:58:19 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
+
+bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t)
+{
+	if (!ft_lexer_next(&p->l))
+		return (sh_parse_error(p, SH_E_EOF));
+	if (SH_T(p) == NULL || SH_T(p)->type != t.type || SH_T(p)->_val != t._val)
+		return (sh_parse_error(p, SH_E_UNEXPECTED));
+	return (true);
+}
 
 bool			sh_ignore_spaces(t_sh_parser *p)
 {

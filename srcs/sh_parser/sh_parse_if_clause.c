@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 10:43:46 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 12:02:57 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/12 18:22:57 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,5 @@ bool			sh_parse_if_clause(t_sh_parser *p, t_sh_cmd *dst)
 		free(dst->if_clause);
 		return (false);
 	}
-	dst->if_clause->text = SH_TEXT(); // TODO: text after fi
 	return (true);
 }

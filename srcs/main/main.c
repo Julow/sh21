@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 11:59:30 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/13 14:55:44 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,16 +261,6 @@ static void		put_key(t_out *out, t_key key)
 
 static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent);
 
-static char const *const	g_redir_types[] = {
-	[SH_REDIR_OUTPUT] = ">",
-	[SH_REDIR_OUTPUT_CLOBBER] = ">|",
-	[SH_REDIR_APPEND] = ">>",
-	[SH_REDIR_INPUT] = "<",
-	[SH_REDIR_INPUT_FD] = "<&",
-	[SH_REDIR_OUTPUT_FD] = ">&",
-	[SH_REDIR_OPEN] = "<>",
-};
-
 static char const *const	g_expr_types[] = {
 	[SH_EXPR_USE_DEF] = "-",
 	[SH_EXPR_SET_DEF] = "=",
@@ -309,10 +299,6 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 			print_sh_compound(token->val.cmd, indent + 1);
 			PRINT_CMD(indent, "\033[36m)\033[0m");
 			break ;
-		case SH_T_REDIR:
-			ASSERT(!(token->type & SH_F_T_QUOTED), "quoted redir");
-			ft_printf("%s", g_redir_types[token->val.redir_type]);
-			break ;
 		case SH_T_PARAM:
 			ft_printf("\033[36m${\033[0m%ts\033[36m}\033[0m",
 				SUB(text->text.str + token_start, token->val.param_len));
@@ -340,13 +326,11 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 	}
 }
 
-static void		print_sh_while_clause(t_sh_while const *cmd, uint32_t indent)
+static void		print_sh_do_clause(t_sh_compound const *cmd, uint32_t indent)
 {
-	print_sh_compound(&cmd->cond, indent + 1);
 	PRINT_CMD(indent, "\033[33mdo\033[0m%n");
-	print_sh_compound(&cmd->body, indent + 1);
+	print_sh_compound(cmd, indent + 1);
 	PRINT_CMD(indent, "\033[33mdone\033[0m");
-	print_sh_text(&cmd->text, indent);
 }
 
 static void		print_sh_if_clause(t_sh_if const *cmd, uint32_t indent)
@@ -365,6 +349,7 @@ static void		print_sh_if_clause(t_sh_if const *cmd, uint32_t indent)
 	{
 		PRINT_CMD(indent, "\033[33melse\033[0m%n");
 		print_sh_compound(&cmd->else_clause->else_clause, indent + 1);
+		PRINT_CMD(indent, "\033[33mfi\033[0m");
 	}
 }
 
@@ -383,15 +368,18 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		print_sh_if_clause(cmd->if_clause, indent);
 		break ;
 	case SH_CMD_FOR_CLAUSE:
-		ASSERT(false);
+		ft_printf("\033[33mfor\033[0m %ts \033[33min\033[0m ",
+			cmd->for_clause->var);
+		print_sh_text(&cmd->for_clause->data, indent);
+		ft_printf("%n");
+		print_sh_do_clause(&cmd->for_clause->body, indent);
 		break ;
 	case SH_CMD_WHILE_CLAUSE:
-		ft_printf("\033[33mwhile\033[0m%n");
-		print_sh_while_clause(cmd->while_clause, indent);
-		break ;
 	case SH_CMD_UNTIL_CLAUSE:
-		ft_printf("\033[33muntil\033[0m%n");
-		print_sh_while_clause(cmd->while_clause, indent);
+		ft_printf("\033[33m%s\033[0m%n",
+			(cmd->type == SH_CMD_WHILE_CLAUSE) ? "while" : "until");
+		print_sh_compound(&cmd->while_clause->cond, indent + 1);
+		print_sh_do_clause(&cmd->while_clause->body, indent);
 		break ;
 	case SH_CMD_TIME_CLAUSE:
 		ft_printf("\033[33mtime\033[0m ");

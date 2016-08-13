@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 11:24:48 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/13 19:26:26 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "p_sh_parser.h"
 
 #include <stdlib.h>
+
+#define T(T, ...)	(&SH_PARSE_T(T, ##__VA_ARGS__))
 
 static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 
@@ -27,24 +29,25 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 		LEXER_T("\\$", T(ESCAPED)),
 	),
 
-	LEXER_STATE("sh-base-text", (),
-		LEXER_T("\"", T(STRING, .string=SH(STRING_DOUBLE)), .push="sh-string"),
-		LEXER_T("\'", T(STRING, .string=SH(STRING_SIMPLE)), .push="sh-string-single"),
-		LEXER_T("\\", T(BACKSLASH)),
-		LEXER_T("\\\"", T(ESCAPED)),
-		LEXER_T("\\'", T(ESCAPED)),
-		LEXER_T("\\\\", T(ESCAPED)),
-	),
-
-	LEXER_STATE("sh-base-cmd", ("sh-base-text", "sh-base-subst"),
+	LEXER_STATE("sh-base-text", ("sh-base-subst"),
 		LEXER_T(" ", T(SPACE)),
 		LEXER_T("\t", T(SPACE)),
 		LEXER_T("\\ ", T(ESCAPED)),
 		LEXER_T("\\\t", T(ESCAPED)),
 
+		LEXER_T("\"", T(STRING, .string=SH(STRING_DOUBLE)), .push="sh-string"),
+		LEXER_T("\\\"", T(ESCAPED)),
+		LEXER_T("\'", T(STRING, .string=SH(STRING_SIMPLE)), .push="sh-string-single"),
+		LEXER_T("\\'", T(ESCAPED)),
+
 		LEXER_T("#", T(COMMENT), .push="sh-comment"),
 		LEXER_T("\\#", T(ESCAPED)),
 
+		LEXER_T("\\", T(BACKSLASH)),
+		LEXER_T("\\\\", T(ESCAPED)),
+	),
+
+	LEXER_STATE("sh-base-cmd", ("sh-base-text"),
 		LEXER_T("|", T(PIPELINE_END)),
 		LEXER_T("&&", T(LIST_END, .list_end=SH_LIST_AND)),
 		LEXER_T("||", T(LIST_END, .list_end=SH_LIST_OR)),
@@ -64,7 +67,6 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 		LEXER_T("\\;", T(ESCAPED)),
 		LEXER_T("\\|", T(ESCAPED)),
 		LEXER_T("\\&", T(ESCAPED)),
-		LEXER_T("\\\n", T(ESCAPED)),
 		LEXER_T("\\>", T(ESCAPED)),
 		LEXER_T("\\<", T(ESCAPED)),
 	),
@@ -109,8 +111,8 @@ bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
 	if (lexer_state == NULL)
 		lexer_state = ft_lexer_build(&g_sh_lexer, SUBC("sh-compound"));
 	p = (t_sh_parser){LEXER(in, lexer_state), err, false};
-	r = (sh_ignore_newlines(&p) || ASSERT(!"Empty line"))
-		&& sh_parse_compound(&p, dst, false)
+	sh_ignore_newlines(&p);
+	r = sh_parse_compound(&p, dst, false)
 		&& (p.l.eof || (SH_T_EQU(&p, COMPOUND_END)
 				&& SH_T(&p)->compound_end == SH(COMPOUND_NEWLINE))
 			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED)));

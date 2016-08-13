@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 12:04:24 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/12 18:21:50 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,6 @@ enum			e_sh_token_t
 {
 	SH_T_STRING = 1,
 	SH_T_SPACE,
-	SH_T_REDIR,
-	SH_T_HEREDOC,
 	SH_T_SUBSHELL,
 	SH_T_PARAM,
 	SH_T_PARAM_POS,
@@ -85,8 +83,6 @@ struct			s_sh_token
 	t_sh_token_t	type;
 	union {
 		uint32_t		token_len;
-		t_sh_redir_t	redir_type;
-		t_sh_heredoc	*heredoc;
 		t_sh_compound	*cmd;
 		uint32_t		param_len;
 		uint32_t		param_pos;
@@ -236,21 +232,18 @@ struct			s_sh_compound
 
 struct			s_sh_subshell
 {
-	t_sh_text		text;
 	t_sh_compound	compound;
 };
 
 struct			s_sh_for
 {
-	t_sh_text		text;
-	uint32_t		var_len;
+	t_sub			var;
 	t_sh_text		data;
 	t_sh_compound	body;
 };
 
 struct			s_sh_if
 {
-	t_sh_text		text;
 	t_sh_compound	cond;
 	t_sh_compound	body;
 	t_sh_else		*else_clause;
@@ -270,7 +263,6 @@ struct			s_sh_else
 
 struct			s_sh_while
 {
-	t_sh_text		text;
 	t_sh_compound	cond;
 	t_sh_compound	body;
 };

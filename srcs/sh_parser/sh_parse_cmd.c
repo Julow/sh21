@@ -6,19 +6,28 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/11 11:47:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/13 19:05:22 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
 #include <stdlib.h>
 
-static bool		sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
+static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_simple *dst)
 {
-	ASSERT(!"for not implemented yet");
+	dst->text = SH_TEXT();
+	while (sh_parse_text(p, &dst->text))
+	{
+		if (p->l.eof)
+			return (true);
+		if (SH_T(p)->type == SH_PARSE_T_REDIR)
+			ASSERT(!"TODO: redir");
+		else if (SH_T(p)->type == SH_PARSE_T_HEREDOC)
+			ASSERT(!"TODO: heredoc");
+		else
+			return (true);
+	}
 	return (false);
-	(void)p;
-	(void)dst;
 }
 
 static bool		sh_parse_rec_cmd(t_sh_parser *p, t_sh_cmd *dst)
@@ -56,7 +65,7 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 	uint32_t				i;
 
 	if (!ft_lexer_ahead(&p->l, &token_str, V(&t)))
-		return (sh_parse_error(p, SH_E_EOF));
+		return (true);
 	i = 0;
 	if (t == NULL)
 	{
@@ -73,5 +82,5 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 				i++;
 	}
 	cmd->type = SH_CMD_SIMPLE;
-	return (sh_parse_text(p, &cmd->simple.text));
+	return (sh_parse_simple_cmd(p, &cmd->simple));
 }
