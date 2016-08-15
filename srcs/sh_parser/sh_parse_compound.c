@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/13 19:19:40 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 00:29:39 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,19 +60,20 @@ static struct {
 	{SUBC("else"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELSE)}}},
 	{SUBC("elif"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_ELIF)}}},
 	{SUBC("fi"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_FI)}}},
+	{SUBC("}"), {SH(COMPOUND_END), {.compound_end=SH(COMPOUND_BRACKET)}}},
 };
 
 bool			sh_parse_compound_end(t_sh_parser *p)
 {
-	uint32_t		i;
-	t_sub			word;
-	void const		*t;
+	uint32_t				i;
+	t_sub					word;
+	t_sh_parse_token const	*t;
 
 	i = 0;
 	if ((SH_T(p)->compound_end == SH(COMPOUND_SEMICOLON)
 			|| SH_T(p)->compound_end == SH(COMPOUND_NEWLINE))
 		&& sh_ignore_newlines(p)
-		&& ft_lexer_ahead(&p->l, &word, &t) && t == NULL)
+		&& ft_lexer_ahead(&p->l, &word, V(&t)) && t->type == SH(TEXT))
 		while (i < ARRAY_LEN(g_end_keywords))
 		{
 			if (SUB_EQU(g_end_keywords[i].name, word))

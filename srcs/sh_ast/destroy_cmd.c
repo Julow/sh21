@@ -6,12 +6,18 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 18:55:49 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/12 18:20:47 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 00:05:05 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_destroy_cmd.h"
 #include <stdlib.h>
+
+void			sh_destroy_redir_lst(t_sh_redir_lst *lst)
+{
+	sh_destroy_text(&lst->text);
+	ft_vclear(&lst->redirs);
+}
 
 void			sh_destroy_if_clause(t_sh_if *c)
 {

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/15 15:58:41 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 00:22:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ struct			s_sh_parse_token
 		SH_PARSE_T_BACKSLASH,
 		SH_PARSE_T_ESCAPED,
 		SH_PARSE_T_REDIR,
-		SH_PARSE_T_REDIR_END,
 		SH_PARSE_T_HEREDOC,
 		_SH_PARSE_T_COUNT_
 	}				type;
@@ -71,6 +70,7 @@ struct			s_sh_parse_token
 			SH_PARSE_T_COMPOUND_ELSE,
 			SH_PARSE_T_COMPOUND_ELIF,
 			SH_PARSE_T_COMPOUND_FI,
+			SH_PARSE_T_COMPOUND_BRACKET,
 		}					compound_end;
 
 		t_sh_list_next_t	list_end;
@@ -114,6 +114,27 @@ bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t);
 ** Parse compound end token (do, done, then, fi, else, ...)
 */
 bool			sh_parse_compound_end(t_sh_parser *p);
+
+/*
+** Parse a redirection
+** The current token must be a REDIR token
+*/
+bool			sh_parse_redir(t_sh_parser *p, t_sh_redir_lst *lst);
+
+/*
+** Parse a redirection
+** The current token must be a TEXT token
+** Return false if the current token is invalid or the ahead is not a REDIR
+** otherwise return true and put the error status in 'r'
+*/
+bool			sh_parse_redir_left(t_sh_parser *p,
+					t_sh_redir_lst *lst, bool *r);
+
+/*
+** Parse trailing redirections until END token
+** Do not accept any other token
+*/
+bool			sh_parse_trailing_redirs(t_sh_parser *p, t_sh_redir_lst *lst);
 
 /*
 ** Parse functions for text tokens

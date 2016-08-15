@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 17:19:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/12 18:20:32 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 00:06:39 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,11 @@
 
 static void		sh_destroy_cmd(t_sh_cmd *cmd)
 {
+	sh_destroy_redir_lst(&cmd->redirs);
 	switch (cmd->type)
 	{
+	case SH_CMD_EMPTY:
+		break ;
 	case SH_CMD_SIMPLE:
 		sh_destroy_text(&cmd->simple.text);
 		break ;

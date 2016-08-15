@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/15 15:45:02 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 00:11:43 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,17 @@ bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
 		&& (p.l.eof || (SH_T_EQU(&p, COMPOUND_END)
 				&& SH_T(&p)->compound_end == SH(COMPOUND_NEWLINE))
 			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED)));
+
+	if (!r)
+		ft_printf("ERROR: %s '%ts'%n", ((char const*[]){
+			[SH_E_ERROR] = "wtf",
+			[SH_E_UNEXPECTED] = "unexpected token",
+			[SH_E_EOF] = "unexpected end of file",
+			[SH_E_UNCLOSED_STRING] = "unclosed string",
+			[SH_E_UNCLOSED_SUBSHELL] = "unclosed subshell",
+		})[err->err], p.l.t.token);
+
+
 	ft_lexer_pop(&p.l, NULL);
 	ft_lexer_destroy(&p.l);
 	return (r);

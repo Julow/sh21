@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/14 17:05:16 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 00:05:14 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,6 +178,7 @@ struct			s_sh_redir_lst
 
 enum			e_sh_cmd_t
 {
+	SH_CMD_EMPTY,
 	SH_CMD_SIMPLE,
 	SH_CMD_SUBSHELL,
 	SH_CMD_IF_CLAUSE,
@@ -292,6 +293,7 @@ struct			s_sh_while
 /*
 ** 'c' and 'text' pointers are not freed
 */
+void			sh_destroy_redir_lst(t_sh_redir_lst *lst);
 void			sh_destroy_compound(t_sh_compound *c);
 void			sh_destroy_text(t_sh_text *text);
 

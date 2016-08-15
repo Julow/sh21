@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/12 16:04:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/15 15:42:12 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 00:27:59 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,6 @@ static bool		is_identifier(t_sub str)
 		&& ft_subis(SUB_FOR(str, 1), IS_WORD));
 }
 
-static bool		sh_except_token_str(t_sh_parser *p, t_sub str) // TODO: .default token
-{
-	if (!ft_lexer_next(&p->l))
-		return (sh_parse_error(p, SH_E_EOF));
-	if (SH_T(p) != NULL || (str.length > 0 && !SUB_EQU(str, p->l.t.token)))
-		return (sh_parse_error(p, SH_E_UNEXPECTED));
-	return (true);
-}
-
 static bool		parse_for_clause_data(t_sh_parser *p, t_sh_text *dst)
 {
 	while (ft_lexer_next(&p->l) && g_sh_parse_text[SH_T(p)->type] != NULL)
@@ -41,14 +32,16 @@ static bool		parse_for_clause_data(t_sh_parser *p, t_sh_text *dst)
 bool			sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
 	sh_ignore_newlines(p);
-	if (!sh_except_token_str(p, SUB0()))
+	if (!sh_except_token(p, SH_PARSE_T(TEXT)))
 		return (false);
 	if (!is_identifier(p->l.t.token))
 		return (sh_parse_error(p, SH_E_INVALID_ID));
 	dst->for_clause = MALLOC(sizeof(t_sh_for) + p->l.t.token.length);
 	dst->for_clause->var = SUB_DST(ENDOF(dst->for_clause), p->l.t.token);
 	sh_ignore_newlines(p);
-	if (sh_except_token_str(p, SUBC("in")))
+	if (sh_except_token(p, SH_PARSE_T(TEXT))
+		&& (SUB_EQU(p->l.t.token, SUBC("in"))
+			|| sh_parse_error(p, SH_E_UNEXPECTED)))
 	{
 		sh_ignore_newlines(p);
 		dst->for_clause->data = SH_TEXT();
@@ -57,7 +50,11 @@ bool			sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
 			if (!sh_parse_compound_end(p))
 				sh_parse_error(p, SH_E_UNEXPECTED);
 			else if (sh_parse_do_clause(p, &dst->for_clause->body))
-				return (true);
+			{
+				if (sh_parse_trailing_redirs(p, &dst->redirs))
+					return (true);
+				sh_destroy_compound(&dst->for_clause->body);
+			}
 		}
 		sh_destroy_text(&dst->for_clause->data);
 	}
