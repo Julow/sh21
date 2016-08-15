@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/13 19:26:26 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/15 15:45:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 
 		LEXER_T("\\", T(BACKSLASH)),
 		LEXER_T("\\\\", T(ESCAPED)),
+
+		LEXER_T("", T(TEXT)),
 	),
 
 	LEXER_STATE("sh-base-cmd", ("sh-base-text"),

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:24:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/13 19:30:27 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/15 15:50:30 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst)
 	return (true);
 }
 
-static bool		sh_parse_text_comment(t_sh_parser *p)
+static bool		sh_parse_text_comment(t_sh_parser *p, t_sh_text *dst)
 {
 	t_sh_parse_token const	*t;
 	t_lexer_state const		*prev;
@@ -133,6 +133,7 @@ static bool		sh_parse_text_comment(t_sh_parser *p)
 	}
 	ft_lexer_pop(&p->l, prev);
 	return (true);
+	(void)dst;
 }
 
 static bool		sh_parse_text_backslash(t_sh_parser *p, t_sh_text *dst)
@@ -149,30 +150,36 @@ static bool		sh_parse_text_backslash(t_sh_parser *p, t_sh_text *dst)
 	return (true);
 }
 
-bool			sh_parse_text(t_sh_parser *p, t_sh_text *dst)
+static bool		sh_parse_text_text(t_sh_parser *p, t_sh_text *dst)
 {
-	t_sh_parse_token const	*t;
-	bool					r;
-
-	r = true;
-	while (r && ft_lexer_next(&p->l))
-	{
-		if ((t = SH_T(p)) == NULL)
-			push_token_string(dst, p->l.t.token, false);
-		else if (t->type == SH_PARSE_T_SPACE)
-			push_token(dst, SUB0(), SH_TOKEN(SPACE, 0), false);
-		else if (t->type == SH_PARSE_T_SUBST)
-			r = g_sh_parse_subst[t->subst](p, dst, false);
-		else if (t->type == SH_PARSE_T_STRING)
-			r = sh_parse_text_string(p, dst);
-		else if (t->type == SH_PARSE_T_COMMENT)
-			r = sh_parse_text_comment(p);
-		else if (t->type == SH_PARSE_T_BACKSLASH)
-			r = sh_parse_text_backslash(p, dst);
-		else if (t->type == SH_PARSE_T_ESCAPED)
-			push_token_string(dst, SUB_FOR(p->l.t.token, 1), true);
-		else
-			break ;
-	}
-	return (r);
+	push_token_string(dst, p->l.t.token, false);
+	return (true);
 }
+
+static bool		sh_parse_text_space(t_sh_parser *p, t_sh_text *dst)
+{
+	push_token(dst, SUB0(), SH_TOKEN(SPACE, 0), false);
+	return (true);
+	(void)p;
+}
+
+static bool		sh_parse_text_subst(t_sh_parser *p, t_sh_text *dst)
+{
+	return (g_sh_parse_subst[SH_T(p)->subst](p, dst, false));
+}
+
+static bool		sh_parse_text_escaped(t_sh_parser *p, t_sh_text *dst)
+{
+	push_token_string(dst, SUB_FOR(p->l.t.token, 1), true);
+	return (true);
+}
+
+bool			(*const g_sh_parse_text[_SH_PARSE_T_COUNT_])(t_sh_parser *p, t_sh_text *dst) = {
+	[SH_PARSE_T_SPACE] = &sh_parse_text_space,
+	[SH_PARSE_T_TEXT] = &sh_parse_text_text,
+	[SH_PARSE_T_SUBST] = &sh_parse_text_subst,
+	[SH_PARSE_T_STRING] = &sh_parse_text_string,
+	[SH_PARSE_T_COMMENT] = &sh_parse_text_comment,
+	[SH_PARSE_T_BACKSLASH] = &sh_parse_text_backslash,
+	[SH_PARSE_T_ESCAPED] = &sh_parse_text_escaped,
+};

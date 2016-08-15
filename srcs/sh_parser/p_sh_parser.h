@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/13 14:46:51 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/15 15:58:41 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ struct			s_sh_parse_token
 {
 	enum {
 		SH_PARSE_T_SPACE,
+		SH_PARSE_T_TEXT,
 
 		SH_PARSE_T_SUBST,
 		SH_PARSE_T_STRING,
@@ -39,7 +40,9 @@ struct			s_sh_parse_token
 		SH_PARSE_T_BACKSLASH,
 		SH_PARSE_T_ESCAPED,
 		SH_PARSE_T_REDIR,
+		SH_PARSE_T_REDIR_END,
 		SH_PARSE_T_HEREDOC,
+		_SH_PARSE_T_COUNT_
 	}				type;
 	union {
 		uint32_t			_val;
@@ -88,13 +91,15 @@ struct			s_sh_parser
 
 # define SH_T(P)			((t_sh_parse_token const*)((P)->l.token))
 
-# define SH_T_EQU(P,T)		(SH_T(P) != NULL && SH_T(P)->type == SH_PARSE_T_##T)
-# define SH_T_STR_EQU(P,S)	(SH_T(P) == NULL && SUB_EQU((P).l.t.token, S))
+# define SH_T_EQU(P,T)		(SH_T(P)->type == SH_PARSE_T_##T)
+# define SH_T_STR_EQU(P,S)	(SH_T(P)->type == SH(TEXT) && SUB_EQU((P).l.t.token, S))
 
 # define SH_T_EXCEPT(P,T,...)	(SH_T(P)->type == SH(T) && SH_T(P)->_val == {__VA_ARGS__})
 
 bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 					bool allow_newline);
+
+bool			ft_subis(t_sub sub, t_is is); // TODO: move to libft
 
 bool			sh_ignore_spaces(t_sh_parser *p);
 bool			sh_ignore_newlines(t_sh_parser *p);
@@ -104,17 +109,17 @@ bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t);
 // TODO: maybe replace this function with a 'sh_parse_next' that:
 //  join multiple spaces/empty lines
 //  detect compound ends (do, done, fi, ...)
+//  join io_number and redir tokens
 /*
 ** Parse compound end token (do, done, then, fi, else, ...)
 */
 bool			sh_parse_compound_end(t_sh_parser *p);
 
 /*
-** Parse text (tokens from 'sh-base-text' lexer state)
-** Stop at the first non-text token
-** If 'back' is true, use the current token
+** Parse functions for text tokens
+** Non-text tokens are NULL
 */
-bool			sh_parse_text(t_sh_parser *p, t_sh_text *dst);
+extern bool		(*const g_sh_parse_text[])(t_sh_parser *p, t_sh_text *dst);
 
 bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd);
 

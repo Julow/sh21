@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/12 18:21:50 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/14 17:05:16 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ typedef struct s_sh_heredoc		t_sh_heredoc;
 typedef struct s_sh_token		t_sh_token;
 typedef struct s_sh_text		t_sh_text;
 typedef enum e_sh_token_t		t_sh_token_t;
-typedef enum e_sh_redir_t		t_sh_redir_t;
 typedef enum e_sh_expr_t		t_sh_expr_t;
 
 typedef struct s_sh_simple		t_sh_simple;
@@ -31,6 +30,10 @@ typedef struct s_sh_for			t_sh_for;
 typedef struct s_sh_else		t_sh_else;
 typedef struct s_sh_if			t_sh_if;
 typedef struct s_sh_while		t_sh_while;
+
+typedef enum e_sh_redir_t		t_sh_redir_t;
+typedef struct s_sh_redir		t_sh_redir;
+typedef struct s_sh_redir_lst	t_sh_redir_lst;
 
 typedef enum e_sh_cmd_t			t_sh_cmd_t;
 typedef struct s_sh_cmd			t_sh_cmd;
@@ -45,23 +48,6 @@ typedef struct s_sh_compound	t_sh_compound;
 ** Text
 ** (List of tokens)
 */
-
-/*
-** Redir
-*/
-
-enum			e_sh_redir_t
-{
-	SH_REDIR_OUTPUT,			// [n]>word		// 1
-	SH_REDIR_OUTPUT_CLOBBER,	// [n]>|word	// 1
-	SH_REDIR_APPEND,			// [n]>>word	// 1
-	SH_REDIR_INPUT,				// [n]<word		// 0
-	SH_REDIR_INPUT_FD,			// [n]<&word	// 0
-	// SH_REDIR_INPUT_CLOSE		// [n]<&-		// 0
-	SH_REDIR_OUTPUT_FD,			// [n]>&word	// 1
-	// SH_REDIR_OUTPUT_CLOSE,	// [n]>&-		// 1
-	SH_REDIR_OPEN,				// [n]<>word	// 1
-};
 
 /*
 ** Token
@@ -87,7 +73,7 @@ struct			s_sh_token
 		uint32_t		param_len;
 		uint32_t		param_pos;
 		t_sh_expr		*expr;
-	}				val;
+	};
 };
 
 # define SH_TOKEN(T,V)	((t_sh_token){SH_T_##T, {V}})
@@ -130,19 +116,6 @@ struct			s_sh_expr
 #define SH_EXPR(L)	((t_sh_expr){SH_EXPR_NONE, (L), SH_TEXT()})
 
 /*
-** Heredoc
-*/
-
-struct			s_sh_heredoc
-{
-	enum {
-		SH_HEREDOC_F_STRIP_TABS = 1 << 0,
-		SH_HEREDOC_F_READ = 1 << 1,
-	}			flags;
-	t_sh_text	text;
-};
-
-/*
 ** ========================================================================== **
 ** Sh syntax tree
 */
@@ -155,6 +128,49 @@ struct			s_sh_simple
 {
 	t_sh_text		text;
 };
+
+/*
+** Redir
+*/
+
+enum			e_sh_redir_t
+{
+	SH_REDIR_OUTPUT,			// [n]>word		// 1
+	SH_REDIR_OUTPUT_CLOBBER,	// [n]>|word	// 1
+	SH_REDIR_APPEND,			// [n]>>word	// 1
+	SH_REDIR_INPUT,				// [n]<word		// 0
+	SH_REDIR_INPUT_FD,			// [n]<&word	// 0
+	// SH_REDIR_INPUT_CLOSE		// [n]<&-		// 0
+	SH_REDIR_OUTPUT_FD,			// [n]>&word	// 1
+	// SH_REDIR_OUTPUT_CLOSE,	// [n]>&-		// 1
+	SH_REDIR_OPEN,				// [n]<>word	// 1
+};
+
+struct			s_sh_redir
+{
+	int32_t			left_fd;
+	uint32_t		right_len;
+	t_sh_redir_t	type;
+};
+
+# define SH_REDIR(TYPE, LEFT)	((t_sh_redir){(LEFT), 0, (TYPE)})
+
+struct			s_sh_redir_lst
+{
+	t_sh_text		text;
+	t_vector		redirs;
+};
+
+# define SH_REDIR_LST()			((t_sh_redir_lst){SH_TEXT(), VECTOR(t_sh_redir)})
+
+// struct			s_sh_heredoc
+// {
+// 	enum {
+// 		SH_HEREDOC_F_STRIP_TABS = 1 << 0,
+// 		SH_HEREDOC_F_READ = 1 << 1,
+// 	}			flags;
+// 	t_sh_text	text;
+// };
 
 /*
 ** Pipeline
@@ -175,6 +191,7 @@ enum			e_sh_cmd_t
 struct			s_sh_cmd
 {
 	t_sh_cmd_t		type;
+	t_sh_redir_lst	redirs;
 	union {
 		t_sh_simple		simple;
 		t_sh_subshell	*subshell;

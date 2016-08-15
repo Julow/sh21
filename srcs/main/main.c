@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/13 14:55:44 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/14 17:17:18 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,8 +287,8 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 		{
 		case SH_T_STRING:
 			ft_printf("%ts",
-				SUB(text->text.str + token_start, token->val.token_len));
-			token_start += token->val.token_len;
+				SUB(text->text.str + token_start, token->token_len));
+			token_start += token->token_len;
 			break ;
 		case SH_T_SPACE:
 			ASSERT(!(token->type & SH_F_T_QUOTED), "quoted space");
@@ -296,23 +296,23 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 			break ;
 		case SH_T_SUBSHELL:
 			ft_printf("\033[36m$(\033[0m%n");
-			print_sh_compound(token->val.cmd, indent + 1);
+			print_sh_compound(token->cmd, indent + 1);
 			PRINT_CMD(indent, "\033[36m)\033[0m");
 			break ;
 		case SH_T_PARAM:
 			ft_printf("\033[36m${\033[0m%ts\033[36m}\033[0m",
-				SUB(text->text.str + token_start, token->val.param_len));
-			token_start += token->val.param_len;
+				SUB(text->text.str + token_start, token->param_len));
+			token_start += token->param_len;
 			break ;
 		case SH_T_PARAM_POS:
-			ft_printf("\033[36m$%d\033[0m", token->val.param_pos);
+			ft_printf("\033[36m$%d\033[0m", token->param_pos);
 			break ;
 		case SH_T_EXPR:
 			ft_printf("\033[36m${%ts%s%s\033[0m",
-				SUB(ENDOF(token->val.expr), token->val.expr->param_len),
-				(token->val.expr->type & SH_EXPR_F_ALT) ? ":" : "",
-				g_expr_types[token->val.expr->type & ~SH_EXPR_F_ALT]);
-			print_sh_text(&token->val.expr->text, indent + 1);
+				SUB(ENDOF(token->expr), token->expr->param_len),
+				(token->expr->type & SH_EXPR_F_ALT) ? ":" : "",
+				g_expr_types[token->expr->type & ~SH_EXPR_F_ALT]);
+			print_sh_text(&token->expr->text, indent + 1);
 			ft_printf("\033[36m}\033[0m");
 			break ;
 		default:
@@ -353,6 +353,28 @@ static void		print_sh_if_clause(t_sh_if const *cmd, uint32_t indent)
 	}
 }
 
+static void		print_sh_redir_lst(t_sh_redir_lst const *redirs, uint32_t indent)
+{
+	t_sh_redir const	*redir;
+
+	redir = VECTOR_IT(redirs->redirs);
+	while (VECTOR_NEXT(redirs->redirs, redir))
+	{
+		if (redir->left_fd >= 0)
+			ft_printf("\033[33m%d\033[0m", redir->left_fd);
+		ft_printf("\033[36m%s\033[0m", ((char const*[]){
+			[SH_REDIR_OUTPUT] = ">",
+			[SH_REDIR_OUTPUT_CLOBBER] = ">|",
+			[SH_REDIR_APPEND] = ">>",
+			[SH_REDIR_INPUT] = "<",
+			[SH_REDIR_INPUT_FD] = "<&",
+			[SH_REDIR_OUTPUT_FD] = ">&",
+			[SH_REDIR_OPEN] = "<>",
+		})[redir->type]);
+	}
+	print_sh_text(&redirs->text, indent);
+}
+
 static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
 	switch (cmd->type)
@@ -390,6 +412,7 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		print_sh_cmd(cmd->rec, indent);
 		break ;
 	}
+	print_sh_redir_lst(&cmd->redirs, indent);
 }
 
 static void		print_sh_pipeline(t_sh_pipeline const *cmd, uint32_t indent)

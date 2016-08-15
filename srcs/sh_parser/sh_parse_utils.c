@@ -6,11 +6,26 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:21:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/13 14:58:19 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/14 16:47:55 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
+
+bool			ft_subis(t_sub sub, t_is is)
+{
+	char const *const	end = sub.str + sub.length;
+	char const			*str;
+
+	str = sub.str;
+	while (str < end)
+	{
+		if (!IS(*str, is))
+			return (false);
+		str++;
+	}
+	return (true);
+}
 
 bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t)
 {

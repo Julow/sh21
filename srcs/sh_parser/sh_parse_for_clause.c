@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/12 16:04:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/13 19:21:40 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/15 15:42:12 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,18 +17,8 @@
 
 static bool		is_identifier(t_sub str)
 {
-	uint32_t		i;
-
-	if (str.length < 1 || !IS(str.str[0], IS_ALPHA | IS_UNDERSCORE))
-		return (false);
-	i = 1;
-	while (i < str.length)
-	{
-		if (!IS(str.str[i], IS_WORD))
-			return (false);
-		i++;
-	}
-	return (true);
+	return (str.length >= 1 && IS(str.str[0], IS_ALPHA | IS_UNDERSCORE)
+		&& ft_subis(SUB_FOR(str, 1), IS_WORD));
 }
 
 static bool		sh_except_token_str(t_sh_parser *p, t_sub str) // TODO: .default token
@@ -37,6 +27,14 @@ static bool		sh_except_token_str(t_sh_parser *p, t_sub str) // TODO: .default to
 		return (sh_parse_error(p, SH_E_EOF));
 	if (SH_T(p) != NULL || (str.length > 0 && !SUB_EQU(str, p->l.t.token)))
 		return (sh_parse_error(p, SH_E_UNEXPECTED));
+	return (true);
+}
+
+static bool		parse_for_clause_data(t_sh_parser *p, t_sh_text *dst)
+{
+	while (ft_lexer_next(&p->l) && g_sh_parse_text[SH_T(p)->type] != NULL)
+		if (!g_sh_parse_text[SH_T(p)->type](p, dst))
+			return (false);
 	return (true);
 }
 
@@ -54,7 +52,7 @@ bool			sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
 	{
 		sh_ignore_newlines(p);
 		dst->for_clause->data = SH_TEXT();
-		if (sh_parse_text(p, &dst->for_clause->data))
+		if (parse_for_clause_data(p, &dst->for_clause->data))
 		{
 			if (!sh_parse_compound_end(p))
 				sh_parse_error(p, SH_E_UNEXPECTED);

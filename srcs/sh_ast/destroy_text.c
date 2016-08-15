@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 20:10:34 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/29 02:06:07 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/14 17:05:40 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ void			sh_destroy_text(t_sh_text *text)
 	{
 		t = VECTOR_GET(text->tokens, i++);
 		if (t->type == SH_T_SUBSHELL)
-			destroy_subshell(t->val.cmd);
+			destroy_subshell(t->cmd);
 		else if (t->type == SH_T_EXPR)
-			destroy_expr(t->val.expr);
+			destroy_expr(t->expr);
 	}
 	ft_dstrclear(&text->text);
 	ft_vclear(&text->tokens);
