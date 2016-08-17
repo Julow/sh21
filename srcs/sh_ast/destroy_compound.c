@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 17:19:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/16 00:06:39 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/16 01:20:39 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <stdlib.h>
 
-static void		sh_destroy_cmd(t_sh_cmd *cmd)
+void			sh_destroy_cmd(t_sh_cmd *cmd)
 {
 	sh_destroy_redir_lst(&cmd->redirs);
 	switch (cmd->type)

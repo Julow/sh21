@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/16 00:22:02 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/17 20:35:16 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ struct			s_sh_parser
 # define SH_T_EQU(P,T)		(SH_T(P)->type == SH_PARSE_T_##T)
 # define SH_T_STR_EQU(P,S)	(SH_T(P)->type == SH(TEXT) && SUB_EQU((P).l.t.token, S))
 
-# define SH_T_EXCEPT(P,T,...)	(SH_T(P)->type == SH(T) && SH_T(P)->_val == {__VA_ARGS__})
+# define SH_T_EXCEPT(P,T,...)	(SH_T(P)->type == SH(T) && SH_T(P)->_val == __VA_ARGS__)
 
 bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 					bool allow_newline);
@@ -106,10 +106,6 @@ bool			sh_ignore_newlines(t_sh_parser *p);
 bool			sh_parse_error(t_sh_parser *p, t_sh_parse_err_t t);
 bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t);
 
-// TODO: maybe replace this function with a 'sh_parse_next' that:
-//  join multiple spaces/empty lines
-//  detect compound ends (do, done, fi, ...)
-//  join io_number and redir tokens
 /*
 ** Parse compound end token (do, done, then, fi, else, ...)
 */

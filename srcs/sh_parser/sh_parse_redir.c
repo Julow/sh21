@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/15 17:58:07 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/16 00:58:22 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/17 20:38:05 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ static bool		parse_redir(t_sh_parser *p, t_sh_redir_lst *dst,
 			return (false);
 	}
 	redir->right_len = dst->text.tokens.length - text_offset;
-	return (redir->right_len > 0 || sh_parse_error(p, SH_E_UNEXPECTED));
+	return (redir->right_len > 0
+		|| sh_parse_error(p, p->l.eof ? SH_E_EOF : SH_E_UNEXPECTED));
 }
 
 bool			sh_parse_redir(t_sh_parser *p, t_sh_redir_lst *lst)

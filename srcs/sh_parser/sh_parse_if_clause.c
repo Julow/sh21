@@ -6,90 +6,84 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 10:43:46 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/12 18:22:57 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/17 20:42:56 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
 #include <stdlib.h>
 
-static bool		sh_parse_if_cond(t_sh_parser *p, t_sh_if *if_clause);
+static bool		parse_if(t_sh_parser *p, t_sh_if *dst);
 
-static bool		sh_parse_if_else(t_sh_parser *p, t_sh_else **dst, bool elif)
+static bool		parse_if_then(t_sh_parser *p, t_sh_compound *dst)
 {
+	if (p->l.eof)
+		return (sh_parse_error(p, SH_E_EOF));
+	if (!SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_THEN)))
+		return (sh_parse_error(p, SH_E_UNEXPECTED));
 	sh_ignore_newlines(p);
+	return (sh_parse_compound(p, dst, true));
+}
+
+static bool		parse_if_end(t_sh_parser *p, t_sh_else **dst)
+{
 	*dst = NEW(t_sh_else);
-	if (elif)
+	if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_ELIF)))
 	{
 		(*dst)->type = SH_ELSE_ELIF;
-		if (sh_parse_if_cond(p, &(*dst)->elif_clause))
+		if (parse_if(p, &(*dst)->elif_clause))
 			return (true);
 	}
-	else
+	else if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_ELSE)))
 	{
 		(*dst)->type = SH_ELSE_ELSE;
+		sh_ignore_newlines(p);
 		if (sh_parse_compound(p, &(*dst)->else_clause, true))
 		{
-			if (!SH_T_EQU(p, COMPOUND_END)
-				|| SH_T(p)->compound_end != SH_PARSE_T_COMPOUND_FI)
-				sh_parse_error(p, SH_E_UNEXPECTED);
-			else
+			if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_FI)))
 				return (true);
+			sh_parse_error(p, SH_E_UNEXPECTED);
+			sh_destroy_compound(&(*dst)->else_clause);
 		}
 	}
+	else
+		return (sh_parse_error(p, SH_E_UNEXPECTED));
 	free(*dst);
 	return (false);
 }
 
-static bool		sh_parse_if_end(t_sh_parser *p, t_sh_else **dst)
+static bool		parse_if(t_sh_parser *p, t_sh_if *dst)
 {
-	if (p->l.eof)
-		return (sh_parse_error(p, SH_E_EOF));
-	if (!SH_T_EQU(p, COMPOUND_END))
-		return (sh_parse_error(p, SH_E_UNEXPECTED));
-	if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_ELSE)
-		return (sh_parse_if_else(p, dst, false));
-	else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_ELIF)
-		return (sh_parse_if_else(p, dst, true));
-	else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_FI)
+	sh_ignore_newlines(p);
+	if (sh_parse_compound(p, &dst->cond, true))
 	{
-		*dst = NULL;
-		return (true);
+		if (parse_if_then(p, &dst->body))
+		{
+			if (!p->l.eof)
+			{
+				dst->else_clause = NULL;
+				if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_FI))
+					|| parse_if_end(p, &dst->else_clause))
+					return (true);
+			}
+			else
+				sh_parse_error(p, SH_E_EOF);
+			sh_destroy_compound(&dst->body);
+		}
+		sh_destroy_compound(&dst->cond);
 	}
-	else
-		return (sh_parse_error(p, SH_E_UNEXPECTED));
 	return (false);
-}
-
-static bool		sh_parse_if_then(t_sh_parser *p, t_sh_if *if_clause)
-{
-	return ((!p->l.eof || sh_parse_error(p, SH_E_EOF))
-		&& ((SH_T_EQU(p, COMPOUND_END)
-			&& SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_THEN)
-				|| sh_parse_error(p, SH_E_UNEXPECTED))
-		&& (sh_ignore_newlines(p) || sh_parse_error(p, SH_E_EOF))
-		&& sh_parse_compound(p, &if_clause->body, true)
-		&& (sh_parse_if_end(p, &if_clause->else_clause)
-			|| (sh_destroy_compound(&if_clause->body), false)));
-}
-
-static bool		sh_parse_if_cond(t_sh_parser *p, t_sh_if *if_clause)
-{
-	return ((!p->l.eof || sh_parse_error(p, SH_E_EOF))
-		&& sh_parse_compound(p, &if_clause->cond, true)
-		&& (sh_parse_if_then(p, if_clause)
-			|| (sh_destroy_compound(&if_clause->cond), false)));
 }
 
 bool			sh_parse_if_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	if (!sh_ignore_newlines(p))
-		return (sh_parse_error(p, SH_E_EOF));
 	dst->if_clause = NEW(t_sh_if);
-	if (!sh_parse_if_cond(p, dst->if_clause))
+	if (parse_if(p, dst->if_clause))
 	{
-		free(dst->if_clause);
-		return (false);
+		if (sh_parse_trailing_redirs(p, &dst->redirs))
+			return (true);
+		sh_destroy_if_clause(dst->if_clause);
 	}
-	return (true);
+	free(dst->if_clause);
+	return (false);
 }
