@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/16 00:08:51 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/18 18:35:12 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,25 @@ static bool		sh_parse_rec_cmd(t_sh_parser *p, t_sh_cmd *dst)
 	return (r);
 }
 
+static bool		sh_parse_bracket_clause(t_sh_parser *p, t_sh_cmd *dst)
+{
+	sh_ignore_newlines(p);
+	dst->bracket_clause = NEW(t_sh_compound);
+	if (sh_parse_compound(p, dst->bracket_clause, true))
+	{
+		if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_BRACKET))
+		{
+			if (sh_parse_trailing_redirs(p, &dst->redirs))
+				return (true);
+		}
+		else
+			sh_parse_error(p, SH_E_UNEXPECTED);
+		sh_destroy_compound(dst->bracket_clause);
+	}
+	free(dst->bracket_clause);
+	return (false);
+}
+
 static struct {
 	t_sub			name;
 	t_sh_cmd_t		type;
@@ -64,6 +83,7 @@ static struct {
 	{SUBC("until"), SH_CMD_UNTIL_CLAUSE},
 	{SUBC("time"), SH_CMD_TIME_CLAUSE},
 	{SUBC("!"), SH_CMD_NOT_CLAUSE},
+	{SUBC("{"), SH_CMD_BRACKET_CLAUSE},
 };
 
 static bool		(*const g_sh_parse_clauses[])(t_sh_parser *p, t_sh_cmd *dst) = {
@@ -75,6 +95,7 @@ static bool		(*const g_sh_parse_clauses[])(t_sh_parser *p, t_sh_cmd *dst) = {
 	[SH_CMD_UNTIL_CLAUSE] = &sh_parse_while_clause,
 	[SH_CMD_TIME_CLAUSE] = &sh_parse_rec_cmd,
 	[SH_CMD_NOT_CLAUSE] = &sh_parse_rec_cmd,
+	[SH_CMD_BRACKET_CLAUSE] = &sh_parse_bracket_clause,
 };
 
 bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/16 01:20:29 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/18 14:57:30 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,7 @@ enum			e_sh_cmd_t
 	SH_CMD_UNTIL_CLAUSE, // while_clause
 	SH_CMD_TIME_CLAUSE, // rec
 	SH_CMD_NOT_CLAUSE, // rec
+	SH_CMD_BRACKET_CLAUSE,
 };
 
 struct			s_sh_cmd
@@ -200,6 +201,7 @@ struct			s_sh_cmd
 		t_sh_for		*for_clause;
 		t_sh_while		*while_clause;
 		t_sh_cmd		*rec;
+		t_sh_compound	*bracket_clause;
 	};
 };
 

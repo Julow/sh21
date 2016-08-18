@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/17 20:35:16 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/18 17:20:29 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,11 @@ struct			s_sh_parser
 
 # define SH_T(P)			((t_sh_parse_token const*)((P)->l.token))
 
-# define SH_T_EQU(P,T)		(SH_T(P)->type == SH_PARSE_T_##T)
-# define SH_T_STR_EQU(P,S)	(SH_T(P)->type == SH(TEXT) && SUB_EQU((P).l.t.token, S))
+# define SH_T_EQU(P,T,V)	(SH_T(P)->type == SH(T) && SH_T(P)->_val == SH(V))
 
-# define SH_T_EXCEPT(P,T,...)	(SH_T(P)->type == SH(T) && SH_T(P)->_val == __VA_ARGS__)
+# define SH_T_EXCEPT(P,T,V)	\
+		((P)->l.eof ? (sh_parse_error(P, SH_E_EOF), false) : \
+			(SH_T_EQU(P,T,V) || (sh_parse_error(P, SH_E_UNEXPECTED), false)))
 
 bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 					bool allow_newline);

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/16 00:29:39 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/18 17:21:43 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static bool		sh_parse_pipeline(t_sh_parser *p, t_sh_pipeline *dst)
 		dst->next = NULL;
 		if (!sh_parse_cmd(p, &dst->cmd))
 			return (false);
-		if (p->l.eof || !SH_T_EQU(p, PIPELINE_END))
+		if (p->l.eof || SH_T(p)->type != SH(PIPELINE_END))
 			break ;
 		if (!sh_ignore_newlines(p))
 			return (sh_parse_error(p, SH_E_EOF));
@@ -38,7 +38,7 @@ static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 		dst->next = NULL;
 		if (!sh_parse_pipeline(p, &dst->pipeline))
 			return (false);
-		if (p->l.eof || !SH_T_EQU(p, LIST_END))
+		if (p->l.eof || SH_T(p)->type != SH(LIST_END))
 			break ;
 		next_t = SH_T(p)->list_end;
 		if (!sh_ignore_newlines(p))
@@ -97,7 +97,7 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 		dst->next = NULL;
 		if (!sh_parse_list(p, &dst->list))
 			return (false);
-		if (p->l.eof || !ASSERT(SH_T_EQU(p, COMPOUND_END)))
+		if (p->l.eof || !ASSERT(SH_T(p)->type == SH(COMPOUND_END)))
 			break ;
 		if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
 			dst->flags |= SH_COMPOUND_ASYNC;

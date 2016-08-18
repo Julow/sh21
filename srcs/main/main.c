@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/14 17:17:18 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/18 18:34:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -410,6 +410,12 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 	case SH_CMD_NOT_CLAUSE:
 		ft_printf("\033[33m!\033[0m ");
 		print_sh_cmd(cmd->rec, indent);
+		break ;
+	case SH_CMD_BRACKET_CLAUSE:
+		ft_printf("\033[33m{\033[0m%n");
+		PRINT_CMD(indent, "");
+		print_sh_compound(cmd->bracket_clause, indent + 1);
+		PRINT_CMD(indent, "\033[33m}\033[0m");
 		break ;
 	}
 	print_sh_redir_lst(&cmd->redirs, indent);

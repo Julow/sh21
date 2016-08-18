@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/17 18:14:20 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/18 17:23:34 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,9 +115,8 @@ bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
 	p = (t_sh_parser){LEXER(in, lexer_state), err, false};
 	sh_ignore_newlines(&p);
 	r = sh_parse_compound(&p, dst, false)
-		&& (p.l.eof || (SH_T_EQU(&p, COMPOUND_END)
-				&& SH_T(&p)->compound_end == SH(COMPOUND_NEWLINE))
-			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED)));
+		&& (p.l.eof || (SH_T_EQU(&p, COMPOUND_END, COMPOUND_NEWLINE)
+			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED))));
 
 	if (!r)
 	{

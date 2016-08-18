@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 10:43:46 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/17 20:42:56 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/18 15:46:07 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,8 @@ static bool		parse_if(t_sh_parser *p, t_sh_if *dst);
 
 static bool		parse_if_then(t_sh_parser *p, t_sh_compound *dst)
 {
-	if (p->l.eof)
-		return (sh_parse_error(p, SH_E_EOF));
-	if (!SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_THEN)))
-		return (sh_parse_error(p, SH_E_UNEXPECTED));
+	if (!SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_THEN))
+		return (false);
 	sh_ignore_newlines(p);
 	return (sh_parse_compound(p, dst, true));
 }
@@ -28,19 +26,19 @@ static bool		parse_if_then(t_sh_parser *p, t_sh_compound *dst)
 static bool		parse_if_end(t_sh_parser *p, t_sh_else **dst)
 {
 	*dst = NEW(t_sh_else);
-	if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_ELIF)))
+	if (SH_T_EQU(p, COMPOUND_END, COMPOUND_ELIF))
 	{
 		(*dst)->type = SH_ELSE_ELIF;
 		if (parse_if(p, &(*dst)->elif_clause))
 			return (true);
 	}
-	else if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_ELSE)))
+	else if (SH_T_EQU(p, COMPOUND_END, COMPOUND_ELSE))
 	{
 		(*dst)->type = SH_ELSE_ELSE;
 		sh_ignore_newlines(p);
 		if (sh_parse_compound(p, &(*dst)->else_clause, true))
 		{
-			if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_FI)))
+			if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_FI))
 				return (true);
 			sh_parse_error(p, SH_E_UNEXPECTED);
 			sh_destroy_compound(&(*dst)->else_clause);
@@ -62,7 +60,7 @@ static bool		parse_if(t_sh_parser *p, t_sh_if *dst)
 			if (!p->l.eof)
 			{
 				dst->else_clause = NULL;
-				if (SH_T_EXCEPT(p, COMPOUND_END, SH(COMPOUND_FI))
+				if (SH_T_EQU(p, COMPOUND_END, COMPOUND_FI)
 					|| parse_if_end(p, &dst->else_clause))
 					return (true);
 			}
