@@ -1,11 +1,6 @@
-# module sh::exec:
-# 	public include public/
-# 	private include ./
+module sh::exec:
+	public include public/
+	private include ./
 
-# 	public require ft::base
-# 	public require sh::ast
-# 	public require sh::context
-
-# 	private require ft::dstr
-# 	private require ft::printf
-# 	private require ft::vector
+	public require sh::ast
+	public require sh::context

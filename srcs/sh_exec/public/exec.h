@@ -5,15 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/07/05 20:46:11 by juloo             #+#    #+#             */
-/*   Updated: 2016/07/28 18:10:45 by juloo            ###   ########.fr       */
+/*   Created: 2016/08/18 22:05:40 by juloo             #+#    #+#             */
+/*   Updated: 2016/08/18 22:12:15 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EXEC_H
 # define EXEC_H
 
-# include "ft/libft.h"
 # include "sh/ast.h"
 # include "sh/context.h"
 
@@ -23,9 +22,8 @@
 */
 
 /*
-** Execute a compound list of command
-** Return the return status of the last command
+** Execute a compound command
 */
-int				sh_exec_cmd(t_sh_context *context, t_sh_cmd const *cmd);
+void			sh_exec(t_sh_context *c, t_sh_compound const *cmd);
 
 #endif
