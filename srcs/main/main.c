@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/18 18:34:02 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/22 23:00:13 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,7 @@
 #include "ft/term.h"
 #include "ft/tokenizer.h"
 #include "sh/ast.h"
-
-// #include "sh/exec.h"
+#include "sh/exec.h"
 #include "sh/parser.h"
 
 #include "editor.h"
@@ -466,6 +465,7 @@ static void		debug_sh_parser(t_sub str)
 	t_in			in;
 	t_sh_compound	cmd;
 	t_sh_parse_err	err;
+	t_sh_context	context;
 
 	in = IN(str.str, str.length, NULL);
 	if (!sh_parse(&in, &cmd, &err))
@@ -480,6 +480,8 @@ static void		debug_sh_parser(t_sub str)
 		return ;
 	}
 	print_sh_compound(&cmd, 0);
+	sh_context_init(&context);
+	sh_exec_compound(&context, &cmd, false);
 	sh_destroy_compound(&cmd);
 	ft_printf("%n");
 }

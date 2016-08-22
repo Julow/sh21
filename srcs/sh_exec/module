@@ -4,3 +4,6 @@ module sh::exec:
 
 	public require sh::ast
 	public require sh::context
+
+	private require ft::dstr
+	private require ft::printf
