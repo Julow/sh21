@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/18 22:10:40 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 22:18:08 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/25 01:49:46 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,15 @@ int				sh_exec_cmd_if_clause(t_sh_context *c,
 					t_sh_cmd const *cmd, bool no_fork);
 
 int				sh_exec_cmd_time_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+
+int				sh_exec_cmd_while_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+
+int				sh_exec_cmd_until_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+
+int				sh_exec_cmd_for_clause(t_sh_context *c,
 					t_sh_cmd const *cmd, bool no_fork);
 
 #endif

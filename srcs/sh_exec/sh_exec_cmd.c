@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:32:48 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 22:17:57 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/25 01:49:36 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,27 +45,6 @@ static int		sh_exec_cmd_subshell(t_sh_context *c,
 	}
 	status = sh_wait_pid(c, pid, NULL);
 	return (status);
-}
-
-static int		sh_exec_cmd_for_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork)
-{
-	return (ASSERT(!"TODO: sh_exec for_clause"), -1);
-	(void)c; (void)cmd; (void)no_fork;
-}
-
-static int		sh_exec_cmd_while_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork)
-{
-	return (ASSERT(!"TODO: sh_exec while_clause"), -1);
-	(void)c; (void)cmd; (void)no_fork;
-}
-
-static int		sh_exec_cmd_until_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork)
-{
-	return (ASSERT(!"TODO: sh_exec until_clause"), -1);
-	(void)c; (void)cmd; (void)no_fork;
 }
 
 static int		sh_exec_cmd_not_clause(t_sh_context *c,

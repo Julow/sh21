@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 22:07:55 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/25 01:28:13 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ static void		sh_exec_text_load_params(t_dstr const *param_buff,
 	buff_i = 0;
 	while (param_i < param_count)
 	{
-		ft_printf("Param#%u '%s'%n", param_i, param_buff->str + buff_i);
 		dst[param_i++] = param_buff->str + buff_i;
 		while (param_buff->str[buff_i++] != '\0')
 			;

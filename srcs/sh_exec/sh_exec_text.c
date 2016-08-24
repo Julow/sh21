@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 18:47:38 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/25 01:19:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ static uint32_t	exec_subshell(t_sh_context *c, t_sh_token const *t,
 	close(pipe_fds[1]);
 	while ((len = read(pipe_fds[0], buff, sizeof(buff))) > 0)
 		ft_dstradd(dst, SUB(buff, len));
+	while (dst->length > 0 && dst->str[dst->length - 1] == '\n')
+		dst->length--;
 	close(pipe_fds[0]);
 	return (0);
 	(void)text;
@@ -105,16 +107,16 @@ static uint32_t	split_words(t_dstr *str, uint32_t offset)
 	uint32_t		i;
 
 	word_count = 0;
-	while (offset < str->length && !IS(str->str[offset], IS_BLANK))
+	while (offset < str->length && !IS(str->str[offset], IS_SPACE))
 		offset++;
 	i = offset;
 	while (offset < str->length)
 	{
-		while (++offset < str->length && IS(str->str[offset], IS_BLANK))
+		while (++offset < str->length && IS(str->str[offset], IS_SPACE))
 			;
 		word_count++;
 		str->str[i++] = '\0';
-		while (offset < str->length && !IS(str->str[offset], IS_BLANK))
+		while (offset < str->length && !IS(str->str[offset], IS_SPACE))
 			str->str[i++] = str->str[offset++];
 	}
 	return (word_count);

@@ -6,11 +6,14 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/24 22:17:40 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 22:18:01 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/25 01:06:35 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_exec.h"
+
+#include <stdlib.h>
+#include <unistd.h>
 
 static void		print_time(char const *prefix, uint64_t t)
 {
