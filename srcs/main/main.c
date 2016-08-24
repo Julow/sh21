@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/22 23:00:13 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 19:02:21 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -359,6 +359,7 @@ static void		print_sh_redir_lst(t_sh_redir_lst const *redirs, uint32_t indent)
 	redir = VECTOR_IT(redirs->redirs);
 	while (VECTOR_NEXT(redirs->redirs, redir))
 	{
+		ft_printf(" ");
 		if (redir->left_fd >= 0)
 			ft_printf("\033[33m%d\033[0m", redir->left_fd);
 		ft_printf("\033[36m%s\033[0m", ((char const*[]){
@@ -370,14 +371,17 @@ static void		print_sh_redir_lst(t_sh_redir_lst const *redirs, uint32_t indent)
 			[SH_REDIR_OUTPUT_FD] = ">&",
 			[SH_REDIR_OPEN] = "<>",
 		})[redir->type]);
+		print_sh_text(&redir->right_text, indent);
 	}
-	print_sh_text(&redirs->text, indent);
 }
 
 static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
 	switch (cmd->type)
 	{
+	case SH_CMD_EMPTY:
+		ft_printf("\033[33m<empty>\033[0m");
+		break ;
 	case SH_CMD_SIMPLE:
 		print_sh_text(&cmd->simple.text, indent);
 		break ;
@@ -481,7 +485,8 @@ static void		debug_sh_parser(t_sub str)
 	}
 	print_sh_compound(&cmd, 0);
 	sh_context_init(&context);
-	sh_exec_compound(&context, &cmd, false);
+	int status = sh_exec_compound(&context, &cmd, false);
+	ft_printf("$? = %d%n", status);
 	sh_destroy_compound(&cmd);
 	ft_printf("%n");
 }

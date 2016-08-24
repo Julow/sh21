@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:32:48 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/22 21:00:30 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 18:10:54 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,14 @@ static int		sh_exec_cmd_not_clause(t_sh_context *c,
 static int		sh_exec_cmd_bracket_clause(t_sh_context *c,
 					t_sh_cmd const *cmd, bool no_fork)
 {
-	return (ASSERT(!"TODO: sh_exec bracket_clause"), -1);
-	(void)c; (void)cmd; (void)no_fork;
+	uint32_t		saved_fds[cmd->redirs.redirs.length];
+	int				status;
+
+	if (!sh_exec_redir(c, &cmd->redirs, saved_fds))
+		return (1);
+	status = sh_exec_compound(c, cmd->bracket_clause, no_fork);
+	sh_exec_redir_restore(&cmd->redirs, saved_fds);
+	return (status);
 }
 
 int				(*const g_sh_exec_cmd[])(t_sh_context *c,

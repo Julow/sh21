@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 18:55:49 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/16 00:05:05 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 19:00:30 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,11 @@
 
 void			sh_destroy_redir_lst(t_sh_redir_lst *lst)
 {
-	sh_destroy_text(&lst->text);
+	t_sh_redir		*r;
+
+	r = VECTOR_IT(lst->redirs);
+	while (VECTOR_NEXT(lst->redirs, r))
+		sh_destroy_text(&r->right_text);
 	ft_vclear(&lst->redirs);
 }
 

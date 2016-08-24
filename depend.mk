@@ -95,8 +95,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_context/sh_var.o $(O_DIR)/srcs/sh_exec/sh_exec_cmd.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_cmd_simple.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_compound.o \
-	$(O_DIR)/srcs/sh_exec/sh_exec_text.o $(O_DIR)/srcs/sh_exec/utils.o \
-	$(O_DIR)/srcs/sh_parser/sh_parse_cmd.o \
+	$(O_DIR)/srcs/sh_exec/sh_exec_redir.o $(O_DIR)/srcs/sh_exec/sh_exec_text.o \
+	$(O_DIR)/srcs/sh_exec/utils.o $(O_DIR)/srcs/sh_parser/sh_parse_cmd.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_compound.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_do_clause.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_for_clause.o \
@@ -690,11 +690,18 @@ $(O_DIR)/srcs/sh_exec/sh_exec_cmd.o: srcs/sh_exec/sh_exec_cmd.c \
 	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd_simple.o: srcs/sh_exec/sh_exec_cmd_simple.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
 	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
 	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
 	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
 	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_compound.o: srcs/sh_exec/sh_exec_compound.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
+	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_exec/sh_exec_redir.o: srcs/sh_exec/sh_exec_redir.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
 	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
@@ -714,8 +721,9 @@ $(O_DIR)/srcs/sh_exec/utils.o: srcs/sh_exec/utils.c \
 	srcs/strset/public/strset.h
 
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd.o $(O_DIR)/srcs/sh_exec/sh_exec_cmd_simple.o \
-$(O_DIR)/srcs/sh_exec/sh_exec_compound.o $(O_DIR)/srcs/sh_exec/sh_exec_text.o \
-$(O_DIR)/srcs/sh_exec/utils.o: INCLUDE_FLAGS += -Isrcs/sh_exec
+$(O_DIR)/srcs/sh_exec/sh_exec_compound.o $(O_DIR)/srcs/sh_exec/sh_exec_redir.o \
+$(O_DIR)/srcs/sh_exec/sh_exec_text.o $(O_DIR)/srcs/sh_exec/utils.o: \
+	INCLUDE_FLAGS += -Isrcs/sh_exec
 
 # module sh::parser
 $(O_DIR)/srcs/sh_parser/sh_parse_cmd.o: srcs/sh_parser/sh_parse_cmd.c \

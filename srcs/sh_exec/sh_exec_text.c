@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/22 23:05:48 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 18:47:38 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,29 +120,29 @@ static uint32_t	split_words(t_dstr *str, uint32_t offset)
 	return (word_count);
 }
 
-uint32_t		sh_exec_text(t_sh_context *c, t_sh_text const *text,
-					t_dstr *dst, bool *first_quoted)
+uint32_t		sh_exec_text(t_sh_context *c,
+					t_sh_text const *text, t_dstr *dst)
 {
 	uint32_t			param_count;
 	uint32_t			text_i;
+	uint32_t			i;
 	uint32_t			tmp;
 	t_sh_token const	*t;
 
 	text_i = 0;
+	i = 0;
 	tmp = 0;
 	param_count = 0;
-	if (first_quoted != NULL)
-		*first_quoted = false;
-	t = VECTOR_IT(text->tokens);
-	while (VECTOR_NEXT(text->tokens, t))
+	while (i < text->tokens.length)
 	{
+		t = VECTOR_GET(text->tokens, i);
 		tmp = dst->length;
 		text_i += g_sh_exec_text[t->type & ~SH_F_T_QUOTED](c, t,
 					SUB_FOR(DSTR_SUB(text->text), text_i), dst);
 		if (!(t->type & SH_F_T_QUOTED))
 			param_count += split_words(dst, tmp);
-		else if (param_count == 0 && first_quoted != NULL)
-			*first_quoted |= true;
+		i++;
 	}
+	DSTR_APPEND(dst, '\0');
 	return (param_count + 1);
 }

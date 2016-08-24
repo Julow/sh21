@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/15 17:58:07 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/17 20:38:05 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 18:59:20 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ static bool		parse_redir(t_sh_parser *p, t_sh_redir_lst *dst,
 					int32_t left_fd)
 {
 	t_sh_redir			*redir;
-	uint32_t const		text_offset = dst->text.tokens.length;
 
 	ASSERT(SH_T(p)->type == SH(REDIR));
 	redir = ft_vpush(&dst->redirs, NULL, 1);
@@ -25,11 +24,10 @@ static bool		parse_redir(t_sh_parser *p, t_sh_redir_lst *dst,
 	while (ft_lexer_next(&p->l) && SH_T(p)->type != SH(SPACE)
 			&& g_sh_parse_text[SH_T(p)->type] != NULL)
 	{
-		if (!g_sh_parse_text[SH_T(p)->type](p, &dst->text))
+		if (!g_sh_parse_text[SH_T(p)->type](p, &redir->right_text))
 			return (false);
 	}
-	redir->right_len = dst->text.tokens.length - text_offset;
-	return (redir->right_len > 0
+	return (redir->right_text.tokens.length > 0
 		|| sh_parse_error(p, p->l.eof ? SH_E_EOF : SH_E_UNEXPECTED));
 }
 

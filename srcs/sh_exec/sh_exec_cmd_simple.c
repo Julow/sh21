@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/22 21:00:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 18:48:46 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ static void		sh_exec_text_load_params(t_dstr const *param_buff,
 	buff_i = 0;
 	while (param_i < param_count)
 	{
+		ft_printf("Param#%u '%s'%n", param_i, param_buff->str + buff_i);
 		dst[param_i++] = param_buff->str + buff_i;
 		while (param_buff->str[buff_i++] != '\0')
 			;
@@ -35,12 +36,17 @@ static void		sh_exec_text_load_params(t_dstr const *param_buff,
 	dst[param_i] = NULL;
 }
 
-static void		sh_exec_cmd_simple_exec(t_sh_context *c,
-					char const *const *params)
+static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
+					t_dstr const *param_buff, uint32_t param_count)
 {
-	t_sub const		cmd_name = ft_sub(params[0], 0, -1);
+	char const		*params[param_count + 1];
+	t_sub			cmd_name;
 	t_dstr			cmd_path;
 
+	sh_exec_text_load_params(param_buff, param_count, params);
+	cmd_name = ft_sub(params[0], 0, -1);
+	if (!sh_exec_redir(c, &cmd->redirs, NULL))
+		exit(1);
 	cmd_path = DSTR0();
 	if (ft_subfind_c(cmd_name, '/', 0) < cmd_name.length)
 		ft_dstradd(&cmd_path, cmd_name);
@@ -54,8 +60,8 @@ static void		sh_exec_cmd_simple_exec(t_sh_context *c,
 	exit(126);
 }
 
-static int		sh_exec_cmd_simple_fork(t_sh_context *c,
-					char const *const *params)
+static int		sh_exec_cmd_simple_fork(t_sh_context *c, t_sh_cmd const *cmd,
+					t_dstr const *param_buff, uint32_t param_count)
 {
 	pid_t			pid;
 
@@ -63,7 +69,7 @@ static int		sh_exec_cmd_simple_fork(t_sh_context *c,
 		return (ASSERT(!"fork fail"), -1);
 	if (pid == 0)
 	{
-		sh_exec_cmd_simple_exec(c, params);
+		sh_exec_cmd_simple_exec(c, cmd, param_buff, param_count);
 		ASSERT(false);
 		exit(-1);
 	}
@@ -75,20 +81,14 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 {
 	t_dstr			param_buff;
 	uint32_t		param_count;
-	bool			first_quoted;
 
 	param_buff = DSTR0();
-	param_count = sh_exec_text(c, &cmd->simple.text, &param_buff, &first_quoted);
-	{
-		char const		*params[param_count + 1];
-
-		sh_exec_text_load_params(&param_buff, param_count, params);
-		// TODO: builtins
-		if (no_fork)
-			sh_exec_cmd_simple_exec(c, params);
-		else
-			sh_exec_cmd_simple_fork(c, params);
-	}
+	param_count = sh_exec_text(c, &cmd->simple.text, &param_buff);
+	// TODO: builtins
+	if (no_fork)
+		sh_exec_cmd_simple_exec(c, cmd, &param_buff, param_count);
+	else
+		sh_exec_cmd_simple_fork(c, cmd, &param_buff, param_count);
 	ft_dstrclear(&param_buff);
 	return (0);
 }

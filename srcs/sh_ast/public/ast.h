@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/18 14:57:30 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 18:56:58 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,22 +146,22 @@ enum			e_sh_redir_t
 	SH_REDIR_OPEN,				// [n]<>word	// 1
 };
 
+// TODO: share 'right_text' text object with all redirections
 struct			s_sh_redir
 {
 	int32_t			left_fd;
-	uint32_t		right_len;
+	t_sh_text		right_text;
 	t_sh_redir_t	type;
 };
 
-# define SH_REDIR(TYPE, LEFT)	((t_sh_redir){(LEFT), 0, (TYPE)})
+# define SH_REDIR(TYPE, LEFT)	((t_sh_redir){(LEFT), SH_TEXT(), (TYPE)})
 
 struct			s_sh_redir_lst
 {
-	t_sh_text		text;
 	t_vector		redirs;
 };
 
-# define SH_REDIR_LST()			((t_sh_redir_lst){SH_TEXT(), VECTOR(t_sh_redir)})
+# define SH_REDIR_LST()			((t_sh_redir_lst){VECTOR(t_sh_redir)})
 
 // struct			s_sh_heredoc
 // {

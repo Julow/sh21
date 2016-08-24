@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/18 22:10:40 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/22 20:59:31 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 19:04:34 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,10 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 /*
 ** Execute a t_sh_text
 ** Append the text into 'dst', params are separated by '\0'
-** If 'first_quoted' is not NULL,
-**  put true if the first param is quoted, false otherwise
 ** Return the number of param
 */
-uint32_t		sh_exec_text(t_sh_context *c, t_sh_text const *text,
-					t_dstr *dst, bool *first_quoted);
+uint32_t		sh_exec_text(t_sh_context *c,
+					t_sh_text const *text, t_dstr *dst);
 
 /*
 ** -
@@ -69,5 +67,26 @@ bool			sh_search_path(t_sh_context const *c, t_sub name, t_dstr *dst);
 ** Wait for a process and return it's status code
 */
 int				sh_wait_pid(t_sh_context *c, pid_t pid);
+
+/*
+** -
+*/
+
+/*
+** Execute a redir list
+** -
+** If 'saved_fd' is not NULL, save old fds and put them in 'saved_fd'
+** 'saved_fd' should be of size 'lst->redirs.length'
+** Return false on error and restore saved_fd if not NULL
+** otherwise return true
+*/
+bool			sh_exec_redir(t_sh_context *c, t_sh_redir_lst const *lst,
+					uint32_t *saved_fd);
+
+/*
+** Restore saved files by sh_exec_redir
+*/
+void			sh_exec_redir_restore(t_sh_redir_lst const *lst,
+					uint32_t const *saved_fd);
 
 #endif
