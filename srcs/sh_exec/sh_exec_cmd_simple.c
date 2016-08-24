@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 18:48:46 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 22:07:55 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ static void		sh_exec_text_load_params(t_dstr const *param_buff,
 	dst[param_i] = NULL;
 }
 
+__attribute__ ((noreturn))
 static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
 					t_dstr const *param_buff, uint32_t param_count)
 {
@@ -73,7 +74,7 @@ static int		sh_exec_cmd_simple_fork(t_sh_context *c, t_sh_cmd const *cmd,
 		ASSERT(false);
 		exit(-1);
 	}
-	return (sh_wait_pid(c, pid));
+	return (sh_wait_pid(c, pid, NULL));
 }
 
 int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
@@ -81,6 +82,7 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 {
 	t_dstr			param_buff;
 	uint32_t		param_count;
+	int				status;
 
 	param_buff = DSTR0();
 	param_count = sh_exec_text(c, &cmd->simple.text, &param_buff);
@@ -88,7 +90,7 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 	if (no_fork)
 		sh_exec_cmd_simple_exec(c, cmd, &param_buff, param_count);
 	else
-		sh_exec_cmd_simple_fork(c, cmd, &param_buff, param_count);
+		status = sh_exec_cmd_simple_fork(c, cmd, &param_buff, param_count);
 	ft_dstrclear(&param_buff);
-	return (0);
+	return (status);
 }

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/18 22:10:40 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 19:04:34 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 22:18:08 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "sh/context.h"
 # include "sh/exec.h"
 
+# include <sys/resource.h>
 # include <sys/types.h>
 
 /*
@@ -66,7 +67,7 @@ bool			sh_search_path(t_sh_context const *c, t_sub name, t_dstr *dst);
 /*
 ** Wait for a process and return it's status code
 */
-int				sh_wait_pid(t_sh_context *c, pid_t pid);
+int				sh_wait_pid(t_sh_context *c, pid_t pid, struct rusage *u);
 
 /*
 ** -
@@ -88,5 +89,15 @@ bool			sh_exec_redir(t_sh_context *c, t_sh_redir_lst const *lst,
 */
 void			sh_exec_redir_restore(t_sh_redir_lst const *lst,
 					uint32_t const *saved_fd);
+
+/*
+** -
+*/
+
+int				sh_exec_cmd_if_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+
+int				sh_exec_cmd_time_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/22 14:55:41 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/22 14:59:39 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 21:41:47 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ bool			sh_search_path(t_sh_context const *c, t_sub name, t_dstr *dst)
 	return (false);
 }
 
-int				sh_wait_pid(t_sh_context *c, pid_t pid)
+int				sh_wait_pid(t_sh_context *c, pid_t pid, struct rusage *u)
 {
 	int				status;
 
-	waitpid(pid, &status, WUNTRACED);
+	wait4(pid, &status, WUNTRACED, u);
 	if (WIFSTOPPED(status))
 		return (TRACE("Stopped"), 0);
 	if (WIFSIGNALED(status))

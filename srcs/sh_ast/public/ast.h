@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 18:56:58 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/24 20:45:48 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ typedef enum e_sh_token_t		t_sh_token_t;
 typedef enum e_sh_expr_t		t_sh_expr_t;
 
 typedef struct s_sh_simple		t_sh_simple;
-typedef struct s_sh_subshell	t_sh_subshell;
 typedef struct s_sh_for			t_sh_for;
 typedef struct s_sh_else		t_sh_else;
 typedef struct s_sh_if			t_sh_if;
@@ -185,8 +184,8 @@ enum			e_sh_cmd_t
 	SH_CMD_FOR_CLAUSE,
 	SH_CMD_WHILE_CLAUSE, // while_clause
 	SH_CMD_UNTIL_CLAUSE, // while_clause
-	SH_CMD_TIME_CLAUSE, // rec
-	SH_CMD_NOT_CLAUSE, // rec
+	SH_CMD_TIME_CLAUSE, // rec // TODO: stronger than pipe
+	SH_CMD_NOT_CLAUSE, // rec // TODO: stronger than pipe
 	SH_CMD_BRACKET_CLAUSE,
 };
 
@@ -196,7 +195,7 @@ struct			s_sh_cmd
 	t_sh_redir_lst	redirs;
 	union {
 		t_sh_simple		simple;
-		t_sh_subshell	*subshell;
+		t_sh_compound	*subshell;
 		t_sh_if			*if_clause;
 		t_sh_for		*for_clause;
 		t_sh_while		*while_clause;
@@ -249,11 +248,6 @@ struct			s_sh_compound
 /*
 ** Simple commands
 */
-
-struct			s_sh_subshell
-{
-	t_sh_compound	compound;
-};
 
 struct			s_sh_for
 {
