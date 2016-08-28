@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/18 17:23:34 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/28 02:07:58 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,34 +19,59 @@
 
 static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 
-	LEXER_STATE("sh-base-subst", (),
+	LEXER_STATE("sh-base", (),
+		LEXER_T("", T(TEXT)),
+	),
+
+	LEXER_STATE("sh-base-subst", ("sh-base"),
 		LEXER_T("${", T(SUBST, .subst=SH(SUBST_EXPR))),
 		LEXER_T("$(", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-subshell"),
 		LEXER_T("$((", T(SUBST, .subst=SH(SUBST_MATH))),
 		LEXER_T("`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote"),
 		LEXER_T("$", T(SUBST, .subst=SH(SUBST_DOLLAR))),
-		LEXER_T("\\`", T(ESCAPED)),
-		LEXER_T("\\$", T(ESCAPED)),
+		LEXER_T("\\`", T(ESCAPED, '`')),
+		LEXER_T("\\$", T(ESCAPED, '$')),
+	),
+
+	LEXER_STATE("sh-base-escape", (),
+		LEXER_T("\\a", T(ESCAPED, '\a')),
+		LEXER_T("\\b", T(ESCAPED, '\b')),
+		LEXER_T("\\e", T(ESCAPED, '\x1b')),
+		LEXER_T("\\E", T(ESCAPED, '\x1b')),
+		LEXER_T("\\f", T(ESCAPED, '\f')),
+		LEXER_T("\\n", T(ESCAPED, '\n')),
+		LEXER_T("\\r", T(ESCAPED, '\r')),
+		LEXER_T("\\t", T(ESCAPED, '\t')),
+		LEXER_T("\\v", T(ESCAPED, '\v')),
+		LEXER_T("\\\\", T(ESCAPED, '\\')),
+		LEXER_T("\\'", T(ESCAPED, '\'')),
+		LEXER_T("\\\"", T(ESCAPED, '"')),
+		LEXER_T("\\", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_OCTAL))),
+		LEXER_T("\\o", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_OCTAL))),
+		LEXER_T("\\O", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_OCTAL))),
+		LEXER_T("\\x", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_HEXA))),
+		LEXER_T("\\X", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_HEXA))),
+		LEXER_T("\\c", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_CONTROL))),
+		LEXER_T("\\C", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_CONTROL))),
 	),
 
 	LEXER_STATE("sh-base-text", ("sh-base-subst"),
 		LEXER_T(" ", T(SPACE)),
 		LEXER_T("\t", T(SPACE)),
-		LEXER_T("\\ ", T(ESCAPED)),
-		LEXER_T("\\\t", T(ESCAPED)),
+		LEXER_T("\\ ", T(ESCAPED, ' ')),
+		LEXER_T("\\\t", T(ESCAPED, '\t')),
 
 		LEXER_T("\"", T(STRING, .string=SH(STRING_DOUBLE)), .push="sh-string"),
-		LEXER_T("\\\"", T(ESCAPED)),
-		LEXER_T("\'", T(STRING, .string=SH(STRING_SIMPLE)), .push="sh-string-single"),
-		LEXER_T("\\'", T(ESCAPED)),
+		LEXER_T("\\\"", T(ESCAPED, '"')),
+		LEXER_T("'", T(STRING, .string=SH(STRING_SIMPLE)), .push="sh-string-single"),
+		LEXER_T("\\'", T(ESCAPED, '\'')),
+		LEXER_T("$'", T(STRING, .string=SH(STRING_SIMPLE)), .push="sh-string-ansi"),
 
 		LEXER_T("#", T(COMMENT), .push="sh-comment"),
-		LEXER_T("\\#", T(ESCAPED)),
+		LEXER_T("\\#", T(ESCAPED, '#')),
 
 		LEXER_T("\\", T(BACKSLASH)),
-		LEXER_T("\\\\", T(ESCAPED)),
-
-		LEXER_T("", T(TEXT)),
+		LEXER_T("\\\\", T(ESCAPED, '\\')),
 	),
 
 	LEXER_STATE("sh-base-cmd", ("sh-base-text"),
@@ -66,11 +91,11 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 		LEXER_T("<>", T(REDIR, .redir=SH_REDIR_OPEN)),
 		LEXER_T("<<", T(HEREDOC)),
 
-		LEXER_T("\\;", T(ESCAPED)),
-		LEXER_T("\\|", T(ESCAPED)),
-		LEXER_T("\\&", T(ESCAPED)),
-		LEXER_T("\\>", T(ESCAPED)),
-		LEXER_T("\\<", T(ESCAPED)),
+		LEXER_T("\\;", T(ESCAPED, ';')),
+		LEXER_T("\\|", T(ESCAPED, '|')),
+		LEXER_T("\\&", T(ESCAPED, '&')),
+		LEXER_T("\\>", T(ESCAPED, '>')),
+		LEXER_T("\\<", T(ESCAPED, '<')),
 	),
 
 	LEXER_STATE("sh-compound", ("sh-base-cmd")),
@@ -91,14 +116,16 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 
 	LEXER_STATE("sh-string", ("sh-base-subst"),
 		LEXER_T("\"", T(STRING, .string=SH(STRING_END)), .pop=true),
-		LEXER_T("\\\"", T(ESCAPED)),
+		LEXER_T("\\\"", T(ESCAPED, '"')),
 	),
 
-	LEXER_STATE("sh-string-single", (),
-		LEXER_T("\'", T(STRING, .string=SH(STRING_END)), .pop=true),
+	LEXER_STATE("sh-string-single", ("sh-base"),
+		LEXER_T("'", T(STRING, .string=SH(STRING_END)), .pop=true),
 	),
 
-	LEXER_STATE("sh-comment", (),
+	LEXER_STATE("sh-string-ansi", ("sh-string-single", "sh-base-escape")),
+
+	LEXER_STATE("sh-comment", ("sh-base"),
 		LEXER_T("\n", T(COMMENT), .pop=true),
 	),
 
@@ -126,7 +153,7 @@ bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
 			[SH_E_EOF] = "unexpected end of file",
 			[SH_E_UNCLOSED_STRING] = "unclosed string",
 			[SH_E_UNCLOSED_SUBSHELL] = "unclosed subshell",
-		})[err->err], p.l.t.token);
+		})[err->err], p.l.t.token_str);
 		if (SH_T(&p) == NULL)
 			ft_printf("{NULL}%n");
 		else

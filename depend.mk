@@ -33,18 +33,18 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_base/ft_memrcpy.o $(O_DIR)/libft/ft_base/ft_memset.o \
 	$(O_DIR)/libft/ft_base/ft_memstart.o $(O_DIR)/libft/ft_base/ft_memswap.o \
 	$(O_DIR)/libft/ft_base/ft_min.o $(O_DIR)/libft/ft_base/ft_nanoclock.o \
-	$(O_DIR)/libft/ft_base/ft_rand.o $(O_DIR)/libft/ft_base/ft_strchri.o \
-	$(O_DIR)/libft/ft_base/ft_strlen.o $(O_DIR)/libft/ft_base/ft_sub.o \
-	$(O_DIR)/libft/ft_base/ft_subfind.o $(O_DIR)/libft/ft_base/ft_subnext.o \
-	$(O_DIR)/libft/ft_base/ft_subto.o $(O_DIR)/libft/ft_base/ft_unescape.o \
-	$(O_DIR)/libft/ft_base/ft_widetoa.o $(O_DIR)/libft/ft_base/ft_wstrconv.o \
-	$(O_DIR)/libft/ft_base/ft_wstrlen.o $(O_DIR)/libft/ft_base/ft_wstrnconv.o \
-	$(O_DIR)/libft/ft_bst/bst_balance.o $(O_DIR)/libft/ft_bst/ft_bst_destroy.o \
-	$(O_DIR)/libft/ft_bst/ft_bstdel.o $(O_DIR)/libft/ft_bst/ft_bstget.o \
-	$(O_DIR)/libft/ft_bst/ft_bstgetall.o $(O_DIR)/libft/ft_bst/ft_bstiter.o \
-	$(O_DIR)/libft/ft_bst/ft_bstmax.o $(O_DIR)/libft/ft_bst/ft_bstmin.o \
-	$(O_DIR)/libft/ft_bst/ft_bstput.o $(O_DIR)/libft/ft_dstr/ft_dstradd.o \
-	$(O_DIR)/libft/ft_dstr/ft_dstrclear.o \
+	$(O_DIR)/libft/ft_base/ft_rand.o $(O_DIR)/libft/ft_base/ft_sort.o \
+	$(O_DIR)/libft/ft_base/ft_strchri.o $(O_DIR)/libft/ft_base/ft_strlen.o \
+	$(O_DIR)/libft/ft_base/ft_sub.o $(O_DIR)/libft/ft_base/ft_subfind.o \
+	$(O_DIR)/libft/ft_base/ft_subnext.o $(O_DIR)/libft/ft_base/ft_subto.o \
+	$(O_DIR)/libft/ft_base/ft_unescape.o $(O_DIR)/libft/ft_base/ft_widetoa.o \
+	$(O_DIR)/libft/ft_base/ft_wstrconv.o $(O_DIR)/libft/ft_base/ft_wstrlen.o \
+	$(O_DIR)/libft/ft_base/ft_wstrnconv.o $(O_DIR)/libft/ft_bst/bst_balance.o \
+	$(O_DIR)/libft/ft_bst/ft_bst_destroy.o $(O_DIR)/libft/ft_bst/ft_bstdel.o \
+	$(O_DIR)/libft/ft_bst/ft_bstget.o $(O_DIR)/libft/ft_bst/ft_bstgetall.o \
+	$(O_DIR)/libft/ft_bst/ft_bstiter.o $(O_DIR)/libft/ft_bst/ft_bstmax.o \
+	$(O_DIR)/libft/ft_bst/ft_bstmin.o $(O_DIR)/libft/ft_bst/ft_bstput.o \
+	$(O_DIR)/libft/ft_dstr/ft_dstradd.o $(O_DIR)/libft/ft_dstr/ft_dstrclear.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstrextend.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstrspan.o \
 	$(O_DIR)/libft/get_next_line/get_next_line.o \
@@ -84,8 +84,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_term/ft_tinit.o $(O_DIR)/libft/ft_term/ft_tput.o \
 	$(O_DIR)/libft/ft_term/ft_trestore.o $(O_DIR)/libft/ft_term/ft_tupdate.o \
 	$(O_DIR)/libft/ft_term/term_out_flush.o \
-	$(O_DIR)/libft/ft_tokenizer/ft_token_map.o \
 	$(O_DIR)/libft/ft_tokenizer/ft_tokenize.o \
+	$(O_DIR)/libft/ft_tokenizer/ft_tokenmap_builder.o \
 	$(O_DIR)/libft/ft_vector/ft_vclear.o $(O_DIR)/libft/ft_vector/ft_vpush.o \
 	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/libft/ft_vector/ft_vspan.o \
 	$(O_DIR)/srcs/main/main.o $(O_DIR)/srcs/sh_ast/destroy_cmd.o \
@@ -108,6 +108,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_line.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_redir.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_text.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_text_escape_sequence.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
@@ -121,8 +122,9 @@ PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/set.h \
 	$(O_DIR)/_public/ft/spanlist.h $(O_DIR)/_public/ft/strset.h \
 	$(O_DIR)/_public/ft/term.h $(O_DIR)/_public/ft/tokenizer.h \
-	$(O_DIR)/_public/sh/ast.h $(O_DIR)/_public/sh/context.h \
-	$(O_DIR)/_public/sh/exec.h $(O_DIR)/_public/sh/parser.h
+	$(O_DIR)/_public/ft/tokenmap_builder.h $(O_DIR)/_public/sh/ast.h \
+	$(O_DIR)/_public/sh/context.h $(O_DIR)/_public/sh/exec.h \
+	$(O_DIR)/_public/sh/parser.h
 
 sh21: $(O_FILES)
 
@@ -283,6 +285,8 @@ $(O_DIR)/libft/ft_base/ft_nanoclock.o: libft/ft_base/ft_nanoclock.c \
 	libft/ft_base/public/libft.h
 $(O_DIR)/libft/ft_base/ft_rand.o: libft/ft_base/ft_rand.c \
 	libft/ft_base/public/libft.h
+$(O_DIR)/libft/ft_base/ft_sort.o: libft/ft_base/ft_sort.c \
+	libft/ft_base/p_sort.h libft/ft_base/public/libft.h
 $(O_DIR)/libft/ft_base/ft_strchri.o: libft/ft_base/ft_strchri.c \
 	libft/ft_base/public/libft.h
 $(O_DIR)/libft/ft_base/ft_strlen.o: libft/ft_base/ft_strlen.c \
@@ -305,6 +309,26 @@ $(O_DIR)/libft/ft_base/ft_wstrlen.o: libft/ft_base/ft_wstrlen.c \
 	libft/ft_base/public/ft_wchar.h libft/ft_base/public/libft.h
 $(O_DIR)/libft/ft_base/ft_wstrnconv.o: libft/ft_base/ft_wstrnconv.c \
 	libft/ft_base/public/ft_wchar.h libft/ft_base/public/libft.h
+
+$(O_DIR)/libft/ft_base/ft_abs.o $(O_DIR)/libft/ft_base/ft_assert.o \
+$(O_DIR)/libft/ft_base/ft_atoib.o $(O_DIR)/libft/ft_base/ft_bitset.o \
+$(O_DIR)/libft/ft_base/ft_bzero.o $(O_DIR)/libft/ft_base/ft_clock.o \
+$(O_DIR)/libft/ft_base/ft_clock_stack.o $(O_DIR)/libft/ft_base/ft_emalloc.o \
+$(O_DIR)/libft/ft_base/ft_escape.o $(O_DIR)/libft/ft_base/ft_getenv.o \
+$(O_DIR)/libft/ft_base/ft_is.o $(O_DIR)/libft/ft_base/ft_max.o \
+$(O_DIR)/libft/ft_base/ft_memcmp.o $(O_DIR)/libft/ft_base/ft_memcpy.o \
+$(O_DIR)/libft/ft_base/ft_memdup.o $(O_DIR)/libft/ft_base/ft_memfill.o \
+$(O_DIR)/libft/ft_base/ft_memmove.o $(O_DIR)/libft/ft_base/ft_memrcpy.o \
+$(O_DIR)/libft/ft_base/ft_memset.o $(O_DIR)/libft/ft_base/ft_memstart.o \
+$(O_DIR)/libft/ft_base/ft_memswap.o $(O_DIR)/libft/ft_base/ft_min.o \
+$(O_DIR)/libft/ft_base/ft_nanoclock.o $(O_DIR)/libft/ft_base/ft_rand.o \
+$(O_DIR)/libft/ft_base/ft_sort.o $(O_DIR)/libft/ft_base/ft_strchri.o \
+$(O_DIR)/libft/ft_base/ft_strlen.o $(O_DIR)/libft/ft_base/ft_sub.o \
+$(O_DIR)/libft/ft_base/ft_subfind.o $(O_DIR)/libft/ft_base/ft_subnext.o \
+$(O_DIR)/libft/ft_base/ft_subto.o $(O_DIR)/libft/ft_base/ft_unescape.o \
+$(O_DIR)/libft/ft_base/ft_widetoa.o $(O_DIR)/libft/ft_base/ft_wstrconv.o \
+$(O_DIR)/libft/ft_base/ft_wstrlen.o $(O_DIR)/libft/ft_base/ft_wstrnconv.o: \
+	INCLUDE_FLAGS += -Ilibft/ft_base
 
 # module ft::bst
 $(O_DIR)/libft/ft_bst/bst_balance.o: libft/ft_bst/bst_balance.c \
@@ -382,35 +406,32 @@ $(O_DIR)/libft/ft_in/ft_readto.o: libft/ft_in/ft_readto.c \
 
 # module ft::lexer
 $(O_DIR)/libft/ft_lexer/build.o: libft/ft_lexer/build.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/p_lexer.h libft/ft_lexer/public/lexer.h \
-	libft/ft_set/public/set.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
+	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_lexer/build_state.o: libft/ft_lexer/build_state.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/p_lexer.h libft/ft_lexer/public/lexer.h \
-	libft/ft_set/public/set.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
+	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
+	libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_tokenizer/public/tokenmap_builder.h \
 	libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_lexer/lexer.o: libft/ft_lexer/lexer.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/p_lexer.h libft/ft_lexer/public/lexer.h \
-	libft/ft_set/public/set.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
+	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_lexer/next.o: libft/ft_lexer/next.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/p_lexer.h libft/ft_lexer/public/lexer.h \
-	libft/ft_set/public/set.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
+	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_lexer/state_destroy.o: libft/ft_lexer/state_destroy.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/p_lexer.h libft/ft_lexer/public/lexer.h \
-	libft/ft_set/public/set.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
+	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
 
 $(O_DIR)/libft/ft_lexer/build.o $(O_DIR)/libft/ft_lexer/build_state.o \
 $(O_DIR)/libft/ft_lexer/lexer.o $(O_DIR)/libft/ft_lexer/next.o \
@@ -616,14 +637,20 @@ $(O_DIR)/libft/ft_term/ft_trestore.o $(O_DIR)/libft/ft_term/ft_tupdate.o \
 $(O_DIR)/libft/ft_term/term_out_flush.o: INCLUDE_FLAGS += -Ilibft/ft_term
 
 # module ft::tokenizer
-$(O_DIR)/libft/ft_tokenizer/ft_token_map.o: libft/ft_tokenizer/ft_token_map.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_tokenizer/public/tokenizer.h
 $(O_DIR)/libft/ft_tokenizer/ft_tokenize.o: libft/ft_tokenizer/ft_tokenize.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_tokenizer/public/tokenizer.h
+$(O_DIR)/libft/ft_tokenizer/ft_tokenmap_builder.o: \
+	libft/ft_tokenizer/ft_tokenmap_builder.c libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_tokenizer/public/tokenizer.h
+	libft/ft_tokenizer/p_tokenmap_builder.h \
+	libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_tokenizer/public/tokenmap_builder.h \
+	libft/ft_vector/public/ft_vector.h
+
+$(O_DIR)/libft/ft_tokenizer/ft_tokenize.o \
+$(O_DIR)/libft/ft_tokenizer/ft_tokenmap_builder.o: INCLUDE_FLAGS += \
+	-Ilibft/ft_tokenizer
 
 # module ft::vector
 $(O_DIR)/libft/ft_vector/ft_vclear.o: libft/ft_vector/ft_vclear.c \
@@ -760,70 +787,72 @@ $(O_DIR)/srcs/sh_exec/sh_exec_text.o $(O_DIR)/srcs/sh_exec/utils.o: \
 
 # module sh::parser
 $(O_DIR)/srcs/sh_parser/sh_parse_cmd.o: srcs/sh_parser/sh_parse_cmd.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
-	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_compound.o: \
 	srcs/sh_parser/sh_parse_compound.c libft/ft_base/public/libft.h \
-	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
-	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
-	srcs/sh_parser/public/parser.h
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_do_clause.o: \
 	srcs/sh_parser/sh_parse_do_clause.c libft/ft_base/public/libft.h \
-	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
-	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
-	srcs/sh_parser/public/parser.h
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_for_clause.o: \
 	srcs/sh_parser/sh_parse_for_clause.c libft/ft_base/public/libft.h \
-	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
-	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
-	srcs/sh_parser/public/parser.h
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_if_clause.o: \
 	srcs/sh_parser/sh_parse_if_clause.c libft/ft_base/public/libft.h \
-	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_line.o: srcs/sh_parser/sh_parse_line.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
 	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
 	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
 	srcs/sh_parser/public/parser.h
-$(O_DIR)/srcs/sh_parser/sh_parse_line.o: srcs/sh_parser/sh_parse_line.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
-	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_redir.o: srcs/sh_parser/sh_parse_redir.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
-	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_text.o: srcs/sh_parser/sh_parse_text.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
-	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_text_escape_sequence.o: \
+	srcs/sh_parser/sh_parse_text_escape_sequence.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_utils.o: srcs/sh_parser/sh_parse_utils.c \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
-	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
-	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
+	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o: \
 	srcs/sh_parser/sh_parse_while_clause.c libft/ft_base/public/libft.h \
-	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
-	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
-	srcs/sh_parser/public/parser.h
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 
 $(O_DIR)/srcs/sh_parser/sh_parse_cmd.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_compound.o \
@@ -833,6 +862,7 @@ $(O_DIR)/srcs/sh_parser/sh_parse_if_clause.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_line.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_redir.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_text.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_text_escape_sequence.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o: INCLUDE_FLAGS += \
 	-Isrcs/sh_parser
@@ -861,6 +891,8 @@ $(O_DIR)/_public/ft/spanlist.h: srcs/spanlist/public/spanlist.h
 $(O_DIR)/_public/ft/strset.h: srcs/strset/public/strset.h
 $(O_DIR)/_public/ft/term.h: libft/ft_term/public/term.h
 $(O_DIR)/_public/ft/tokenizer.h: libft/ft_tokenizer/public/tokenizer.h
+$(O_DIR)/_public/ft/tokenmap_builder.h: \
+libft/ft_tokenizer/public/tokenmap_builder.h
 $(O_DIR)/_public/sh/ast.h: srcs/sh_ast/public/ast.h
 $(O_DIR)/_public/sh/context.h: srcs/sh_context/public/context.h
 $(O_DIR)/_public/sh/exec.h: srcs/sh_exec/public/exec.h

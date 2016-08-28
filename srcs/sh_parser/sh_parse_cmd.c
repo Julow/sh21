@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/18 18:35:12 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/28 01:45:52 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_cmd *dst)
 			;
 		else if (g_sh_parse_text[SH_T(p)->type] != NULL)
 		{
-			r = g_sh_parse_text[SH_T(p)->type](p, &dst->simple.text);
+			r = g_sh_parse_text[SH_T(p)->type](p, &dst->simple.text, false);
 			if (!r || !ft_lexer_next(&p->l))
 				break ;
 		}
@@ -112,7 +112,7 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 		// HERE alias
 		i = 0;
 		while (i < ARRAY_LEN(g_clauses_begin))
-			if (SUB_EQU(p->l.t.token, g_clauses_begin[i].name))
+			if (SUB_EQU(p->l.t.token_str, g_clauses_begin[i].name))
 			{
 				cmd->type = g_clauses_begin[i].type;
 				break ;

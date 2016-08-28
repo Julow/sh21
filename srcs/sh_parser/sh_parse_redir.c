@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/15 17:58:07 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 18:59:20 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/28 01:45:36 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static bool		parse_redir(t_sh_parser *p, t_sh_redir_lst *dst,
 	while (ft_lexer_next(&p->l) && SH_T(p)->type != SH(SPACE)
 			&& g_sh_parse_text[SH_T(p)->type] != NULL)
 	{
-		if (!g_sh_parse_text[SH_T(p)->type](p, &redir->right_text))
+		if (!g_sh_parse_text[SH_T(p)->type](p, &redir->right_text, false))
 			return (false);
 	}
 	return (redir->right_text.tokens.length > 0
@@ -44,8 +44,9 @@ bool			sh_parse_redir_left(t_sh_parser *p,
 	t_sh_parse_token const	*t;
 
 	ASSERT(SH_T(p)->type == SH(TEXT));
-	if (ft_subto_int(p->l.t.token, &left_fd) != p->l.t.token.length || left_fd < 0
-		|| !ft_lexer_ahead(&p->l, NULL, V(&t)) || t->type != SH(REDIR))
+	if (ft_subto_int(p->l.t.token_str, &left_fd) != p->l.t.token_str.length
+		|| left_fd < 0 || !ft_lexer_ahead(&p->l, NULL, V(&t))
+		|| t->type != SH(REDIR))
 		return (false);
 	ft_lexer_next(&p->l);
 	*r = parse_redir(p, lst, left_fd);

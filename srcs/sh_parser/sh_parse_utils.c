@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:21:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/18 15:51:15 by juloo            ###   ########.fr       */
+/*   Updated: 2016/08/28 01:54:29 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,10 @@ bool			sh_ignore_spaces(t_sh_parser *p)
 
 	while (ft_lexer_ahead(&p->l, NULL, V(&t)))
 	{
-		if (t == NULL || t->type != SH_PARSE_T_SPACE)
+		if (t->type != SH_PARSE_T_SPACE)
 			return (true);
 		if (!ft_lexer_next(&p->l)
-			|| (t = SH_T(p)) == NULL || t->type != SH_PARSE_T_SPACE)
+			|| (t = SH_T(p))->type != SH_PARSE_T_SPACE)
 			ASSERT(!"Lexer ahead/next mismatch"); // TODO: remove
 	}
 	return (false);
@@ -58,9 +58,9 @@ bool			sh_ignore_newlines(t_sh_parser *p)
 
 	while (ft_lexer_ahead(&p->l, NULL, V(&t)))
 	{
-		if (t == NULL || (t->type != SH_PARSE_T_SPACE
+		if (t->type != SH_PARSE_T_SPACE
 				&& !(t->type == SH_PARSE_T_COMPOUND_END
-					&& t->compound_end == SH_PARSE_T_COMPOUND_NEWLINE)))
+					&& t->compound_end == SH_PARSE_T_COMPOUND_NEWLINE))
 			return (true);
 		ft_lexer_next(&p->l);
 	}
@@ -74,4 +74,20 @@ bool			sh_parse_error(t_sh_parser *p, t_sh_parse_err_t t)
 		p->err->err = t;
 	p->error_set = true;
 	return (false);
+}
+
+void			sh_text_push(t_sh_text *text, t_sub str, t_sh_token t, bool quoted)
+{
+	if (quoted)
+		t.type |= SH_F_T_QUOTED;
+	ft_dstradd(&text->text, str);
+	ft_vpush(&text->tokens, &t, 1);
+}
+
+void			sh_text_push_string(t_sh_text *text, t_sub str, bool quoted)
+{
+	t_sh_token		token;
+
+	token = SH_TOKEN(STRING, .token_len=str.length);
+	sh_text_push(text, str, token, quoted);
 }
