@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/25 01:19:02 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 17:34:39 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,42 +63,33 @@ static uint32_t	exec_subshell(t_sh_context *c, t_sh_token const *t,
 static uint32_t	exec_param(t_sh_context *c, t_sh_token const *t,
 					t_sub text, t_dstr *dst)
 {
-	t_sub const		val = sh_var_get(c, SUB(text.str, t->param_len));
+	t_sub			val;
 
-	ft_dstradd(dst, val);
-	return (t->param_len);
+	if (t->param.type == SH_PARAM_STR)
+	{
+		val = sh_var_get(c, SUB(text.str, t->param.str_length));
+		ft_dstradd(dst, val);
+		return (t->param.str_length);
+	}
+	ASSERT(!"TODO: exec_param: SH_PARAM_LENGTH, SH_PARAM_POS, SH_PARAM_SPECIAL");
+	return (0);
 }
 
-static uint32_t	exec_param_pos(t_sh_context *c, t_sh_token const *t,
+static uint32_t	exec_subst_param(t_sh_context *c, t_sh_token const *t,
 					t_sub text, t_dstr *dst)
 {
 	ASSERT(!"TODO: exec_text param_pos");
-	(void)c;
-	(void)t;
-	(void)text;
-	(void)dst;
 	return (0);
-}
-
-static uint32_t	exec_expr(t_sh_context *c, t_sh_token const *t,
-					t_sub text, t_dstr *dst)
-{
-	ASSERT(!"TODO: exec_text expr");
-	(void)c;
-	(void)t;
-	(void)text;
-	(void)dst;
-	return (0);
+	(void)c; (void)t; (void)text; (void)dst;
 }
 
 static uint32_t	(*const g_sh_exec_text[])(t_sh_context *c, t_sh_token const *t,
 					t_sub text, t_dstr *dst) = {
-	[SH_T_STRING] = exec_string,
-	[SH_T_SPACE] = exec_space,
-	[SH_T_SUBSHELL] = exec_subshell,
-	[SH_T_PARAM] = exec_param,
-	[SH_T_PARAM_POS] = exec_param_pos,
-	[SH_T_EXPR] = exec_expr,
+	[SH_T_STRING] = &exec_string,
+	[SH_T_SPACE] = &exec_space,
+	[SH_T_PARAM] = &exec_param,
+	[SH_T_SUBSHELL] = &exec_subshell,
+	[SH_T_SUBST_PARAM] = &exec_subst_param,
 };
 
 static uint32_t	split_words(t_dstr *str, uint32_t offset)

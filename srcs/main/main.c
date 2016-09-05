@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 19:02:21 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 17:18:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,15 +260,6 @@ static void		put_key(t_out *out, t_key key)
 
 static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent);
 
-static char const *const	g_expr_types[] = {
-	[SH_EXPR_USE_DEF] = "-",
-	[SH_EXPR_SET_DEF] = "=",
-	[SH_EXPR_ISSET] = "?",
-	[SH_EXPR_USE_ALT] = "+",
-	[SH_EXPR_SUFFIX] = "%",
-	[SH_EXPR_PREFIX] = "#",
-};
-
 static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 {
 	uint32_t			i;
@@ -299,20 +290,32 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 			PRINT_CMD(indent, "\033[36m)\033[0m");
 			break ;
 		case SH_T_PARAM:
-			ft_printf("\033[36m${\033[0m%ts\033[36m}\033[0m",
-				SUB(text->text.str + token_start, token->param_len));
-			token_start += token->param_len;
+			if (token->param.type == SH_PARAM_STR)
+			{
+				ft_printf("\033[36m${\033[0m%ts\033[36m}\033[0m",
+					SUB(text->text.str + token_start, token->param.str_length));
+				token_start += token->param.str_length;
+			}
+			else if (token->param.type == SH_PARAM_LENGTH)
+			{
+				ft_printf("\033[36m${#\033[0m%ts\033[36m}\033[0m",
+					SUB(text->text.str + token_start, token->param.str_length));
+				token_start += token->param.str_length;
+			}
+			else if (token->param.type == SH_PARAM_POS)
+				ft_printf("\033[36m$%d\033[0m", token->param.pos);
+			else if (token->param.type == SH_PARAM_SPECIAL)
+				ft_printf("\033[36m$%c\033[0m", ((char[]){
+					[SH_SPECIAL_PARAM_ARGV] = '*',
+					[SH_SPECIAL_PARAM_ARGV2] = '@',
+					[SH_SPECIAL_PARAM_ARGC] = '#',
+					[SH_SPECIAL_PARAM_STATUS] = '?',
+					[SH_SPECIAL_PARAM_OPT] = '-',
+					[SH_SPECIAL_PARAM_PID] = '$',
+				})[token->param.special]);
 			break ;
-		case SH_T_PARAM_POS:
-			ft_printf("\033[36m$%d\033[0m", token->param_pos);
-			break ;
-		case SH_T_EXPR:
-			ft_printf("\033[36m${%ts%s%s\033[0m",
-				SUB(ENDOF(token->expr), token->expr->param_len),
-				(token->expr->type & SH_EXPR_F_ALT) ? ":" : "",
-				g_expr_types[token->expr->type & ~SH_EXPR_F_ALT]);
-			print_sh_text(&token->expr->text, indent + 1);
-			ft_printf("\033[36m}\033[0m");
+		case SH_T_SUBST_PARAM:
+			ASSERT(!"TODO: print SUBST_PARAM");
 			break ;
 		default:
 			ft_printf("%n");

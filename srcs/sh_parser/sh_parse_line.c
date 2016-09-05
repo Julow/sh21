@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/28 02:07:58 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 17:16:11 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,18 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 	),
 
 	LEXER_STATE("sh-base-subst", ("sh-base"),
-		LEXER_T("${", T(SUBST, .subst=SH(SUBST_EXPR))),
+		LEXER_T("${", T(SUBST, .subst=SH(SUBST_PARAM)), .push="sh-subst-param"),
 		LEXER_T("$(", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-subshell"),
 		LEXER_T("$((", T(SUBST, .subst=SH(SUBST_MATH))),
 		LEXER_T("`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote"),
-		LEXER_T("$", T(SUBST, .subst=SH(SUBST_DOLLAR))),
+		LEXER_T("$\0000-9\0", T(PARAM_POS, .param_prefix=1)),
+		LEXER_T("$\0a-zA-Z_\0\0+a-zA-Z0-9_\0", T(PARAM, .param_prefix=1)),
+		LEXER_T("$*", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGV)),
+		LEXER_T("$@", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGV2)),
+		LEXER_T("$#", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGC)),
+		LEXER_T("$?", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_STATUS)),
+		LEXER_T("$-", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_OPT)),
+		LEXER_T("$!", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_PID)),
 		LEXER_T("\\`", T(ESCAPED, '`')),
 		LEXER_T("\\$", T(ESCAPED, '$')),
 	),
@@ -112,6 +119,55 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 	LEXER_STATE("sh-subst-backquote-rev", ("sh-base-cmd"),
 		LEXER_T("`", T(SUBST, .subst=SH(SUBST_SUBSHELL)), .push="sh-subst-backquote"),
 		LEXER_T("\\`", T(COMPOUND_END, .compound_end=SH(COMPOUND_SUBSHELL)), .pop=true),
+	),
+
+	LEXER_STATE("sh-subst-param", (),
+		LEXER_T("\0000-9\0", T(PARAM_POS, .param_prefix=0), .push="sh-subst-param-op", .pop=true),
+		LEXER_T("\0a-zA-Z_\0\0+a-zA-Z0-9_\0", T(PARAM, .param_prefix=0), .push="sh-subst-param-op", .pop=true),
+		LEXER_T("*", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGV), .push="sh-subst-param-op", .pop=true),
+		LEXER_T("@", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGV2), .push="sh-subst-param-op", .pop=true),
+		LEXER_T("#", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGC), .push="sh-subst-param-op", .pop=true),
+		LEXER_T("#\0a-zA-Z_\0\0+a-zA-Z0-9_\0", T(PARAM_LENGTH, .param_prefix=1), .push="sh-subst-param-end", .pop=true),
+		LEXER_T("?", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_STATUS), .push="sh-subst-param-op", .pop=true),
+		LEXER_T("-", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_OPT), .push="sh-subst-param-op", .pop=true),
+		LEXER_T("!", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_PID), .push="sh-subst-param-op", .pop=true),
+	),
+
+	LEXER_STATE("sh-subst-param-end", (),
+		LEXER_T("}", T(SUBST_PARAM_END), .pop=true),
+	),
+
+	LEXER_STATE("sh-subst-param-op", ("sh-subst-param-end"),
+		LEXER_T(":-", T(SUBST_PARAM_OP, SH_SUBST_PARAM_DEF_NULL), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("-", T(SUBST_PARAM_OP, SH_SUBST_PARAM_DEF_UNSET), .push="sh-subst-param-str", .pop=true),
+		LEXER_T(":=", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ASSIGN_NULL), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("=", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ASSIGN_UNSET), .push="sh-subst-param-str", .pop=true),
+		LEXER_T(":+", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_NULL), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("+", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_UNSET), .push="sh-subst-param-str", .pop=true),
+		LEXER_T(":?", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ERR_NULL), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("?", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ERR_UNSET), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("^", T(SUBST_PARAM_OP, SH_SUBST_PARAM_UPPER_FIRST), .push="sh-subst-param-end", .pop=true),
+		LEXER_T("^^", T(SUBST_PARAM_OP, SH_SUBST_PARAM_UPPER), .push="sh-subst-param-end", .pop=true),
+		LEXER_T(",", T(SUBST_PARAM_OP, SH_SUBST_PARAM_LOWER_FIRST), .push="sh-subst-param-end", .pop=true),
+		LEXER_T(",,", T(SUBST_PARAM_OP, SH_SUBST_PARAM_LOWER), .push="sh-subst-param-end", .pop=true),
+		LEXER_T("~", T(SUBST_PARAM_OP, SH_SUBST_PARAM_INVCASE_FIRST), .push="sh-subst-param-end", .pop=true),
+		LEXER_T("~~", T(SUBST_PARAM_OP, SH_SUBST_PARAM_INVCASE), .push="sh-subst-param-end", .pop=true),
+		LEXER_T("#", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_BEGIN), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("##", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_BEGIN_LONG), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("%", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_END), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("%%", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_END_LONG), .push="sh-subst-param-str", .pop=true),
+		LEXER_T("/", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_FIRST), .push="sh-subst-param-replace", .pop=true),
+		LEXER_T("/%", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_LAST), .push="sh-subst-param-replace", .pop=true),
+		LEXER_T("//", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_ALL), .push="sh-subst-param-replace", .pop=true),
+	),
+
+	LEXER_STATE("sh-subst-param-str", ("sh-base-text", "sh-subst-param-end"),
+		LEXER_T("\\}", T(ESCAPED, '}')),
+	),
+
+	LEXER_STATE("sh-subst-param-replace", ("sh-subst-param-str"),
+		LEXER_T("/", T(SUBST_PARAM_OP, 0)),
+		LEXER_T("\\/", T(ESCAPED, '/')),
 	),
 
 	LEXER_STATE("sh-string", ("sh-base-subst"),

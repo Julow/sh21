@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:24:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/28 02:04:29 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 16:53:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,48 +32,39 @@ static bool		sh_parse_subst_subshell(t_sh_parser *p, t_sh_text *dst, bool quoted
 	return (r);
 }
 
-static bool		sh_parse_subst_expr(t_sh_parser *p, t_sh_text *dst, bool quoted) { return (ASSERT(false)); (void)p; (void)dst; (void)quoted; }
 static bool		sh_parse_subst_math(t_sh_parser *p, t_sh_text *dst, bool quoted) { return (ASSERT(false)); (void)p; (void)dst; (void)quoted; }
 
-// TODO: special params ($@, $#, $!, ...) (token?)
-static bool		sh_parse_subst_dollar(t_sh_parser *p, t_sh_text *dst, bool quoted)
-{
-	t_sub			str;
-	uint32_t		i;
+static bool		(*const g_sh_parse_subst[])(t_sh_parser*, t_sh_text*, bool) = {
+	[SH_PARSE_T_SUBST_PARAM] = &sh_parse_text_subst_param,
+	[SH_PARSE_T_SUBST_MATH] = &sh_parse_subst_math,
+	[SH_PARSE_T_SUBST_SUBSHELL] = &sh_parse_subst_subshell,
+};
 
-	if (!ft_lexer_next(&p->l))
-		return (sh_parse_error(p, SH_E_EOF));
-	if (SH_T(p)->type != SH(TEXT))
-		return (sh_parse_error(p, SH_E_UNEXPECTED));
-	str = p->l.t.token_str;
-	if (IS(str.str[0], IS_DIGIT))
-	{
-		i = 1;
-		sh_text_push(dst, SUB0(),
-			SH_TOKEN(PARAM_POS, .param_pos=str.str[0] - '0'), quoted);
-	}
-	else
-	{
-		i = 0;
-		while (i < str.length && IS(str.str[i], IS_WORD))
-			i++;
-		if (i == 0)
-			sh_text_push_string(dst, SUBC("$"), quoted);
-		else
-			sh_text_push(dst, SUB_LEN(str, i),
-				SH_TOKEN(PARAM, .param_len=i), quoted);
-	}
-	if (i < str.length)
-		sh_text_push_string(dst, SUB_FOR(str, i), quoted);
+static bool		sh_parse_text_param(t_sh_parser *p, t_sh_text *dst, bool quoted)
+{
+	t_sub const			param_str = SUB_FOR(p->l.t.token_str, SH_T(p)->param_prefix);
+	t_sh_param const	param = SH_PARAM(STR, .str_length=param_str.length);
+
+	sh_text_push(dst, param_str, SH_TOKEN(PARAM, .param=param), quoted);
 	return (true);
 }
 
-static bool		(*const g_sh_parse_subst[])(t_sh_parser*, t_sh_text*, bool) = {
-	[SH_PARSE_T_SUBST_EXPR] = &sh_parse_subst_expr,
-	[SH_PARSE_T_SUBST_MATH] = &sh_parse_subst_math,
-	[SH_PARSE_T_SUBST_SUBSHELL] = &sh_parse_subst_subshell,
-	[SH_PARSE_T_SUBST_DOLLAR] = &sh_parse_subst_dollar,
-};
+static bool		sh_parse_text_param_pos(t_sh_parser *p, t_sh_text *dst, bool quoted)
+{
+	uint32_t			val = p->l.t.token_str.str[SH_T(p)->param_prefix] - '0';
+	t_sh_param const	param = SH_PARAM(POS, .pos=val);
+
+	sh_text_push(dst, SUB0(), SH_TOKEN(PARAM, .param=param), quoted);
+	return (true);
+}
+
+static bool		sh_parse_text_param_special(t_sh_parser *p, t_sh_text *dst, bool quoted)
+{
+	t_sh_param const	param = SH_PARAM(SPECIAL, .special=SH_T(p)->param_special);
+
+	sh_text_push(dst, SUB0(), SH_TOKEN(PARAM, .param=param), quoted);
+	return (true);
+}
 
 static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst, bool quoted)
 {
@@ -159,6 +150,9 @@ static bool		sh_parse_text_escaped(t_sh_parser *p, t_sh_text *dst, bool quoted)
 bool			(*const g_sh_parse_text[_SH_PARSE_T_COUNT_])(t_sh_parser *p, t_sh_text *dst, bool quoted) = {
 	[SH_PARSE_T_SPACE] = &sh_parse_text_space,
 	[SH_PARSE_T_TEXT] = &sh_parse_text_text,
+	[SH_PARSE_T_PARAM] = &sh_parse_text_param,
+	[SH_PARSE_T_PARAM_POS] = &sh_parse_text_param_pos,
+	[SH_PARSE_T_PARAM_SPECIAL] = &sh_parse_text_param_special,
 	[SH_PARSE_T_SUBST] = &sh_parse_text_subst,
 	[SH_PARSE_T_STRING] = &sh_parse_text_string,
 	[SH_PARSE_T_COMMENT] = &sh_parse_text_comment,

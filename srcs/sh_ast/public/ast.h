@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 20:45:48 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 17:13:43 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,14 @@
 # include "ft/ft_vector.h"
 # include "ft/libft.h"
 
-typedef struct s_sh_expr		t_sh_expr;
+typedef enum e_sh_special_param	t_sh_special_param;
+typedef struct s_sh_param		t_sh_param;
 typedef struct s_sh_heredoc		t_sh_heredoc;
+typedef enum e_sh_token_t		t_sh_token_t;
 typedef struct s_sh_token		t_sh_token;
 typedef struct s_sh_text		t_sh_text;
-typedef enum e_sh_token_t		t_sh_token_t;
-typedef enum e_sh_expr_t		t_sh_expr_t;
+typedef enum e_sh_subst_param_t	t_sh_subst_param_t;
+typedef struct s_sh_subst_param	t_sh_subst_param;
 
 typedef struct s_sh_simple		t_sh_simple;
 typedef struct s_sh_for			t_sh_for;
@@ -52,14 +54,40 @@ typedef struct s_sh_compound	t_sh_compound;
 ** Token
 */
 
+enum			e_sh_special_param
+{
+	SH_SPECIAL_PARAM_ARGV,
+	SH_SPECIAL_PARAM_ARGV2,
+	SH_SPECIAL_PARAM_ARGC,
+	SH_SPECIAL_PARAM_STATUS,
+	SH_SPECIAL_PARAM_OPT,
+	SH_SPECIAL_PARAM_PID,
+};
+
+struct			s_sh_param
+{
+	enum {
+		SH_PARAM_STR,
+		SH_PARAM_LENGTH,
+		SH_PARAM_POS,
+		SH_PARAM_SPECIAL,
+	}				type;
+	union {
+		uint16_t			str_length;
+		uint16_t			pos;
+		t_sh_special_param	special;
+	};
+};
+
+# define SH_PARAM(T, ...)	((t_sh_param){SH_PARAM_##T, {__VA_ARGS__}})
+
 enum			e_sh_token_t
 {
 	SH_T_STRING = 1,
 	SH_T_SPACE,
 	SH_T_SUBSHELL,
 	SH_T_PARAM,
-	SH_T_PARAM_POS,
-	SH_T_EXPR,
+	SH_T_SUBST_PARAM,
 	SH_F_T_QUOTED = 1 << 24,
 };
 
@@ -67,11 +95,10 @@ struct			s_sh_token
 {
 	t_sh_token_t	type;
 	union {
-		uint32_t		token_len;
-		t_sh_compound	*cmd;
-		uint32_t		param_len;
-		uint32_t		param_pos;
-		t_sh_expr		*expr;
+		uint32_t			token_len;
+		t_sh_compound		*cmd;
+		t_sh_param			param;
+		t_sh_subst_param	*subst_param;
 	};
 };
 
@@ -90,29 +117,43 @@ struct			s_sh_text
 # define SH_TEXT()	((t_sh_text){DSTR0(), VECTOR(t_sh_token)})
 
 /*
-** Expr
+** Subst param
 */
 
-enum			e_sh_expr_t
+enum			e_sh_subst_param_t
 {
-	SH_EXPR_NONE = 0,
-	SH_EXPR_USE_DEF,
-	SH_EXPR_SET_DEF,
-	SH_EXPR_ISSET,
-	SH_EXPR_USE_ALT,
-	SH_EXPR_SUFFIX,
-	SH_EXPR_PREFIX,
-	SH_EXPR_F_ALT = (1 << 8),
+	SH_SUBST_PARAM_DEF_NULL,		// :-STRING
+	SH_SUBST_PARAM_DEF_UNSET,		// -STRING
+	SH_SUBST_PARAM_ASSIGN_NULL,		// :=STRING
+	SH_SUBST_PARAM_ASSIGN_UNSET,	// =STRING
+	SH_SUBST_PARAM_REPL_NULL,		// :+STRING
+	SH_SUBST_PARAM_REPL_UNSET,		// +STRING
+	SH_SUBST_PARAM_ERR_NULL,		// :?STRING
+	SH_SUBST_PARAM_ERR_UNSET,		// ?STRING
+	SH_SUBST_PARAM_UPPER_FIRST,		// ^
+	SH_SUBST_PARAM_UPPER,			// ^^
+	SH_SUBST_PARAM_LOWER_FIRST,		// ,
+	SH_SUBST_PARAM_LOWER,			// ,,
+	SH_SUBST_PARAM_INVCASE_FIRST,	// ~
+	SH_SUBST_PARAM_INVCASE,			// ~~
+	SH_SUBST_PARAM_REM_BEGIN,		// #PATTERN
+	SH_SUBST_PARAM_REM_BEGIN_LONG,	// ##PATTERN
+	SH_SUBST_PARAM_REM_END,			// %PATTERN
+	SH_SUBST_PARAM_REM_END_LONG,	// %%PATTERN
+	SH_SUBST_PARAM_REPL_FIRST,		// /PATTERN/STRING
+	SH_SUBST_PARAM_REPL_LAST,		// /%PATTERN/STRING
+	SH_SUBST_PARAM_REPL_ALL,		// //PATTERN/STRING
 };
 
-struct			s_sh_expr
+struct			s_sh_subst_param
 {
-	t_sh_expr_t		type;
-	uint32_t		param_len;
-	t_sh_text		text;
+	t_sh_param			param;
+	t_sh_subst_param_t	type;
+	union {
+		t_sh_text			str;
+		t_sh_text			repl[2];
+	};
 };
-
-#define SH_EXPR(L)	((t_sh_expr){SH_EXPR_NONE, (L), SH_TEXT()})
 
 /*
 ** ========================================================================== **

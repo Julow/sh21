@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 20:10:34 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/14 17:05:40 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 11:02:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 
 #include <stdlib.h>
 
-static void		destroy_expr(t_sh_expr *expr)
+static void		destroy_subst_param(t_sh_subst_param *subst_param)
 {
-	sh_destroy_text(&expr->text);
-	free(expr);
+	ASSERT(!"TODO: destroy SUBST_PARAM");
+	free(subst_param);
 }
 
 static void		destroy_subshell(t_sh_compound *cmd)
@@ -38,8 +38,8 @@ void			sh_destroy_text(t_sh_text *text)
 		t = VECTOR_GET(text->tokens, i++);
 		if (t->type == SH_T_SUBSHELL)
 			destroy_subshell(t->cmd);
-		else if (t->type == SH_T_EXPR)
-			destroy_expr(t->expr);
+		else if (t->type == SH_T_SUBST_PARAM)
+			destroy_subst_param(t->subst_param);
 	}
 	ft_dstrclear(&text->text);
 	ft_vclear(&text->tokens);

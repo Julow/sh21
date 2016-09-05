@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/28 01:50:42 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 17:17:48 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,15 @@ struct			s_sh_parse_token
 		SH_PARSE_T_SPACE,
 		SH_PARSE_T_TEXT,
 
+		SH_PARSE_T_PARAM,
+		SH_PARSE_T_PARAM_LENGTH,
+		SH_PARSE_T_PARAM_POS,
+		SH_PARSE_T_PARAM_SPECIAL,
+
 		SH_PARSE_T_SUBST,
+		SH_PARSE_T_SUBST_PARAM_OP,
+		SH_PARSE_T_SUBST_PARAM_END,
+
 		SH_PARSE_T_STRING,
 		SH_PARSE_T_COMMENT,
 
@@ -47,12 +55,16 @@ struct			s_sh_parse_token
 	union {
 		uint32_t			_val;
 
+		uint32_t			param_prefix;
+		t_sh_special_param	param_special;
+
 		enum {
-			SH_PARSE_T_SUBST_EXPR,
+			SH_PARSE_T_SUBST_PARAM,
 			SH_PARSE_T_SUBST_MATH,
 			SH_PARSE_T_SUBST_SUBSHELL,
-			SH_PARSE_T_SUBST_DOLLAR,
 		}					subst;
+
+		t_sh_subst_param_t	subst_param_op;
 
 		enum {
 			SH_PARSE_T_STRING_DOUBLE,
@@ -171,6 +183,10 @@ bool			sh_parse_trailing_redirs(t_sh_parser *p, t_sh_redir_lst *lst);
 extern bool		(*const g_sh_parse_text[])(t_sh_parser *p, t_sh_text *dst, bool quoted);
 
 bool			sh_parse_text_escape_sequence(t_sh_parser *p,
+					t_sh_text *dst, bool quoted);
+
+
+bool			sh_parse_text_subst_param(t_sh_parser *p,
 					t_sh_text *dst, bool quoted);
 
 #endif
