@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:32:48 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/25 01:49:36 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 18:36:35 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ static int		sh_exec_cmd_subshell(t_sh_context *c,
 		return (ASSERT(!"fork fail"), -1);
 	if (pid == 0)
 	{
+		if (!sh_exec_redir(c, &cmd->redirs, NULL))
+			exit(1);
 		sh_exec_compound(c, cmd->subshell, true);
 		HARD_ASSERT(false);
 	}

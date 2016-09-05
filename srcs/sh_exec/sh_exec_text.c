@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 17:34:39 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/05 18:06:11 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ static uint32_t	exec_param(t_sh_context *c, t_sh_token const *t,
 static uint32_t	exec_subst_param(t_sh_context *c, t_sh_token const *t,
 					t_sub text, t_dstr *dst)
 {
-	ASSERT(!"TODO: exec_text param_pos");
+	ASSERT(!"TODO: exec_text subst_param");
 	return (0);
 	(void)c; (void)t; (void)text; (void)dst;
 }

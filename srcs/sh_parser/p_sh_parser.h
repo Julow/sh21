@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 17:17:48 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/05 18:27:08 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ struct			s_sh_parse_token
 
 		SH_PARSE_T_STRING,
 		SH_PARSE_T_COMMENT,
+
+		SH_PARSE_T_PARENTHESIS_OPEN,
 
 		SH_PARSE_T_COMPOUND_END,
 		SH_PARSE_T_LIST_END,

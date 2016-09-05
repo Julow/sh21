@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:21:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/28 01:54:29 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 18:37:09 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,7 @@ bool			sh_ignore_spaces(t_sh_parser *p)
 	{
 		if (t->type != SH_PARSE_T_SPACE)
 			return (true);
-		if (!ft_lexer_next(&p->l)
-			|| (t = SH_T(p))->type != SH_PARSE_T_SPACE)
-			ASSERT(!"Lexer ahead/next mismatch"); // TODO: remove
+		ft_lexer_next(&p->l);
 	}
 	return (false);
 }

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 17:18:22 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/05 18:35:27 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,83 @@ static void		put_key(t_out *out, t_key key)
 #define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, (INDENT) * 4 + 1, ' ', ##__VA_ARGS__)
 
 static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent);
+static void		print_sh_text(t_sh_text const *text, uint32_t indent);
+
+static void		print_sh_subst_param_str(t_sh_subst_param const *param, uint32_t indent)
+{
+	print_sh_text(&param->str, indent);
+}
+
+static void		print_sh_subst_param_end(t_sh_subst_param const *param, uint32_t indent)
+{
+	(void)param;
+	(void)indent;
+}
+
+static void		print_sh_subst_param_repl(t_sh_subst_param const *param, uint32_t indent)
+{
+	print_sh_text(&param->repl[0], indent);
+	ft_printf("\033[36m/\033[0m");
+	print_sh_text(&param->repl[1], indent);
+}
+
+static struct {
+	char const		*op;
+	void			(*f)(t_sh_subst_param const *param, uint32_t indent);
+} const			g_print_sh_subst_param[] = {
+	[SH_SUBST_PARAM_DEF_NULL] = {":-", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_DEF_UNSET] = {"-", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_ASSIGN_NULL] = {":=", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_ASSIGN_UNSET] = {"=", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_REPL_NULL] = {":+", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_REPL_UNSET] = {"+", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_ERR_NULL] = {":?", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_ERR_UNSET] = {"?", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_UPPER_FIRST] = {"^", &print_sh_subst_param_end},
+	[SH_SUBST_PARAM_UPPER] = {"^^", &print_sh_subst_param_end},
+	[SH_SUBST_PARAM_LOWER_FIRST] = {",", &print_sh_subst_param_end},
+	[SH_SUBST_PARAM_LOWER] = {",,", &print_sh_subst_param_end},
+	[SH_SUBST_PARAM_INVCASE_FIRST] = {"~", &print_sh_subst_param_end},
+	[SH_SUBST_PARAM_INVCASE] = {"~~", &print_sh_subst_param_end},
+	[SH_SUBST_PARAM_REM_BEGIN] = {"#", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_REM_BEGIN_LONG] = {"##", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_REM_END] = {"%", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_REM_END_LONG] = {"%%", &print_sh_subst_param_str},
+	[SH_SUBST_PARAM_REPL_FIRST] = {"/", &print_sh_subst_param_repl},
+	[SH_SUBST_PARAM_REPL_LAST] = {"/%", &print_sh_subst_param_repl},
+	[SH_SUBST_PARAM_REPL_ALL] = {"//", &print_sh_subst_param_repl},
+};
+
+static uint32_t	print_sh_param(t_sh_text const *text, uint32_t token_start,
+					t_sh_param const *param)
+{
+	if (param->type == SH_PARAM_STR)
+	{
+		ft_printf("\033[36m${\033[0m%ts\033[36m}\033[0m",
+			SUB(text->text.str + token_start, param->str_length));
+		return (param->str_length);
+	}
+	else if (param->type == SH_PARAM_LENGTH)
+	{
+		ft_printf("\033[36m${#\033[0m%ts\033[36m}\033[0m",
+			SUB(text->text.str + token_start, param->str_length));
+		return (param->str_length);
+	}
+	else if (param->type == SH_PARAM_POS)
+		ft_printf("\033[36m$%d\033[0m", param->pos);
+	else if (param->type == SH_PARAM_SPECIAL)
+		ft_printf("\033[36m$%c\033[0m", ((char[]){
+			[SH_SPECIAL_PARAM_ARGV] = '*',
+			[SH_SPECIAL_PARAM_ARGV2] = '@',
+			[SH_SPECIAL_PARAM_ARGC] = '#',
+			[SH_SPECIAL_PARAM_STATUS] = '?',
+			[SH_SPECIAL_PARAM_OPT] = '-',
+			[SH_SPECIAL_PARAM_PID] = '$',
+		})[param->special]);
+	else
+		ASSERT(!"Invalid sh_param type");
+	return (0);
+}
 
 static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 {
@@ -290,32 +367,15 @@ static void		print_sh_text(t_sh_text const *text, uint32_t indent)
 			PRINT_CMD(indent, "\033[36m)\033[0m");
 			break ;
 		case SH_T_PARAM:
-			if (token->param.type == SH_PARAM_STR)
-			{
-				ft_printf("\033[36m${\033[0m%ts\033[36m}\033[0m",
-					SUB(text->text.str + token_start, token->param.str_length));
-				token_start += token->param.str_length;
-			}
-			else if (token->param.type == SH_PARAM_LENGTH)
-			{
-				ft_printf("\033[36m${#\033[0m%ts\033[36m}\033[0m",
-					SUB(text->text.str + token_start, token->param.str_length));
-				token_start += token->param.str_length;
-			}
-			else if (token->param.type == SH_PARAM_POS)
-				ft_printf("\033[36m$%d\033[0m", token->param.pos);
-			else if (token->param.type == SH_PARAM_SPECIAL)
-				ft_printf("\033[36m$%c\033[0m", ((char[]){
-					[SH_SPECIAL_PARAM_ARGV] = '*',
-					[SH_SPECIAL_PARAM_ARGV2] = '@',
-					[SH_SPECIAL_PARAM_ARGC] = '#',
-					[SH_SPECIAL_PARAM_STATUS] = '?',
-					[SH_SPECIAL_PARAM_OPT] = '-',
-					[SH_SPECIAL_PARAM_PID] = '$',
-				})[token->param.special]);
+			token_start += print_sh_param(text, token_start, &token->param);
 			break ;
 		case SH_T_SUBST_PARAM:
-			ASSERT(!"TODO: print SUBST_PARAM");
+			ft_printf("\033[36m${\033[0m");
+			token_start += print_sh_param(text, token_start, &token->subst_param->param);
+			ft_printf("\033[36m%s\033[0m",
+				g_print_sh_subst_param[token->subst_param->type].op);
+			g_print_sh_subst_param[token->subst_param->type].f(token->subst_param, indent + 1);
+			ft_printf("\033[36m}\033[0m%n");
 			break ;
 		default:
 			ft_printf("%n");
@@ -389,7 +449,9 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		print_sh_text(&cmd->simple.text, indent);
 		break ;
 	case SH_CMD_SUBSHELL:
-		ASSERT(false);
+		ft_printf("\033[33m(\033[0m%n");
+		print_sh_compound(cmd->subshell, indent + 1);
+		PRINT_CMD(indent, "\033[33m)\033[0m");
 		break ;
 	case SH_CMD_IF_CLAUSE:
 		ft_printf("\033[33mif\033[0m%n");

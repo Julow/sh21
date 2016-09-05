@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/28 01:45:52 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/05 18:33:42 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,23 @@ static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_cmd *dst)
 		else
 			break ;
 	return (r);
+}
+
+static bool		sh_parse_subshell(t_sh_parser *p, t_sh_cmd *dst)
+{
+	dst->subshell = NEW(t_sh_compound);
+	sh_ignore_newlines(p);
+	if (sh_parse_compound(p, dst->subshell, true))
+	{
+		if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_SUBSHELL))
+		{
+			if (sh_parse_trailing_redirs(p, &dst->redirs))
+				return (true);
+		}
+		sh_destroy_compound(dst->subshell);
+	}
+	free(dst->subshell);
+	return (false);
 }
 
 static bool		sh_parse_rec_cmd(t_sh_parser *p, t_sh_cmd *dst)
@@ -88,7 +105,7 @@ static struct {
 
 static bool		(*const g_sh_parse_clauses[])(t_sh_parser *p, t_sh_cmd *dst) = {
 	[SH_CMD_SIMPLE] = &sh_parse_simple_cmd,
-	[SH_CMD_SUBSHELL] = NULL, // TODO: subshell
+	[SH_CMD_SUBSHELL] = &sh_parse_subshell,
 	[SH_CMD_IF_CLAUSE] = &sh_parse_if_clause,
 	[SH_CMD_FOR_CLAUSE] = &sh_parse_for_clause,
 	[SH_CMD_WHILE_CLAUSE] = &sh_parse_while_clause,
@@ -120,6 +137,8 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 			else
 				i++;
 	}
+	else if (SH_T(p)->type == SH(PARENTHESIS_OPEN))
+		cmd->type = SH_CMD_SUBSHELL;
 	return (g_sh_parse_clauses[cmd->type](p, cmd)
 			|| (sh_destroy_redir_lst(&cmd->redirs), false));
 }

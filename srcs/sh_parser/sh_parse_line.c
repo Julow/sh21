@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 17:16:11 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/05 18:27:20 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,11 @@ static t_lexer_def const	g_sh_lexer = LEXER_DEF(
 		LEXER_T(";", T(COMPOUND_END, .compound_end=SH(COMPOUND_SEMICOLON))),
 		LEXER_T("&", T(COMPOUND_END, .compound_end=SH(COMPOUND_AMPERSAND))),
 		LEXER_T("\n", T(COMPOUND_END, .compound_end=SH(COMPOUND_NEWLINE))),
+
+		LEXER_T("(", T(PARENTHESIS_OPEN)),
+		LEXER_T(")", T(COMPOUND_END, .compound_end=SH(COMPOUND_SUBSHELL))),
+		LEXER_T("\\(", T(ESCAPED, '(')),
+		LEXER_T("\\)", T(ESCAPED, ')')),
 
 		LEXER_T(">", T(REDIR, .redir=SH_REDIR_OUTPUT)),
 		LEXER_T(">|", T(REDIR, .redir=SH_REDIR_OUTPUT_CLOBBER)),
