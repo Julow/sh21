@@ -7,3 +7,4 @@ module sh::exec:
 
 	private require ft::dstr
 	private require ft::printf
+	private require ft::str_list

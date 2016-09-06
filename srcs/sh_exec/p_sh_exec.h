@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/18 22:10:40 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/25 01:49:46 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/06 14:12:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define P_SH_EXEC_H
 
 # include "ft/ft_dstr.h"
+# include "ft/str_list.h"
 # include "sh/ast.h"
 # include "sh/context.h"
 # include "sh/exec.h"
@@ -21,8 +22,11 @@
 # include <sys/resource.h>
 # include <sys/types.h>
 
+typedef struct s_sh_exec_text	t_sh_exec_text;
+
 /*
 ** ========================================================================== **
+** Exec cmd
 */
 
 int				sh_exec_list(t_sh_context *c,
@@ -46,13 +50,16 @@ extern int		(*const g_sh_exec_cmd[])(t_sh_context *c, t_sh_cmd const *cmd,
 int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 					bool no_fork);
 
-/*
-** Execute a t_sh_text
-** Append the text into 'dst', params are separated by '\0'
-** Return the number of param
-*/
-uint32_t		sh_exec_text(t_sh_context *c,
-					t_sh_text const *text, t_dstr *dst);
+int				sh_exec_cmd_if_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+int				sh_exec_cmd_time_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+int				sh_exec_cmd_while_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+int				sh_exec_cmd_until_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
+int				sh_exec_cmd_for_clause(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork);
 
 /*
 ** -
@@ -70,7 +77,29 @@ bool			sh_search_path(t_sh_context const *c, t_sub name, t_dstr *dst);
 int				sh_wait_pid(t_sh_context *c, pid_t pid, struct rusage *u);
 
 /*
-** -
+** ========================================================================== **
+** Exec text
+*/
+
+struct			s_sh_exec_text
+{
+	t_sh_text const	*text;
+	uint32_t		token_i;
+	uint32_t		str_i;
+};
+
+# define SH_EXEC_TEXT(TEXT)		((t_sh_exec_text){(TEXT), 0, 0})
+
+/*
+** Append arguments in 'dst'
+** Process 'count' tokens if 'count' > 0 else process until the end
+*/
+void			sh_exec_text(t_sh_context *c, t_sh_exec_text *e,
+					uint32_t count, t_str_list *dst);
+
+/*
+** ========================================================================== **
+** Exec redir
 */
 
 /*
@@ -89,24 +118,5 @@ bool			sh_exec_redir(t_sh_context *c, t_sh_redir_lst const *lst,
 */
 void			sh_exec_redir_restore(t_sh_redir_lst const *lst,
 					uint32_t const *saved_fd);
-
-/*
-** -
-*/
-
-int				sh_exec_cmd_if_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork);
-
-int				sh_exec_cmd_time_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork);
-
-int				sh_exec_cmd_while_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork);
-
-int				sh_exec_cmd_until_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork);
-
-int				sh_exec_cmd_for_clause(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork);
 
 #endif

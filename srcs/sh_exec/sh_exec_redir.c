@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/23 18:28:27 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 19:03:01 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/06 17:41:54 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,27 +67,30 @@ static bool		redir_open(t_sh_context *c, t_sh_redir_lst const *lst,
 {
 	uint32_t			i;
 	t_sh_redir const	*r;
-	t_dstr				right_str;
+	t_str_list			right_str;
+	t_sh_exec_text		exec_text;
 
-	right_str = DSTR0();
+	right_str = STR_LIST();
 	i = 0;
 	while (i < lst->redirs.length)
 	{
 		r = VECTOR_GET(lst->redirs, i);
-		right_str.length = 0;
-		if (!((sh_exec_text(c, &r->right_text, &right_str) == 1
+		ft_str_list_clear(&right_str);
+		exec_text = SH_EXEC_TEXT(&r->right_text);
+		sh_exec_text(c, &exec_text, 0, &right_str);
+		if (!((right_str.count == 1
 				|| (ASSERT(!"ambiguous redir"), true))
-			&& redir_right_fd(r, DSTR_SUB(right_str), &right_fd[i])))
+			&& redir_right_fd(r, STR_LIST_SUB(right_str, 0), &right_fd[i])))
 		{
 			redir_close(&lst->redirs, right_fd, i);
-			ft_dstrclear(&right_str);
+			ft_str_list_clear(&right_str);
 			return (false);
 		}
 		left_fd[i] = (r->left_fd < 0) ?
 				g_sh_exec_redir[r->type].def_left : r->left_fd;
 		i++;
 	}
-	ft_dstrclear(&right_str);
+	ft_str_list_clear(&right_str);
 	return (true);
 }
 

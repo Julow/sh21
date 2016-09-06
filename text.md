@@ -33,7 +33,7 @@ Like single quoted string but accept some escape sequences:
 # Substitutions
 
 Result of unquoted substitutions is splitted into multiple arguments
-(TODO: ) using `IFS` characters
+_(using `$IFS` characters)_
 
 ### `$(COMMAND)`
 ### `\`COMMAND\``
