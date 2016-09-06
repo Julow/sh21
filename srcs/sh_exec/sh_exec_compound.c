@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/18 22:18:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/22 22:59:53 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/06 18:28:05 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,14 @@ int				sh_exec_pipeline(t_sh_context *c,
 			HARD_ASSERT(!"fork fail");
 		if (pid == 0)
 		{
-			close(fd_pipe[0]);
 			if (fd_in != 0)
+			{
 				dup2(fd_in, 0);
+				close(fd_in);
+			}
 			dup2(fd_pipe[1], 1);
+			close(fd_pipe[0]);
+			close(fd_pipe[1]);
 			g_sh_exec_cmd[cmd->cmd.type](c, &cmd->cmd, true);
 			HARD_ASSERT(false);
 		}
@@ -54,8 +58,10 @@ int				sh_exec_pipeline(t_sh_context *c,
 
 	saved_stdin = no_fork ? 0 : fcntl(0, F_DUPFD_CLOEXEC, 10);
 	dup2(fd_in, 0);
+	close(fd_in);
 	status = g_sh_exec_cmd[cmd->cmd.type](c, &cmd->cmd, no_fork);
 	dup2(saved_stdin, 0);
+	close(saved_stdin);
 	return (status);
 }
 

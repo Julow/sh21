@@ -81,3 +81,13 @@ for file in `ls`; do printf "[[ %-12s ]]\n" "${file}"; done
 ####
 
 echo $'\a\b\e\E\f\n\r\t\v\\\'\"' | hd
+
+####
+
+printf "] %10s [\n" $(ls | cat | rev | sort) | rev
+
+####
+
+{ { echo stdout; echo stderr >&2; } 3>&2 2>&1 >&3; } >stderr 2>stdout
+{ echo stdout; echo stderr >&2; } >stdout 2>stderr
+echo "stdout -> [$(cat stdout)]" ; echo "stderr -> [$(cat stderr)]"

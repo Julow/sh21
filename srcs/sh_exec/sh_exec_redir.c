@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/23 18:28:27 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/06 17:41:54 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/06 18:53:09 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,6 @@ static bool		redir_open(t_sh_context *c, t_sh_redir_lst const *lst,
 	return (true);
 }
 
-// TODO: recover from a "fcntl fail" error
 static void		redir_save(uint32_t *left_fd, uint32_t *saved_fd, uint32_t len)
 {
 	uint32_t		i;
@@ -103,15 +102,16 @@ static void		redir_save(uint32_t *left_fd, uint32_t *saved_fd, uint32_t len)
 	i = 0;
 	while (i < len)
 	{
-		if ((tmp = fcntl(left_fd[i], F_DUPFD_CLOEXEC, 10)) < 0)
-			HARD_ASSERT(!"fcntl fail");
-		saved_fd[i] = tmp;
+		tmp = fcntl(left_fd[i], F_DUPFD_CLOEXEC, 10);
+		saved_fd[i] = (tmp < 0) ? left_fd[i] : tmp;
 		i++;
 	}
 }
 
-// TODO: recover from a "dup2 fail" error if 'saved_fd' is used
-static void		redir_dup(uint32_t *left_fd, uint32_t *right_fd, uint32_t len)
+#include <errno.h>
+#include <string.h>
+
+static bool		redir_dup(uint32_t *left_fd, uint32_t *right_fd, uint32_t len)
 {
 	uint32_t		i;
 
@@ -119,9 +119,13 @@ static void		redir_dup(uint32_t *left_fd, uint32_t *right_fd, uint32_t len)
 	while (i < len)
 	{
 		if (dup2(right_fd[i], left_fd[i]) < 0)
-			HARD_ASSERT(!"dup2 fail");
+		{
+			ft_dprintf(2, "%u: %s%n", right_fd[i], strerror(errno));
+			return (false);
+		}
 		i++;
 	}
+	return (true);
 }
 
 bool			sh_exec_redir(t_sh_context *c, t_sh_redir_lst const *lst,
@@ -129,14 +133,17 @@ bool			sh_exec_redir(t_sh_context *c, t_sh_redir_lst const *lst,
 {
 	uint32_t		left_fd[lst->redirs.length];
 	uint32_t		right_fd[lst->redirs.length];
+	bool			r;
 
 	if (!redir_open(c, lst, left_fd, right_fd))
 		return (false);
 	if (saved_fd != NULL)
 		redir_save(left_fd, saved_fd, lst->redirs.length);
-	redir_dup(left_fd, right_fd, lst->redirs.length);
+	r = redir_dup(left_fd, right_fd, lst->redirs.length);
 	redir_close(&lst->redirs, right_fd, lst->redirs.length);
-	return (true);
+	if (!r && saved_fd != NULL)
+		sh_exec_redir_restore(lst, saved_fd);
+	return (r);
 }
 
 void			sh_exec_redir_restore(t_sh_redir_lst const *lst,

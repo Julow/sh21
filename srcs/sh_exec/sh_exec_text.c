@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/06 18:13:10 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/06 18:22:40 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,9 @@ static void		sh_exec_text_t_subshell(t_sh_context *c, t_sh_exec_text *e,
 		return (close(pipe_fds[0]), close(pipe_fds[1]), ASSERT(!"fork fail"), VOID);
 	if (pid == 0)
 	{
-		close(pipe_fds[0]);
 		dup2(pipe_fds[1], 1);
+		close(pipe_fds[0]);
+		close(pipe_fds[1]);
 		sh_exec_compound(c, t->cmd, true);
 		HARD_ASSERT(false);
 	}
