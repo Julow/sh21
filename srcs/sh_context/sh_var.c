@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 13:45:59 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:44:46 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 18:37:36 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,12 +43,18 @@ void			sh_c_var_set(t_sh_context *c, t_sub key, t_sub value)
 
 void			sh_c_var_unset(t_sh_context *c, t_sub key)
 {
-	t_sh_c_var *const	var = ft_set_get(&c->vars, &key);
+	t_sh_c_var *const		var = ft_set_get(&c->vars, &key);
+	t_strset_node *const	env_key = ft_set_get(&c->env_keys, &key);
 
 	if (var != NULL)
 	{
 		ft_set_remove(&c->vars, var);
 		free(var);
+	}
+	if (env_key != NULL)
+	{
+		ft_set_remove(&c->env_keys, env_key);
+		free(env_key);
 	}
 }
 

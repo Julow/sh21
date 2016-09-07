@@ -6,25 +6,22 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 16:13:18 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:41:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 18:58:32 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_default_builtins.h"
 
-int				sh_builtin_echo(t_sh_context *c, void *data, // TODO: TMP
-					uint32_t argc, char const *const *argv)
-{
-	ft_printf("ECHO ECHO%n");
-	return (0);
-	(void)c;
-	(void)data;
-	(void)argc;
-	(void)argv;
-}
-
 t_sh_builtin_def const	g_sh_default_builtins[] = {
 	{SUBC("echo"), &sh_builtin_echo},
+	{SUBC("true"), &sh_builtin_true},
+	{SUBC(":"), &sh_builtin_true},
+	{SUBC("false"), &sh_builtin_false},
+	{SUBC("exit"), &sh_builtin_exit},
+	{SUBC("pwd"), &sh_builtin_pwd},
+	{SUBC("set"), &sh_builtin_set},
+	{SUBC("unset"), &sh_builtin_unset},
+	{SUBC("shift"), &sh_builtin_shift},
 };
 
 void			sh_init_default_builtins(t_sh_context *c)

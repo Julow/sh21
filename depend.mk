@@ -3,6 +3,7 @@ LINK_FLAGS += -ltermcap
 MAINS += sh21
 OBJ_DIR_TREE += $(O_DIR)/srcs/strset/ $(O_DIR)/srcs/spanlist/ \
 	$(O_DIR)/srcs/sh_parser/ $(O_DIR)/srcs/sh_exec/ \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/ \
 	$(O_DIR)/srcs/sh_default_builtins/ $(O_DIR)/srcs/sh_context/ \
 	$(O_DIR)/srcs/sh_ast/ $(O_DIR)/srcs/main/ $(O_DIR)/srcs/ft_str_list/ \
 	$(O_DIR)/srcs/editor/binding/ $(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ \
@@ -12,8 +13,8 @@ OBJ_DIR_TREE += $(O_DIR)/srcs/strset/ $(O_DIR)/srcs/spanlist/ \
 	$(O_DIR)/libft/ft_printf/ $(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ \
 	$(O_DIR)/libft/ft_lexer/ $(O_DIR)/libft/ft_in/ $(O_DIR)/libft/ft_getkey/ \
 	$(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ \
-	$(O_DIR)/libft/ $(O_DIR)/_public/sh/ $(O_DIR)/_public/ft/ \
-	$(O_DIR)/_public/ $(O_DIR)/
+	$(O_DIR)/libft/ft_argv/ $(O_DIR)/libft/ $(O_DIR)/_public/sh/ \
+	$(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
 O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/delete.o \
 	$(O_DIR)/srcs/editor/binding/extra_mod.o \
@@ -23,7 +24,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
 	$(O_DIR)/srcs/editor/editor_set_cursor.o \
 	$(O_DIR)/srcs/editor/editor_write.o $(O_DIR)/srcs/editor/text_index.o \
-	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_base/ft_abs.o \
+	$(O_DIR)/srcs/editor/word_range.o $(O_DIR)/libft/ft_argv/arg.o \
+	$(O_DIR)/libft/ft_argv/opt.o $(O_DIR)/libft/ft_base/ft_abs.o \
 	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
 	$(O_DIR)/libft/ft_base/ft_bitset.o $(O_DIR)/libft/ft_base/ft_bzero.o \
 	$(O_DIR)/libft/ft_base/ft_clock.o $(O_DIR)/libft/ft_base/ft_clock_stack.o \
@@ -97,6 +99,14 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_context/context_init.o \
 	$(O_DIR)/srcs/sh_context/sh_builtin.o $(O_DIR)/srcs/sh_context/sh_env.o \
 	$(O_DIR)/srcs/sh_context/sh_var.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/echo.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/exit.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/false.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/pwd.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/set.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/shift.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/true.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/unset.o \
 	$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_cmd.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_cmd_for_clause.o \
@@ -119,20 +129,20 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
-	$(O_DIR)/_public/ft/ft_bst.h $(O_DIR)/_public/ft/ft_colors.h \
-	$(O_DIR)/_public/ft/ft_dstr.h $(O_DIR)/_public/ft/ft_in.h \
-	$(O_DIR)/_public/ft/ft_list.h $(O_DIR)/_public/ft/ft_out.h \
-	$(O_DIR)/_public/ft/ft_printf.h $(O_DIR)/_public/ft/ft_str_out.h \
-	$(O_DIR)/_public/ft/ft_vector.h $(O_DIR)/_public/ft/ft_vprintf.h \
-	$(O_DIR)/_public/ft/ft_wchar.h $(O_DIR)/_public/ft/get_next_line.h \
-	$(O_DIR)/_public/ft/getkey.h $(O_DIR)/_public/ft/lexer.h \
-	$(O_DIR)/_public/ft/libft.h $(O_DIR)/_public/ft/set.h \
-	$(O_DIR)/_public/ft/spanlist.h $(O_DIR)/_public/ft/str_list.h \
-	$(O_DIR)/_public/ft/strset.h $(O_DIR)/_public/ft/term.h \
-	$(O_DIR)/_public/ft/tokenizer.h $(O_DIR)/_public/ft/tokenmap_builder.h \
-	$(O_DIR)/_public/sh/ast.h $(O_DIR)/_public/sh/context.h \
-	$(O_DIR)/_public/sh/default_builtins.h $(O_DIR)/_public/sh/exec.h \
-	$(O_DIR)/_public/sh/parser.h
+	$(O_DIR)/_public/ft/argv.h $(O_DIR)/_public/ft/ft_bst.h \
+	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_dstr.h \
+	$(O_DIR)/_public/ft/ft_in.h $(O_DIR)/_public/ft/ft_list.h \
+	$(O_DIR)/_public/ft/ft_out.h $(O_DIR)/_public/ft/ft_printf.h \
+	$(O_DIR)/_public/ft/ft_str_out.h $(O_DIR)/_public/ft/ft_vector.h \
+	$(O_DIR)/_public/ft/ft_vprintf.h $(O_DIR)/_public/ft/ft_wchar.h \
+	$(O_DIR)/_public/ft/get_next_line.h $(O_DIR)/_public/ft/getkey.h \
+	$(O_DIR)/_public/ft/lexer.h $(O_DIR)/_public/ft/libft.h \
+	$(O_DIR)/_public/ft/set.h $(O_DIR)/_public/ft/spanlist.h \
+	$(O_DIR)/_public/ft/str_list.h $(O_DIR)/_public/ft/strset.h \
+	$(O_DIR)/_public/ft/term.h $(O_DIR)/_public/ft/tokenizer.h \
+	$(O_DIR)/_public/ft/tokenmap_builder.h $(O_DIR)/_public/sh/ast.h \
+	$(O_DIR)/_public/sh/context.h $(O_DIR)/_public/sh/default_builtins.h \
+	$(O_DIR)/_public/sh/exec.h $(O_DIR)/_public/sh/parser.h
 
 sh21: $(O_FILES)
 
@@ -243,6 +253,12 @@ $(O_DIR)/srcs/editor/editor_key.o $(O_DIR)/srcs/editor/editor_out.o \
 $(O_DIR)/srcs/editor/editor_set_cursor.o $(O_DIR)/srcs/editor/editor_write.o \
 $(O_DIR)/srcs/editor/text_index.o $(O_DIR)/srcs/editor/word_range.o: \
 	INCLUDE_FLAGS += -Isrcs/editor
+
+# module ft::argv
+$(O_DIR)/libft/ft_argv/arg.o: libft/ft_argv/arg.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h
+$(O_DIR)/libft/ft_argv/opt.o: libft/ft_argv/opt.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h
 
 # module ft::base
 $(O_DIR)/libft/ft_base/ft_abs.o: libft/ft_base/ft_abs.c \
@@ -676,13 +692,14 @@ $(O_DIR)/libft/ft_vector/ft_vspan.o: libft/ft_vector/ft_vspan.c \
 	libft/ft_base/public/libft.h libft/ft_vector/public/ft_vector.h
 
 # module sh21
-$(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
-	libft/ft_base/public/libft.h libft/ft_bst/public/ft_bst.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_getkey/public/getkey.h \
-	libft/ft_in/public/ft_in.h libft/ft_list/public/ft_list.h \
-	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
-	libft/ft_set/public/set.h libft/ft_term/public/term.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
+$(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/ft_colors.h libft/ft_base/public/libft.h \
+	libft/ft_bst/public/ft_bst.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_getkey/public/getkey.h libft/ft_in/public/ft_in.h \
+	libft/ft_list/public/ft_list.h libft/ft_out/public/ft_out.h \
+	libft/ft_printf/public/ft_printf.h libft/ft_set/public/set.h \
+	libft/ft_term/public/term.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
 	srcs/editor/public/editor_bindings.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
@@ -711,112 +728,196 @@ $(O_DIR)/srcs/sh_ast/destroy_text.o: INCLUDE_FLAGS += -Isrcs/sh_ast
 
 # module sh::context
 $(O_DIR)/srcs/sh_context/context_init.o: srcs/sh_context/context_init.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
-	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
-	srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_context/p_sh_context.h \
+	srcs/sh_context/public/context.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_context/sh_builtin.o: srcs/sh_context/sh_builtin.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
-	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
-	srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_context/p_sh_context.h \
+	srcs/sh_context/public/context.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_context/sh_env.o: srcs/sh_context/sh_env.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
-	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
-	srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_context/p_sh_context.h \
+	srcs/sh_context/public/context.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_context/sh_var.o: srcs/sh_context/sh_var.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
-	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
-	srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_context/p_sh_context.h \
+	srcs/sh_context/public/context.h srcs/strset/public/strset.h
 
 $(O_DIR)/srcs/sh_context/context_init.o $(O_DIR)/srcs/sh_context/sh_builtin.o \
 $(O_DIR)/srcs/sh_context/sh_env.o $(O_DIR)/srcs/sh_context/sh_var.o: \
 	INCLUDE_FLAGS += -Isrcs/sh_context
 
 # module sh::default_builtins
-$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: \
-	srcs/sh_default_builtins/sh_init_default_builtins.c \
+$(O_DIR)/srcs/sh_default_builtins/builtins/echo.o: \
+	srcs/sh_default_builtins/builtins/echo.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/exit.o: \
+	srcs/sh_default_builtins/builtins/exit.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/false.o: \
+	srcs/sh_default_builtins/builtins/false.c libft/ft_argv/public/argv.h \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_context/public/context.h \
 	srcs/sh_default_builtins/p_default_builtins.h \
 	srcs/sh_default_builtins/public/default_builtins.h \
 	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/pwd.o: \
+	srcs/sh_default_builtins/builtins/pwd.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/set.o: \
+	srcs/sh_default_builtins/builtins/set.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/shift.o: \
+	srcs/sh_default_builtins/builtins/shift.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/true.o: \
+	srcs/sh_default_builtins/builtins/true.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/unset.o: \
+	srcs/sh_default_builtins/builtins/unset.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: \
+	srcs/sh_default_builtins/sh_init_default_builtins.c \
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
 
+$(O_DIR)/srcs/sh_default_builtins/builtins/echo.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/exit.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/false.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/pwd.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/set.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/shift.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/true.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/unset.o \
 $(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: INCLUDE_FLAGS += \
 	-Isrcs/sh_default_builtins
 
 # module sh::exec
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd.o: srcs/sh_exec/sh_exec_cmd.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
-	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
-	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
-	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
+	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
+	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd_for_clause.o: \
-	srcs/sh_exec/sh_exec_cmd_for_clause.c libft/ft_base/public/libft.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
-	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
-	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
-	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
-	srcs/strset/public/strset.h
-$(O_DIR)/srcs/sh_exec/sh_exec_cmd_if_clause.o: \
-	srcs/sh_exec/sh_exec_cmd_if_clause.c libft/ft_base/public/libft.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
-	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
-	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
-	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
-	srcs/strset/public/strset.h
-$(O_DIR)/srcs/sh_exec/sh_exec_cmd_simple.o: srcs/sh_exec/sh_exec_cmd_simple.c \
+	srcs/sh_exec/sh_exec_cmd_for_clause.c libft/ft_argv/public/argv.h \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
 	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
 	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
 	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
 	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
-$(O_DIR)/srcs/sh_exec/sh_exec_cmd_time_clause.o: \
-	srcs/sh_exec/sh_exec_cmd_time_clause.c libft/ft_base/public/libft.h \
+$(O_DIR)/srcs/sh_exec/sh_exec_cmd_if_clause.o: \
+	srcs/sh_exec/sh_exec_cmd_if_clause.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
+	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
+	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_exec/sh_exec_cmd_simple.o: srcs/sh_exec/sh_exec_cmd_simple.c \
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_out/public/ft_out.h \
 	libft/ft_printf/public/ft_printf.h libft/ft_set/public/set.h \
 	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
 	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
 	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_exec/sh_exec_cmd_time_clause.o: \
+	srcs/sh_exec/sh_exec_cmd_time_clause.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
+	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
+	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd_while_clause.o: \
-	srcs/sh_exec/sh_exec_cmd_while_clause.c libft/ft_base/public/libft.h \
+	srcs/sh_exec/sh_exec_cmd_while_clause.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
+	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
+	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_exec/sh_exec_compound.o: srcs/sh_exec/sh_exec_compound.c \
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
 	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
 	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
 	srcs/strset/public/strset.h
-$(O_DIR)/srcs/sh_exec/sh_exec_compound.o: srcs/sh_exec/sh_exec_compound.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
-	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
-	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
-	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_redir.o: srcs/sh_exec/sh_exec_redir.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
-	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
-	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
-	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
-	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_out/public/ft_out.h \
+	libft/ft_printf/public/ft_printf.h libft/ft_set/public/set.h \
+	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
+	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
+	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_text.o: srcs/sh_exec/sh_exec_text.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
-	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
-	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
-	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
-	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_out/public/ft_out.h \
+	libft/ft_printf/public/ft_printf.h libft/ft_set/public/set.h \
+	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
+	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
+	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/utils.o: srcs/sh_exec/utils.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
-	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
-	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
-	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
+	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
+	srcs/strset/public/strset.h
 
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd.o \
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd_for_clause.o \
@@ -920,6 +1021,7 @@ $(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o: INCLUDE_FLAGS += \
 # public links
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h
 $(O_DIR)/_public/editor_bindings.h: srcs/editor/public/editor_bindings.h
+$(O_DIR)/_public/ft/argv.h: libft/ft_argv/public/argv.h
 $(O_DIR)/_public/ft/ft_bst.h: libft/ft_bst/public/ft_bst.h
 $(O_DIR)/_public/ft/ft_colors.h: libft/ft_base/public/ft_colors.h
 $(O_DIR)/_public/ft/ft_dstr.h: libft/ft_dstr/public/ft_dstr.h

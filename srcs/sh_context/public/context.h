@@ -6,21 +6,22 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:37:02 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 16:53:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONTEXT_H
 # define CONTEXT_H
 
+# include "ft/argv.h"
 # include "ft/libft.h"
 # include "ft/set.h"
 # include "ft/str_list.h"
 # include "ft/strset.h"
 
 typedef struct s_sh_context		t_sh_context;
-typedef int						(*t_sh_builtin)(t_sh_context *c, void *data,
-									uint32_t argc, char const *const *argv);
+typedef int						(*t_sh_builtin)(t_sh_context *c,
+									void *data, t_argv args);
 
 /*
 ** ========================================================================== **

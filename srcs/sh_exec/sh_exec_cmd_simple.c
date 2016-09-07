@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/07 16:41:02 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 18:34:11 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ __attribute__ ((noreturn))
 static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
 					char const *const *params)
 {
+	char const		*env[SH_C_ENV_SIZE(*c)];
 	t_sub			cmd_name;
 	t_dstr			cmd_path;
 
@@ -52,7 +53,8 @@ static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
 		ft_dprintf(2, "%ts: command not found%n", cmd_name);
 		exit(127);
 	}
-	execve(cmd_path.str, V(params), NULL);
+	sh_c_env_build(c, env);
+	execve(cmd_path.str, V(params), V(env));
 	ft_printf("%ts: %s%n", DSTR_SUB(cmd_path), strerror(errno));
 	exit(126);
 }
@@ -73,19 +75,17 @@ static int		sh_exec_cmd_simple_fork(t_sh_context *c, t_sh_cmd const *cmd,
 	return (sh_wait_pid(c, pid, NULL));
 }
 
-static bool		sh_exec_cmd_simple_builtin(t_sh_context *c,
-					uint32_t argc, char const *const *argv, int *status)
+static bool		sh_exec_cmd_simple_builtin(t_sh_context *c, t_argv args,
+					bool no_fork, int *status)
 {
 	t_sh_builtin	builtin;
 	void			*builtin_data;
-	uint32_t		s;
 
-	if (!sh_c_builtin_get(c, ft_sub(argv[0], 0, -1), &builtin, &builtin_data))
+	if (!sh_c_builtin_get(c, ft_sub(args.argv[0], 0, -1), &builtin, &builtin_data))
 		return (false);
-	s = builtin(c, builtin_data, argc, argv);
-	if (status == NULL)
-		exit(s);
-	*status = s;
+	*status = builtin(c, builtin_data, args);
+	if (no_fork)
+		exit(*status);
 	return (true);
 }
 
@@ -103,8 +103,8 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 		char const		*params[param_buff.count + 1];
 
 		sh_exec_text_load_params(&param_buff, params);
-		if (sh_exec_cmd_simple_builtin(c, param_buff.count, params,
-			no_fork ? NULL : &status))
+		if (sh_exec_cmd_simple_builtin(c, ARGV(param_buff.count, V(params)),
+				no_fork, &status))
 			;
 		else if (no_fork)
 			sh_exec_cmd_simple_exec(c, cmd, params);

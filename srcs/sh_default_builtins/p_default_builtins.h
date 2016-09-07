@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 16:11:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:33:29 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 18:48:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,13 @@ struct			s_sh_builtin_def
 	t_sh_builtin	builtin_f;
 };
 
-// TODO: builtin function & context builtin manipulation: prefix collision
-
-int				sh_builtin_echo(t_sh_context *c, void *data,
-					uint32_t argc, char const *const *argv);
+int				sh_builtin_echo(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_true(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_false(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_exit(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_pwd(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_set(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_unset(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_shift(t_sh_context *c, void *data, t_argv args);
 
 #endif

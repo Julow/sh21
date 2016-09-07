@@ -101,3 +101,8 @@ printf "%s\n" $@
 printf "%s\n" "$*"
 printf "%s\n" "$@"
 printf "%s\n" "[$@]"
+
+####
+
+set 1 2 3 4 5 6 7 8 9
+printf "[%s] " "$@"; echo "=> $#"; shift
