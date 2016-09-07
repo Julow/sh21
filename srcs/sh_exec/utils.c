@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/22 14:55:41 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 21:41:47 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/07 16:37:40 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 
 bool			sh_search_path(t_sh_context const *c, t_sub name, t_dstr *dst)
 {
-	t_sub const		path = sh_var_get(c, SUBC("PATH"));
+	t_sub const		path = sh_c_var_get(c, SUBC("PATH"));
 	t_sub			sub;
 
 	sub = SUB_START(path);

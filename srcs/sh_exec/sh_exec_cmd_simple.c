@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/06 18:08:04 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 16:41:02 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,11 @@ static void		sh_exec_text_load_params(t_str_list const *param_buff,
 
 __attribute__ ((noreturn))
 static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
-					t_str_list const *param_buff)
+					char const *const *params)
 {
-	char const		*params[param_buff->count + 1];
 	t_sub			cmd_name;
 	t_dstr			cmd_path;
 
-	sh_exec_text_load_params(param_buff, params);
 	cmd_name = ft_sub(params[0], 0, -1);
 	if (!sh_exec_redir(c, &cmd->redirs, NULL))
 		exit(1);
@@ -60,7 +58,7 @@ static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
 }
 
 static int		sh_exec_cmd_simple_fork(t_sh_context *c, t_sh_cmd const *cmd,
-					t_str_list const *param_buff)
+					char const *const *params)
 {
 	pid_t			pid;
 
@@ -68,11 +66,27 @@ static int		sh_exec_cmd_simple_fork(t_sh_context *c, t_sh_cmd const *cmd,
 		return (ASSERT(!"fork fail"), -1);
 	if (pid == 0)
 	{
-		sh_exec_cmd_simple_exec(c, cmd, param_buff);
+		sh_exec_cmd_simple_exec(c, cmd, params);
 		ASSERT(false);
 		exit(-1);
 	}
 	return (sh_wait_pid(c, pid, NULL));
+}
+
+static bool		sh_exec_cmd_simple_builtin(t_sh_context *c,
+					uint32_t argc, char const *const *argv, int *status)
+{
+	t_sh_builtin	builtin;
+	void			*builtin_data;
+	uint32_t		s;
+
+	if (!sh_c_builtin_get(c, ft_sub(argv[0], 0, -1), &builtin, &builtin_data))
+		return (false);
+	s = builtin(c, builtin_data, argc, argv);
+	if (status == NULL)
+		exit(s);
+	*status = s;
+	return (true);
 }
 
 int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
@@ -85,11 +99,18 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 	param_buff = STR_LIST();
 	exec_text = SH_EXEC_TEXT(&cmd->simple.text);
 	sh_exec_text(c, &exec_text, 0, &param_buff);
-	// TODO: builtins
-	if (no_fork)
-		sh_exec_cmd_simple_exec(c, cmd, &param_buff);
-	else
-		status = sh_exec_cmd_simple_fork(c, cmd, &param_buff);
+	{
+		char const		*params[param_buff.count + 1];
+
+		sh_exec_text_load_params(&param_buff, params);
+		if (sh_exec_cmd_simple_builtin(c, param_buff.count, params,
+			no_fork ? NULL : &status))
+			;
+		else if (no_fork)
+			sh_exec_cmd_simple_exec(c, cmd, params);
+		else
+			status = sh_exec_cmd_simple_fork(c, cmd, params);
+	}
 	ft_str_list_clear(&param_buff);
 	return (status);
 }

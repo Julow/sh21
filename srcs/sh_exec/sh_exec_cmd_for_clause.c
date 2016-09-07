@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/25 01:49:29 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/06 14:31:20 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 16:38:25 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int				sh_exec_cmd_for_clause(t_sh_context *c,
 	data_offset = 0;
 	while (data_offset < STR_LIST_END(data_buff))
 	{
-		sh_var_set(c, cmd->for_clause->var,
+		sh_c_var_set(c, cmd->for_clause->var,
 			STR_LIST_SUB(data_buff, data_offset));
 		status = sh_exec_compound(c, &cmd->for_clause->body, false);
 		data_offset += STR_LIST_NEXT(data_buff, data_offset);

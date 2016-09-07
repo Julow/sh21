@@ -6,14 +6,19 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 15:11:57 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 12:35:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 16:44:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef P_SH_CONTEXT_H
 # define P_SH_CONTEXT_H
 
-typedef struct s_sh_var			t_sh_var;
+# include "ft/libft.h"
+# include "ft/set.h"
+# include "sh/context.h"
+
+typedef struct s_sh_c_var			t_sh_c_var;
+typedef struct s_sh_c_builtin		t_sh_c_builtin;
 
 /*
 ** ========================================================================== **
@@ -21,20 +26,44 @@ typedef struct s_sh_var			t_sh_var;
 */
 
 /*
+** ========================================================================== **
+** vars
+*/
+
+/*
 ** Var are stored as 0-terminated string
 ** length			=> total length of the variable string
 ** key_len			=> length of the key
 */
-struct			s_sh_var
+struct			s_sh_c_var
 {
 	t_set_h			set_h;
 	uint32_t		length;
 	uint32_t		key_len;
 };
 
-# define SH_VAR_STR(V)		(ENDOF(V))
-# define SH_VAR(LEN,KLEN)	((t_sh_var){SET_HEAD(), (LEN), (KLEN)})
+# define SH_C_VAR_STR(V)	(ENDOF(V))
+# define SH_C_VAR(LEN,KLEN)	((t_sh_c_var){SET_HEAD(), (LEN), (KLEN)})
 
-int				sh_var_cmp(t_sh_var const *v, t_sub const *key);
+int				sh_c_var_cmp(t_sh_c_var const *v, t_sub const *key);
+
+/*
+** ========================================================================== **
+** builtins
+*/
+
+/*
+** name				=> builtin name
+** f				=> builtin function
+** ENDOF()			=> builtin data
+*/
+struct			s_sh_c_builtin
+{
+	t_set_h			set_h;
+	t_sub			name;
+	t_sh_builtin	f;
+};
+
+int				sh_c_builtin_cmd(t_sh_c_builtin const *v, t_sub const *key);
 
 #endif

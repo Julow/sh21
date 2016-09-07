@@ -8,6 +8,7 @@ main module sh21:
 	require ft::term
 	require ft::tokenizer
 	require sh::ast
+	require sh::default_builtins
 	require sh::exec
 	require sh::parser
 	require editor

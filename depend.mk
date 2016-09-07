@@ -2,7 +2,8 @@ INCLUDE_FLAGS += -I$(O_DIR)/_public
 LINK_FLAGS += -ltermcap
 MAINS += sh21
 OBJ_DIR_TREE += $(O_DIR)/srcs/strset/ $(O_DIR)/srcs/spanlist/ \
-	$(O_DIR)/srcs/sh_parser/ $(O_DIR)/srcs/sh_exec/ $(O_DIR)/srcs/sh_context/ \
+	$(O_DIR)/srcs/sh_parser/ $(O_DIR)/srcs/sh_exec/ \
+	$(O_DIR)/srcs/sh_default_builtins/ $(O_DIR)/srcs/sh_context/ \
 	$(O_DIR)/srcs/sh_ast/ $(O_DIR)/srcs/main/ $(O_DIR)/srcs/ft_str_list/ \
 	$(O_DIR)/srcs/editor/binding/ $(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ \
 	$(O_DIR)/libft/get_next_line/ $(O_DIR)/libft/ft_vector/ \
@@ -93,8 +94,11 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/main/main.o $(O_DIR)/srcs/sh_ast/destroy_cmd.o \
 	$(O_DIR)/srcs/sh_ast/destroy_compound.o \
 	$(O_DIR)/srcs/sh_ast/destroy_text.o \
-	$(O_DIR)/srcs/sh_context/context_init.o $(O_DIR)/srcs/sh_context/sh_env.o \
-	$(O_DIR)/srcs/sh_context/sh_var.o $(O_DIR)/srcs/sh_exec/sh_exec_cmd.o \
+	$(O_DIR)/srcs/sh_context/context_init.o \
+	$(O_DIR)/srcs/sh_context/sh_builtin.o $(O_DIR)/srcs/sh_context/sh_env.o \
+	$(O_DIR)/srcs/sh_context/sh_var.o \
+	$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o \
+	$(O_DIR)/srcs/sh_exec/sh_exec_cmd.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_cmd_for_clause.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_cmd_if_clause.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_cmd_simple.o \
@@ -127,7 +131,8 @@ PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/strset.h $(O_DIR)/_public/ft/term.h \
 	$(O_DIR)/_public/ft/tokenizer.h $(O_DIR)/_public/ft/tokenmap_builder.h \
 	$(O_DIR)/_public/sh/ast.h $(O_DIR)/_public/sh/context.h \
-	$(O_DIR)/_public/sh/exec.h $(O_DIR)/_public/sh/parser.h
+	$(O_DIR)/_public/sh/default_builtins.h $(O_DIR)/_public/sh/exec.h \
+	$(O_DIR)/_public/sh/parser.h
 
 sh21: $(O_FILES)
 
@@ -681,6 +686,7 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
 	srcs/editor/public/editor_bindings.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
 	srcs/sh_exec/public/exec.h srcs/sh_parser/public/parser.h \
 	srcs/spanlist/public/spanlist.h srcs/strset/public/strset.h
 
@@ -709,6 +715,11 @@ $(O_DIR)/srcs/sh_context/context_init.o: srcs/sh_context/context_init.c \
 	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
 	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_context/sh_builtin.o: srcs/sh_context/sh_builtin.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
+	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_context/sh_env.o: srcs/sh_context/sh_env.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
@@ -720,8 +731,22 @@ $(O_DIR)/srcs/sh_context/sh_var.o: srcs/sh_context/sh_var.c \
 	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
 	srcs/strset/public/strset.h
 
-$(O_DIR)/srcs/sh_context/context_init.o $(O_DIR)/srcs/sh_context/sh_env.o \
-$(O_DIR)/srcs/sh_context/sh_var.o: INCLUDE_FLAGS += -Isrcs/sh_context
+$(O_DIR)/srcs/sh_context/context_init.o $(O_DIR)/srcs/sh_context/sh_builtin.o \
+$(O_DIR)/srcs/sh_context/sh_env.o $(O_DIR)/srcs/sh_context/sh_var.o: \
+	INCLUDE_FLAGS += -Isrcs/sh_context
+
+# module sh::default_builtins
+$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: \
+	srcs/sh_default_builtins/sh_init_default_builtins.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/strset/public/strset.h
+
+$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: INCLUDE_FLAGS += \
+	-Isrcs/sh_default_builtins
 
 # module sh::exec
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd.o: srcs/sh_exec/sh_exec_cmd.c \
@@ -921,5 +946,7 @@ $(O_DIR)/_public/ft/tokenmap_builder.h: \
 libft/ft_tokenizer/public/tokenmap_builder.h
 $(O_DIR)/_public/sh/ast.h: srcs/sh_ast/public/ast.h
 $(O_DIR)/_public/sh/context.h: srcs/sh_context/public/context.h
+$(O_DIR)/_public/sh/default_builtins.h: \
+srcs/sh_default_builtins/public/default_builtins.h
 $(O_DIR)/_public/sh/exec.h: srcs/sh_exec/public/exec.h
 $(O_DIR)/_public/sh/parser.h: srcs/sh_parser/public/parser.h

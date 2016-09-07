@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/07 14:34:58 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 16:38:17 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static void		load_ifs(t_sh_context const *c, t_bits *dst)
 	t_sub			ifs_val;
 	uint32_t		i;
 
-	ifs_val = sh_var_get(c, SUBC("IFS"));
+	ifs_val = sh_c_var_get(c, SUBC("IFS"));
 	if (ifs_val.length == 0)
 		ifs_val = SUBC(" \t\n");
 	ft_bitclear(dst, 0, 256);
@@ -124,7 +124,7 @@ static void		sh_exec_text_t_subshell(t_sh_context *c, t_sh_exec_text *e,
 static void		sh_exec_text_t_param_special_argv(t_sh_context *c,
 					t_sh_token const *t, t_str_list *dst)
 {
-	t_sub const		ifs_val = sh_var_get(c, SUBC("IFS"));
+	t_sub const		ifs_val = sh_c_var_get(c, SUBC("IFS"));
 	char const		sep = (ifs_val.length >= 1) ? ifs_val.str[0] : ' ';
 	uint32_t		offset;
 
@@ -231,13 +231,13 @@ static void		sh_exec_text_t_param(t_sh_context *c, t_sh_exec_text *e,
 
 	if (t->param.type == SH_PARAM_STR)
 	{
-		val = sh_var_get(c, SUB(e->text->text.str + e->str_i, t->param.str_length));
+		val = sh_c_var_get(c, SUB(e->text->text.str + e->str_i, t->param.str_length));
 		e->str_i += t->param.str_length;
 		sh_exec_text_append_ifs(c, t, val, dst);
 	}
 	else if (t->param.type == SH_PARAM_LENGTH)
 	{
-		val = sh_var_get(c, SUB(e->text->text.str + e->str_i, t->param.str_length));
+		val = sh_c_var_get(c, SUB(e->text->text.str + e->str_i, t->param.str_length));
 		e->str_i += t->param.str_length;
 		val.length = ft_sprintf(tmp, "%u", val.length);
 		val.str = tmp;

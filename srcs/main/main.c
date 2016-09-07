@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 18:35:27 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 16:27:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "ft/term.h"
 #include "ft/tokenizer.h"
 #include "sh/ast.h"
+#include "sh/default_builtins.h"
 #include "sh/exec.h"
 #include "sh/parser.h"
 
@@ -55,7 +56,7 @@ struct			s_main
 	t_editor			*editor;
 	uint32_t			flags;
 	// t_syntax_color const	*syntax_color;
-	// t_sh_context		sh_context;
+	t_sh_context		sh_context;
 };
 
 #define DEFAULT_SYNTAX_COLOR	"sh"
@@ -248,12 +249,7 @@ static void		put_key(t_out *out, t_key key)
 
 /*
 ** ========================================================================== **
-** Exec shell
-*/
-
-/*
-** ========================================================================== **
-** Shell parser
+** Shell print
 */
 
 #define PRINT_CMD(INDENT, FMT, ...)	ft_printf("%.*c" FMT, (INDENT) * 4 + 1, ' ', ##__VA_ARGS__)
@@ -526,38 +522,6 @@ static void 	print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
 
 /*
 ** ========================================================================== **
-** Exec shell
-*/
-
-static void		debug_sh_parser(t_sub str)
-{
-	t_in			in;
-	t_sh_compound	cmd;
-	t_sh_parse_err	err;
-	t_sh_context	context;
-
-	in = IN(str.str, str.length, NULL);
-	if (!sh_parse(&in, &cmd, &err))
-	{
-		ft_printf("ERROR: %s%n", ((char const*[]){
-			[SH_E_ERROR] = "wtf",
-			[SH_E_UNEXPECTED] = "unexpected token",
-			[SH_E_EOF] = "unexpected end of file",
-			[SH_E_UNCLOSED_STRING] = "unclosed string",
-			[SH_E_UNCLOSED_SUBSHELL] = "unclosed subshell",
-		})[err.err]);
-		return ;
-	}
-	print_sh_compound(&cmd, 0);
-	sh_context_init(&context);
-	int status = sh_exec_compound(&context, &cmd, false);
-	ft_printf("$? = %d%n", status);
-	sh_destroy_compound(&cmd);
-	ft_printf("%n");
-}
-
-/*
-** ========================================================================== **
 ** Init
 */
 
@@ -565,9 +529,31 @@ static void		debug_sh_parser(t_sub str)
 
 static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 {
-	debug_sh_parser(DSTR_SUB(editor->text));
+	t_sub const		text = DSTR_SUB(editor->text);
+	t_in			in;
+	t_sh_compound	cmd;
+	t_sh_parse_err	err;
+
+	in = IN(text.str, text.length, NULL);
+	while (IN_REFRESH(&in)) // TODO: pass tokenizer to sh_parse
+	{
+		if (!sh_parse(&in, &cmd, &err))
+		{
+			ft_printf("ERROR: %s%n", ((char const*[]){
+				[SH_E_ERROR] = "wtf",
+				[SH_E_UNEXPECTED] = "unexpected token",
+				[SH_E_EOF] = "unexpected end of file",
+				[SH_E_UNCLOSED_STRING] = "unclosed string",
+				[SH_E_UNCLOSED_SUBSHELL] = "unclosed subshell",
+			})[err.err]);
+			break ;
+		}
+
+		print_sh_compound(&cmd, 0);
+		sh_exec_compound(&main->sh_context, &cmd, false);
+		sh_destroy_compound(&cmd);
+	}
 	return (true);
-	(void)main;
 	(void)key;
 }
 
@@ -602,7 +588,8 @@ static bool		init_main(t_main *main)
 		// 		DEFAULT_SYNTAX_COLOR);
 		main->flags |= FLAG_INTERACTIVE;
 	}
-	// sh_context_init(&main->sh_context);
+	sh_context_init(&main->sh_context);
+	sh_init_default_builtins(&main->sh_context);
 	return (true);
 }
 
