@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 15:06:31 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 15:22:44 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 14:37:33 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,12 @@ void			sh_context_init(t_sh_context *dst)
 	t_sub			sub;
 	uint32_t		key_len;
 
-	*dst = SH_CONTEXT();
+	*dst = (t_sh_context){
+		SET(sh_var_cmp, 0),
+		STRSET(0),
+		STR_LIST(),
+		0
+	};
 	i = 0;
 	while (environ[i] != NULL)
 	{

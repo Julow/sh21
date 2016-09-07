@@ -6,11 +6,13 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/06 18:22:40 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 14:34:58 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/ft_printf.h" // TODO: split {s,a,as,f}printf and {,d}printf
 #include "p_sh_exec.h"
+
 #include <unistd.h>
 
 static void		load_ifs(t_sh_context const *c, t_bits *dst)
@@ -42,7 +44,7 @@ static void		sh_exec_text_append_ifs(t_sh_context const *c,
 		ft_str_list_append(dst, append);
 		return ;
 	}
-	load_ifs(c, ifs);
+	load_ifs(c, ifs); // TODO: cache result
 	i = 0;
 	tmp = 0;
 
@@ -53,7 +55,8 @@ static void		sh_exec_text_append_ifs(t_sh_context const *c,
 			ft_str_list_append(dst, SUB(append.str + tmp, i - tmp));
 			ft_str_list_break(dst);
 			if (IS(append.str[i], IS_BLANK))
-				while (BITARRAY_GET(ifs, append.str[i + 1]))
+				while ((i + 1) < append.length
+					&& BITARRAY_GET(ifs, append.str[i + 1]))
 					i++;
 			tmp = ++i;
 			continue ;
@@ -118,10 +121,113 @@ static void		sh_exec_text_t_subshell(t_sh_context *c, t_sh_exec_text *e,
 	(void)e;
 }
 
+static void		sh_exec_text_t_param_special_argv(t_sh_context *c,
+					t_sh_token const *t, t_str_list *dst)
+{
+	t_sub const		ifs_val = sh_var_get(c, SUBC("IFS"));
+	char const		sep = (ifs_val.length >= 1) ? ifs_val.str[0] : ' ';
+	uint32_t		offset;
+
+	if (c->pos_params.count == 0)
+	{
+		sh_exec_text_append_ifs(c, t, SUB0(), dst);
+		return ;
+	}
+	offset = 0;
+	while (true)
+	{
+		sh_exec_text_append_ifs(c, t, STR_LIST_SUB(c->pos_params, offset), dst);
+		offset += STR_LIST_NEXT(c->pos_params, offset);
+		if (offset >= STR_LIST_END(c->pos_params))
+			break ;
+		sh_exec_text_append_ifs(c, t, SUB(&sep, 1), dst);
+	}
+}
+
+static void		sh_exec_text_t_param_special_argv2(t_sh_context *c,
+					t_sh_token const *t, t_str_list *dst)
+{
+	uint32_t		offset;
+
+	if (!(t->type & SH_F_T_QUOTED) || c->pos_params.count == 0)
+	{
+		sh_exec_text_t_param_special_argv(c, t, dst);
+		return ;
+	}
+	offset = 0;
+	while (true)
+	{
+		ft_str_list_append(dst, STR_LIST_SUB(c->pos_params, offset));
+		offset += STR_LIST_NEXT(c->pos_params, offset);
+		if (offset >= STR_LIST_END(c->pos_params))
+			break ;
+		ft_str_list_break(dst);
+	}
+}
+
+static void		sh_exec_text_t_param_special_argc(t_sh_context *c,
+					t_sh_token const *t, t_str_list *dst)
+{
+	char			buff[16];
+	uint32_t		len;
+
+	len = ft_sprintf(buff, "%u", c->pos_params.count);
+	sh_exec_text_append_ifs(c, t, SUB(buff, len), dst);
+}
+
+static void		sh_exec_text_t_param_special_status(t_sh_context *c,
+					t_sh_token const *t, t_str_list *dst)
+{
+	char			buff[16];
+	uint32_t		len;
+
+	len = ft_sprintf(buff, "%u", c->last_status);
+	sh_exec_text_append_ifs(c, t, SUB(buff, len), dst);
+}
+
+static void		sh_exec_text_t_param_special_opt(t_sh_context *c,
+					t_sh_token const *t, t_str_list *dst)
+{
+	ASSERT(!"TODO: exec param special opt");
+	sh_exec_text_append_ifs(c, t, SUB0(), dst);
+}
+
+static void		sh_exec_text_t_param_special_pid(t_sh_context *c,
+					t_sh_token const *t, t_str_list *dst)
+{
+	pid_t const		pid = getpid();
+	char			buff[16];
+	uint32_t		len;
+
+	len = ft_sprintf(buff, "%d", pid);
+	sh_exec_text_append_ifs(c, t, SUB(buff, len), dst);
+}
+
+static void		(*g_sh_exec_text_t_param_special[])(t_sh_context *c,
+					t_sh_token const *t, t_str_list *dst) = {
+	[SH_SPECIAL_PARAM_ARGV] = &sh_exec_text_t_param_special_argv,
+	[SH_SPECIAL_PARAM_ARGV2] = &sh_exec_text_t_param_special_argv2,
+	[SH_SPECIAL_PARAM_ARGC] = &sh_exec_text_t_param_special_argc,
+	[SH_SPECIAL_PARAM_STATUS] = &sh_exec_text_t_param_special_status,
+	[SH_SPECIAL_PARAM_OPT] = &sh_exec_text_t_param_special_opt,
+	[SH_SPECIAL_PARAM_PID] = &sh_exec_text_t_param_special_pid,
+};
+
+static t_sub	ft_str_list_nth(t_str_list const *lst, uint32_t nth) // TODO: move
+{
+	uint32_t		offset;
+
+	offset = 0;
+	while (nth-- > 0)
+		offset += STR_LIST_NEXT(*lst, offset);
+	return (STR_LIST_SUB(*lst, offset));
+}
+
 static void		sh_exec_text_t_param(t_sh_context *c, t_sh_exec_text *e,
 					t_sh_token const *t, t_str_list *dst)
 {
 	t_sub			val;
+	char			tmp[16];
 
 	if (t->param.type == SH_PARAM_STR)
 	{
@@ -129,8 +235,22 @@ static void		sh_exec_text_t_param(t_sh_context *c, t_sh_exec_text *e,
 		e->str_i += t->param.str_length;
 		sh_exec_text_append_ifs(c, t, val, dst);
 	}
+	else if (t->param.type == SH_PARAM_LENGTH)
+	{
+		val = sh_var_get(c, SUB(e->text->text.str + e->str_i, t->param.str_length));
+		e->str_i += t->param.str_length;
+		val.length = ft_sprintf(tmp, "%u", val.length);
+		val.str = tmp;
+		ft_str_list_append(dst, val);
+	}
+	else if (t->param.type == SH_PARAM_POS)
+	{
+		val = (t->param.pos < c->pos_params.count) ?
+			ft_str_list_nth(&c->pos_params, t->param.pos) : SUB0();
+		sh_exec_text_append_ifs(c, t, val, dst);
+	}
 	else
-		ASSERT(!"TODO: exec_param: SH_PARAM_LENGTH, SH_PARAM_POS, SH_PARAM_SPECIAL");
+		g_sh_exec_text_t_param_special[t->param.special](c, t, dst);
 }
 
 static void		sh_exec_text_t_subst_param(t_sh_context *c, t_sh_exec_text *e,

@@ -679,10 +679,10 @@ $(O_DIR)/srcs/main/main.o: srcs/main/main.c libft/ft_base/public/ft_colors.h \
 	libft/ft_set/public/set.h libft/ft_term/public/term.h \
 	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
 	libft/get_next_line/public/get_next_line.h srcs/editor/public/editor.h \
-	srcs/editor/public/editor_bindings.h srcs/sh_ast/public/ast.h \
-	srcs/sh_context/public/context.h srcs/sh_exec/public/exec.h \
-	srcs/sh_parser/public/parser.h srcs/spanlist/public/spanlist.h \
-	srcs/strset/public/strset.h
+	srcs/editor/public/editor_bindings.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
+	srcs/sh_exec/public/exec.h srcs/sh_parser/public/parser.h \
+	srcs/spanlist/public/spanlist.h srcs/strset/public/strset.h
 
 $(O_DIR)/srcs/main/main.o: INCLUDE_FLAGS += -Isrcs/main
 
@@ -705,15 +705,18 @@ $(O_DIR)/srcs/sh_ast/destroy_text.o: INCLUDE_FLAGS += -Isrcs/sh_ast
 
 # module sh::context
 $(O_DIR)/srcs/sh_context/context_init.o: srcs/sh_context/context_init.c \
-	libft/ft_base/public/libft.h libft/ft_set/public/set.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
 	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_context/sh_env.o: srcs/sh_context/sh_env.c \
-	libft/ft_base/public/libft.h libft/ft_set/public/set.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
 	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_context/sh_var.o: srcs/sh_context/sh_var.c \
-	libft/ft_base/public/libft.h libft/ft_set/public/set.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
 	srcs/strset/public/strset.h
 
@@ -750,7 +753,8 @@ $(O_DIR)/srcs/sh_exec/sh_exec_cmd_simple.o: srcs/sh_exec/sh_exec_cmd_simple.c \
 	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_cmd_time_clause.o: \
 	srcs/sh_exec/sh_exec_cmd_time_clause.c libft/ft_base/public/libft.h \
-	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_out/public/ft_out.h \
+	libft/ft_printf/public/ft_printf.h libft/ft_set/public/set.h \
 	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
 	srcs/sh_ast/public/ast.h srcs/sh_context/public/context.h \
 	srcs/sh_exec/p_sh_exec.h srcs/sh_exec/public/exec.h \
@@ -770,12 +774,14 @@ $(O_DIR)/srcs/sh_exec/sh_exec_compound.o: srcs/sh_exec/sh_exec_compound.c \
 	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_redir.o: srcs/sh_exec/sh_exec_redir.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
 	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
 	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
 	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \
 	srcs/sh_exec/public/exec.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_exec/sh_exec_text.o: srcs/sh_exec/sh_exec_text.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
 	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
 	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
 	srcs/sh_context/public/context.h srcs/sh_exec/p_sh_exec.h \

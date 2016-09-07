@@ -91,3 +91,13 @@ printf "] %10s [\n" $(ls | cat | rev | sort) | rev
 { { echo stdout; echo stderr >&2; } 3>&2 2>&1 >&3; } >stderr 2>stdout
 { echo stdout; echo stderr >&2; } >stdout 2>stderr
 echo "stdout -> [$(cat stdout)]" ; echo "stderr -> [$(cat stderr)]"
+
+####
+
+set "a b" "c d" e "f:g"
+IFS=:
+printf "%s\n" $*
+printf "%s\n" $@
+printf "%s\n" "$*"
+printf "%s\n" "$@"
+printf "%s\n" "[$@]"

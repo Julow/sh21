@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 17:13:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 10:33:21 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@ struct			s_sh_param
 		SH_PARAM_SPECIAL,
 	}				type;
 	union {
-		uint16_t			str_length;
-		uint16_t			pos;
+		uint32_t			str_length;
+		uint32_t			pos;
 		t_sh_special_param	special;
 	};
 };

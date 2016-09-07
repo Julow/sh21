@@ -6,10 +6,11 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/23 18:28:27 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/06 18:53:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 14:33:24 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/ft_printf.h"
 #include "p_sh_exec.h"
 
 #include <fcntl.h>

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 15:11:57 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 15:20:37 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 12:35:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@ typedef struct s_sh_var			t_sh_var;
 ** ========================================================================== **
 ** Sh context private
 */
-
-# define SH_CONTEXT()		((t_sh_context){SET(sh_var_cmp, 0), STRSET(0)})
 
 /*
 ** Var are stored as 0-terminated string

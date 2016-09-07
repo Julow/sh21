@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/18 22:18:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/06 18:28:05 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/07 14:44:25 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ int				sh_exec_list(t_sh_context *c,
 	{
 		status = sh_exec_pipeline(c, &cmd->pipeline,
 				cmd->next == NULL && no_fork);
+		c->last_status = status;
 		while (cmd->next != NULL
 			&& cmd->next->type == ((status == 0) ? SH_LIST_OR : SH_LIST_AND))
 			cmd = &cmd->next->next;
@@ -85,17 +86,20 @@ int				sh_exec_list(t_sh_context *c,
 	return (status);
 }
 
-int				sh_exec_list_async(t_sh_context *c, t_sh_list const *cmd)
+int				sh_exec_list_async(t_sh_context *c,
+					t_sh_list const *cmd, bool no_fork)
 {
 	pid_t			pid;
 
 	if ((pid = fork()) < 0)
-		return (ASSERT(!"fork fail"), -1);
+		HARD_ASSERT(!"fork fail");
 	if (pid == 0)
 	{
 		sh_exec_list(c, cmd, true);
 		HARD_ASSERT(false);
 	}
+	if (no_fork)
+		exit(0);
 	return (0);
 }
 
@@ -107,10 +111,10 @@ int				sh_exec_compound(t_sh_context *c,
 	status = 0;
 	while (cmd != NULL)
 	{
-		if (cmd->flags & SH_COMPOUND_ASYNC)
-			status = sh_exec_list_async(c, &cmd->list);
-		else
-			status = sh_exec_list(c, &cmd->list, cmd->next == NULL && no_fork);
+		status = ((cmd->flags & SH_COMPOUND_ASYNC)
+					? sh_exec_list_async
+					: sh_exec_list)(c, &cmd->list,
+						cmd->next == NULL && no_fork);
 		cmd = cmd->next;
 	}
 	ASSERT(!no_fork);

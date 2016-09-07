@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/07/11 22:32:01 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/07 12:31:16 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "ft/libft.h"
 # include "ft/set.h"
+# include "ft/str_list.h"
 # include "ft/strset.h"
 
 typedef struct s_sh_context		t_sh_context;
@@ -33,6 +34,8 @@ struct			s_sh_context
 {
 	t_set			vars;
 	t_strset		env_keys;
+	t_str_list		pos_params;
+	uint32_t		last_status;
 };
 
 void			sh_context_init(t_sh_context *dst);
