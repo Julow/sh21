@@ -6,38 +6,18 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:24:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 16:53:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/08 18:23:45 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
 #include <stdlib.h>
 
-static bool		sh_parse_subst_subshell(t_sh_parser *p, t_sh_text *dst, bool quoted)
-{
-	t_sh_compound *const	cmd = NEW(t_sh_compound);
-	t_lexer_state const		*prev;
-	bool					r;
-
-	ft_lexer_push(&p->l, &prev);
-	if ((r = sh_parse_compound(p, cmd, true)
-			&& (!p->l.eof || sh_parse_error(p, SH_E_EOF))
-			&& (SH_T(p)->type == SH_PARSE_T_COMPOUND_END || sh_parse_error(p, SH_E_ERROR))
-			&& (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL)
-		))
-		sh_text_push(dst, SUB0(), SH_TOKEN(SUBSHELL, .cmd=cmd), quoted);
-	else
-		free(cmd);
-	ft_lexer_pop(&p->l, prev);
-	return (r);
-}
-
 static bool		sh_parse_subst_math(t_sh_parser *p, t_sh_text *dst, bool quoted) { return (ASSERT(false)); (void)p; (void)dst; (void)quoted; }
 
 static bool		(*const g_sh_parse_subst[])(t_sh_parser*, t_sh_text*, bool) = {
 	[SH_PARSE_T_SUBST_PARAM] = &sh_parse_text_subst_param,
 	[SH_PARSE_T_SUBST_MATH] = &sh_parse_subst_math,
-	[SH_PARSE_T_SUBST_SUBSHELL] = &sh_parse_subst_subshell,
 };
 
 static bool		sh_parse_text_param(t_sh_parser *p, t_sh_text *dst, bool quoted)
@@ -64,46 +44,6 @@ static bool		sh_parse_text_param_special(t_sh_parser *p, t_sh_text *dst, bool qu
 
 	sh_text_push(dst, SUB0(), SH_TOKEN(PARAM, .param=param), quoted);
 	return (true);
-}
-
-static bool		sh_parse_text_string(t_sh_parser *p, t_sh_text *dst, bool quoted)
-{
-	t_lexer_state const		*prev;
-
-	ft_lexer_push(&p->l, &prev);
-	while (ft_lexer_next(&p->l))
-		if (SH_T_EQU(p, STRING, STRING_END))
-			break ;
-		else if (g_sh_parse_text[SH_T(p)->type] != NULL)
-		{
-			if (!g_sh_parse_text[SH_T(p)->type](p, dst, true))
-				return (false);
-		}
-		else
-			return (sh_parse_error(p, SH_E_ERROR));
-	ft_lexer_pop(&p->l, prev);
-	return (true);
-	(void)quoted;
-}
-
-static bool		sh_parse_text_comment(t_sh_parser *p, t_sh_text *dst, bool quoted)
-{
-	t_sh_parse_token const	*t;
-	t_lexer_state const		*prev;
-
-	ft_lexer_push(&p->l, &prev);
-	while (true)
-	{
-		if (!ft_lexer_ahead(&p->l, NULL, V(&t))
-			|| t->type == SH_PARSE_T_COMMENT)
-			break ;
-		if (!ft_lexer_next(&p->l))
-			ASSERT(false);
-	}
-	ft_lexer_pop(&p->l, prev);
-	return (true);
-	(void)dst;
-	(void)quoted;
 }
 
 static bool		sh_parse_text_backslash(t_sh_parser *p, t_sh_text *dst, bool quoted)
@@ -154,6 +94,7 @@ bool			(*const g_sh_parse_text[_SH_PARSE_T_COUNT_])(t_sh_parser *p, t_sh_text *d
 	[SH_PARSE_T_PARAM_POS] = &sh_parse_text_param_pos,
 	[SH_PARSE_T_PARAM_SPECIAL] = &sh_parse_text_param_special,
 	[SH_PARSE_T_SUBST] = &sh_parse_text_subst,
+	[SH_PARSE_T_SUBSHELL] = &sh_parse_text_subshell,
 	[SH_PARSE_T_STRING] = &sh_parse_text_string,
 	[SH_PARSE_T_COMMENT] = &sh_parse_text_comment,
 	[SH_PARSE_T_BACKSLASH] = &sh_parse_text_backslash,

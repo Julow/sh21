@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 18:27:08 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/08 18:49:20 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ struct			s_sh_parse_token
 		SH_PARSE_T_PARAM_SPECIAL,
 
 		SH_PARSE_T_SUBST,
+		SH_PARSE_T_SUBSHELL,
 		SH_PARSE_T_SUBST_PARAM_OP,
 		SH_PARSE_T_SUBST_PARAM_END,
 
@@ -63,14 +64,20 @@ struct			s_sh_parse_token
 		enum {
 			SH_PARSE_T_SUBST_PARAM,
 			SH_PARSE_T_SUBST_MATH,
-			SH_PARSE_T_SUBST_SUBSHELL,
 		}					subst;
+
+		enum {
+			SH_PARSE_T_SUBSHELL_BRACE,
+			SH_PARSE_T_SUBSHELL_BACKQUOTE,
+			SH_PARSE_T_SUBSHELL_BACKQUOTE_REV,
+		}					subshell;
 
 		t_sh_subst_param_t	subst_param_op;
 
 		enum {
-			SH_PARSE_T_STRING_DOUBLE,
+			SH_PARSE_T_STRING_NORMAL,
 			SH_PARSE_T_STRING_SIMPLE,
+			SH_PARSE_T_STRING_ANSI,
 			SH_PARSE_T_STRING_END,
 		}					string;
 
@@ -108,6 +115,8 @@ struct			s_sh_parser
 	bool			error_set;
 };
 
+#define T(T, ...)			(&SH_PARSE_T(T, ##__VA_ARGS__))
+
 # define SH_PARSE_T(T, ...)	((t_sh_parse_token){SH_PARSE_T_##T, {__VA_ARGS__}})
 
 # define SH(T)				SH_PARSE_T_##T
@@ -119,6 +128,12 @@ struct			s_sh_parser
 # define SH_T_EXCEPT(P,T,V)	\
 		((P)->l.eof ? (sh_parse_error(P, SH_E_EOF), false) : \
 			(SH_T_EQU(P,T,V) || (sh_parse_error(P, SH_E_UNEXPECTED), false)))
+
+/*
+** -
+*/
+
+extern t_lexer_def const	g_sh_lexer_base;
 
 /*
 ** -
@@ -184,10 +199,14 @@ bool			sh_parse_trailing_redirs(t_sh_parser *p, t_sh_redir_lst *lst);
 */
 extern bool		(*const g_sh_parse_text[])(t_sh_parser *p, t_sh_text *dst, bool quoted);
 
+bool			sh_parse_text_comment(t_sh_parser *p,
+					t_sh_text *dst, bool quoted);
+bool			sh_parse_text_string(t_sh_parser *p,
+					t_sh_text *dst, bool quoted);
+bool			sh_parse_text_subshell(t_sh_parser *p,
+					t_sh_text *dst, bool quoted);
 bool			sh_parse_text_escape_sequence(t_sh_parser *p,
 					t_sh_text *dst, bool quoted);
-
-
 bool			sh_parse_text_subst_param(t_sh_parser *p,
 					t_sh_text *dst, bool quoted);
 

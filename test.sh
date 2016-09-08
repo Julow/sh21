@@ -1,6 +1,8 @@
 
 # Some test
 
+TEST='ABC/ABC/ABC:% :::ABC:DEF>>!@#IJK<<123'
+
 ####
 
 echo $(
@@ -72,7 +74,7 @@ if false; then echo ko; else echo ok; fi
 
 ####
 
-touch test;sleep 3&&rm test&while [ -f test ];do sleep 0.5;echo LOOP;done>test2;echo DONE>test2;cat test2
+touch test; sleep 3 && rm test & while [ -f test ]; do sleep 0.5; echo LOOP; done >test2; echo DONE >test2; cat test2
 
 ####
 

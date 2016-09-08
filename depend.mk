@@ -55,8 +55,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_getkey/ft_getkey.o $(O_DIR)/libft/ft_getkey/get_seq.o \
 	$(O_DIR)/libft/ft_getkey/next_char.o $(O_DIR)/libft/ft_in/ft_in_refresh.o \
 	$(O_DIR)/libft/ft_in/ft_read.o $(O_DIR)/libft/ft_in/ft_readto.o \
-	$(O_DIR)/libft/ft_lexer/build.o $(O_DIR)/libft/ft_lexer/build_state.o \
-	$(O_DIR)/libft/ft_lexer/lexer.o $(O_DIR)/libft/ft_lexer/next.o \
+	$(O_DIR)/libft/ft_lexer/build.o $(O_DIR)/libft/ft_lexer/lexer.o \
 	$(O_DIR)/libft/ft_lexer/state_destroy.o \
 	$(O_DIR)/libft/ft_list/ft_listadd.o $(O_DIR)/libft/ft_list/ft_listremove.o \
 	$(O_DIR)/libft/ft_list/ft_listsort.o $(O_DIR)/libft/ft_out/ft_putchar.o \
@@ -124,7 +123,10 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_line.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_redir.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_text.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_text_comment.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_text_escape_sequence.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_text_string.o \
+	$(O_DIR)/srcs/sh_parser/sh_parse_text_subshell.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_text_subst_param.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o
@@ -432,33 +434,21 @@ $(O_DIR)/libft/ft_in/ft_readto.o: libft/ft_in/ft_readto.c \
 $(O_DIR)/libft/ft_lexer/build.o: libft/ft_lexer/build.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
-	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
-$(O_DIR)/libft/ft_lexer/build_state.o: libft/ft_lexer/build_state.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
-	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
-	libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
 	libft/ft_tokenizer/public/tokenmap_builder.h \
 	libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_lexer/lexer.o: libft/ft_lexer/lexer.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
-	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
-$(O_DIR)/libft/ft_lexer/next.o: libft/ft_lexer/next.c \
-	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
-	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
-	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h
 $(O_DIR)/libft/ft_lexer/state_destroy.o: libft/ft_lexer/state_destroy.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_in/public/ft_in.h libft/ft_lexer/p_lexer.h \
-	libft/ft_lexer/public/lexer.h libft/ft_set/public/set.h \
-	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h
 
-$(O_DIR)/libft/ft_lexer/build.o $(O_DIR)/libft/ft_lexer/build_state.o \
-$(O_DIR)/libft/ft_lexer/lexer.o $(O_DIR)/libft/ft_lexer/next.o \
+$(O_DIR)/libft/ft_lexer/build.o $(O_DIR)/libft/ft_lexer/lexer.o \
 $(O_DIR)/libft/ft_lexer/state_destroy.o: INCLUDE_FLAGS += -Ilibft/ft_lexer
 
 # module ft::list
@@ -978,6 +968,12 @@ $(O_DIR)/srcs/sh_parser/sh_parse_text.o: srcs/sh_parser/sh_parse_text.c \
 	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
 	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
 	srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_text_comment.o: \
+	srcs/sh_parser/sh_parse_text_comment.c libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_text_escape_sequence.o: \
 	srcs/sh_parser/sh_parse_text_escape_sequence.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
@@ -985,6 +981,18 @@ $(O_DIR)/srcs/sh_parser/sh_parse_text_escape_sequence.o: \
 	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
 	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
 	srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_text_string.o: \
+	srcs/sh_parser/sh_parse_text_string.c libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+$(O_DIR)/srcs/sh_parser/sh_parse_text_subshell.o: \
+	srcs/sh_parser/sh_parse_text_subshell.c libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
+	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
+	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_text_subst_param.o: \
 	srcs/sh_parser/sh_parse_text_subst_param.c libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
@@ -1012,7 +1020,10 @@ $(O_DIR)/srcs/sh_parser/sh_parse_if_clause.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_line.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_redir.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_text.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_text_comment.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_text_escape_sequence.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_text_string.o \
+$(O_DIR)/srcs/sh_parser/sh_parse_text_subshell.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_text_subst_param.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
 $(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o: INCLUDE_FLAGS += \

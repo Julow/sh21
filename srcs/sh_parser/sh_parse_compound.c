@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/18 17:21:43 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/08 19:02:17 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ bool			sh_parse_compound_end(t_sh_parser *p)
 			}
 			i++;
 		}
+	sh_ignore_newlines(p);
 	return (false);
 }
 
@@ -105,7 +106,7 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 			|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
 				&& !allow_newline))
 			break ;
-		if (sh_parse_compound_end(p))
+		if (sh_parse_compound_end(p) || p->l.eof)
 			break ;
 		dst->next = NEW(t_sh_compound);
 		dst = dst->next;

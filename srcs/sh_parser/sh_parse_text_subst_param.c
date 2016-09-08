@@ -6,12 +6,84 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/05 12:16:01 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/05 17:27:24 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/08 19:23:09 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
 #include <stdlib.h>
+
+static t_lexer_def const	g_sh_text_subst_param_lexer_base = LEXER_DEF(
+	(&g_sh_lexer_base), NULL,
+
+	LEXER_STATE("sh-subst-param", (),
+		LEXER_T("\0000-9\0", T(PARAM_POS, .param_prefix=0)),
+		LEXER_T("\0a-zA-Z_\0\0+a-zA-Z0-9_\0", T(PARAM, .param_prefix=0)),
+		LEXER_T("*", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGV)),
+		LEXER_T("@", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGV2)),
+		LEXER_T("#", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_ARGC)),
+		LEXER_T("#\0a-zA-Z_\0\0+a-zA-Z0-9_\0", T(PARAM_LENGTH, .param_prefix=1)),
+		LEXER_T("?", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_STATUS)),
+		LEXER_T("-", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_OPT)),
+		LEXER_T("!", T(PARAM_SPECIAL, SH_SPECIAL_PARAM_PID)),
+	),
+	LEXER_STATE("sh-subst-param-end", (),
+		LEXER_T("}", T(SUBST_PARAM_END)),
+	),
+
+	LEXER_STATE("sh-subst-param-op", ("sh-subst-param-end"),
+		LEXER_T(":-", T(SUBST_PARAM_OP, SH_SUBST_PARAM_DEF_NULL)),
+		LEXER_T("-", T(SUBST_PARAM_OP, SH_SUBST_PARAM_DEF_UNSET)),
+		LEXER_T(":=", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ASSIGN_NULL)),
+		LEXER_T("=", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ASSIGN_UNSET)),
+		LEXER_T(":+", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_NULL)),
+		LEXER_T("+", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_UNSET)),
+		LEXER_T(":?", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ERR_NULL)),
+		LEXER_T("?", T(SUBST_PARAM_OP, SH_SUBST_PARAM_ERR_UNSET)),
+		LEXER_T("^", T(SUBST_PARAM_OP, SH_SUBST_PARAM_UPPER_FIRST)),
+		LEXER_T("^^", T(SUBST_PARAM_OP, SH_SUBST_PARAM_UPPER)),
+		LEXER_T(",", T(SUBST_PARAM_OP, SH_SUBST_PARAM_LOWER_FIRST)),
+		LEXER_T(",,", T(SUBST_PARAM_OP, SH_SUBST_PARAM_LOWER)),
+		LEXER_T("~", T(SUBST_PARAM_OP, SH_SUBST_PARAM_INVCASE_FIRST)),
+		LEXER_T("~~", T(SUBST_PARAM_OP, SH_SUBST_PARAM_INVCASE)),
+		LEXER_T("#", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_BEGIN)),
+		LEXER_T("##", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_BEGIN_LONG)),
+		LEXER_T("%", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_END)),
+		LEXER_T("%%", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REM_END_LONG)),
+		LEXER_T("/", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_FIRST)),
+		LEXER_T("/%", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_LAST)),
+		LEXER_T("//", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_ALL)),
+	),
+
+	LEXER_STATE("sh-subst-param-str", ("sh-base-text", "sh-subst-param-end"),
+		LEXER_T("\\}", T(ESCAPED, '}')),
+	),
+
+	LEXER_STATE("sh-subst-param-replace", ("sh-subst-param-str"),
+		LEXER_T("/", T(SUBST_PARAM_OP, 0)),
+		LEXER_T("\\/", T(ESCAPED, '/')),
+	),
+);
+
+static t_lexer_def		g_sh_text_subst_param_lexer = LEXER_DEF(
+	(&g_sh_text_subst_param_lexer_base), "sh-subst-param"
+);
+
+static t_lexer_def		g_sh_text_subst_param_end_lexer = LEXER_DEF(
+	(&g_sh_text_subst_param_lexer_base), "sh-subst-param-end"
+);
+
+static t_lexer_def		g_sh_text_subst_param_op_lexer = LEXER_DEF(
+	(&g_sh_text_subst_param_lexer_base), "sh-subst-param-op"
+);
+
+static t_lexer_def		g_sh_text_subst_param_str_lexer = LEXER_DEF(
+	(&g_sh_text_subst_param_lexer_base), "sh-subst-param-str"
+);
+
+static t_lexer_def		g_sh_text_subst_param_replace_lexer = LEXER_DEF(
+	(&g_sh_text_subst_param_lexer_base), "sh-subst-param-replace"
+);
 
 static void		parse_subst_param(t_sh_parser *p,
 					t_sh_text *dst_text, t_sh_param *dst)
@@ -64,17 +136,27 @@ static bool		parse_param_text(t_sh_parser *p, t_sh_text *dst)
 static bool		sh_parse_text_subst_param_str(t_sh_parser *p,
 					t_sh_subst_param *dst)
 {
+	t_lexer_frame	frame;
+
+	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_str_lexer);
 	dst->str = SH_TEXT();
-	return (parse_param_text(p, &dst->str));
+	if (!parse_param_text(p, &dst->str))
+		return (false);
+	ft_lexer_pop(&p->l, &frame);
+	return (true);
 }
 
 static bool		sh_parse_text_subst_param_end(t_sh_parser *p,
 					t_sh_subst_param *dst)
 {
+	t_lexer_frame	frame;
+
+	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_end_lexer);
 	if (!ft_lexer_next(&p->l))
 		return (sh_parse_error(p, SH_E_EOF));
 	if (SH_T(p) == NULL)
 		return (sh_parse_error(p, SH_E_ERROR));
+	ft_lexer_pop(&p->l, &frame);
 	return (true);
 	(void)dst;
 }
@@ -82,20 +164,26 @@ static bool		sh_parse_text_subst_param_end(t_sh_parser *p,
 static bool		sh_parse_text_subst_param_repl(t_sh_parser *p,
 					t_sh_subst_param *dst)
 {
+	t_lexer_frame	frame;
+
+	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_replace_lexer);
 	dst->repl[0] = SH_TEXT();
 	dst->repl[1] = SH_TEXT();
 	if (!parse_param_text(p, &dst->repl[0]))
 		return (false);
+	ft_lexer_pop(&p->l, &frame);
 	if (SH_T(p)->type != SH(SUBST_PARAM_OP))
 		return (true);
+	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_str_lexer);
 	if (!parse_param_text(p, &dst->repl[1]))
 		return (false);
 	if (SH_T(p)->type != SH(SUBST_PARAM_END))
 		return (sh_parse_error(p, SH_E_UNEXPECTED));
+	ft_lexer_pop(&p->l, &frame);
 	return (true);
 }
 
-static bool		(*g_sh_parse_text_subst_param[])(t_sh_parser *p,
+static bool		(*const g_sh_parse_text_subst_param[])(t_sh_parser *p,
 					t_sh_subst_param *dst) = {
 	[SH_SUBST_PARAM_DEF_NULL] = &sh_parse_text_subst_param_str,
 	[SH_SUBST_PARAM_DEF_UNSET] = &sh_parse_text_subst_param_str,
@@ -143,26 +231,24 @@ static bool		parse_text_subst_param_op(t_sh_parser *p, t_sh_text *dst,
 bool			sh_parse_text_subst_param(t_sh_parser *p,
 					t_sh_text *dst, bool quoted)
 {
-	t_lexer_state const		*prev;
+	t_lexer_frame			frame;
 	t_sh_param				param;
 
-	ft_lexer_push(&p->l, &prev);
+	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_lexer);
 	if (!ft_lexer_next(&p->l))
 		return (sh_parse_error(p, p->l.eof ? SH_E_EOF : SH_E_ERROR));
 	parse_subst_param(p, dst, &param);
-	ft_lexer_pop(&p->l, prev);
-	ft_lexer_push(&p->l, &prev);
+	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_op_lexer);
 	if (!ft_lexer_next(&p->l))
 		return (sh_parse_error(p, p->l.eof ? SH_E_EOF : SH_E_ERROR));
 	if (SH_T(p)->type == SH(SUBST_PARAM_END))
 		sh_text_push(dst, SUB0(), SH_TOKEN(PARAM, .param=param), quoted);
 	else
 	{
-		ft_lexer_pop(&p->l, prev);
-		ft_lexer_push(&p->l, &prev);
 		if (!parse_text_subst_param_op(p, dst, quoted, &param))
 			return (false);
 	}
-	ft_lexer_pop(&p->l, prev);
+	ft_lexer_pop(&p->l, &frame);
 	return (true);
 }
