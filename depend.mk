@@ -5,16 +5,17 @@ OBJ_DIR_TREE += $(O_DIR)/srcs/strset/ $(O_DIR)/srcs/spanlist/ \
 	$(O_DIR)/srcs/sh_parser/ $(O_DIR)/srcs/sh_exec/ \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/ \
 	$(O_DIR)/srcs/sh_default_builtins/ $(O_DIR)/srcs/sh_context/ \
-	$(O_DIR)/srcs/sh_ast/ $(O_DIR)/srcs/main/ $(O_DIR)/srcs/ft_str_list/ \
-	$(O_DIR)/srcs/editor/binding/ $(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ \
-	$(O_DIR)/libft/get_next_line/ $(O_DIR)/libft/ft_vector/ \
-	$(O_DIR)/libft/ft_tokenizer/ $(O_DIR)/libft/ft_term/ \
-	$(O_DIR)/libft/ft_set/ $(O_DIR)/libft/ft_printf/formats/ \
-	$(O_DIR)/libft/ft_printf/ $(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ \
-	$(O_DIR)/libft/ft_lexer/ $(O_DIR)/libft/ft_in/ $(O_DIR)/libft/ft_getkey/ \
-	$(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ \
-	$(O_DIR)/libft/ft_argv/ $(O_DIR)/libft/ $(O_DIR)/_public/sh/ \
-	$(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
+	$(O_DIR)/srcs/sh_ast/ $(O_DIR)/srcs/main/ $(O_DIR)/srcs/ft_utils/ \
+	$(O_DIR)/srcs/ft_str_list/ $(O_DIR)/srcs/editor/binding/ \
+	$(O_DIR)/srcs/editor/ $(O_DIR)/srcs/ $(O_DIR)/libft/get_next_line/ \
+	$(O_DIR)/libft/ft_vector/ $(O_DIR)/libft/ft_tokenizer/ \
+	$(O_DIR)/libft/ft_term/ $(O_DIR)/libft/ft_set/ \
+	$(O_DIR)/libft/ft_printf/formats/ $(O_DIR)/libft/ft_printf/ \
+	$(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ $(O_DIR)/libft/ft_lexer/ \
+	$(O_DIR)/libft/ft_in/ $(O_DIR)/libft/ft_getkey/ $(O_DIR)/libft/ft_dstr/ \
+	$(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ $(O_DIR)/libft/ft_argv/ \
+	$(O_DIR)/libft/ $(O_DIR)/_public/sh/ $(O_DIR)/_public/ft/ \
+	$(O_DIR)/_public/ $(O_DIR)/
 O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/delete.o \
 	$(O_DIR)/srcs/editor/binding/extra_mod.o \
@@ -89,10 +90,10 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_term/term_out_flush.o \
 	$(O_DIR)/libft/ft_tokenizer/ft_tokenize.o \
 	$(O_DIR)/libft/ft_tokenizer/ft_tokenmap_builder.o \
-	$(O_DIR)/libft/ft_vector/ft_vclear.o $(O_DIR)/libft/ft_vector/ft_vpush.o \
-	$(O_DIR)/libft/ft_vector/ft_vreserve.o $(O_DIR)/libft/ft_vector/ft_vspan.o \
-	$(O_DIR)/srcs/main/main.o $(O_DIR)/srcs/sh_ast/destroy_cmd.o \
-	$(O_DIR)/srcs/sh_ast/destroy_compound.o \
+	$(O_DIR)/srcs/ft_utils/ft_subis.o $(O_DIR)/libft/ft_vector/ft_vclear.o \
+	$(O_DIR)/libft/ft_vector/ft_vpush.o $(O_DIR)/libft/ft_vector/ft_vreserve.o \
+	$(O_DIR)/libft/ft_vector/ft_vspan.o $(O_DIR)/srcs/main/main.o \
+	$(O_DIR)/srcs/sh_ast/destroy_cmd.o $(O_DIR)/srcs/sh_ast/destroy_compound.o \
 	$(O_DIR)/srcs/sh_ast/destroy_text.o \
 	$(O_DIR)/srcs/sh_context/context_init.o \
 	$(O_DIR)/srcs/sh_context/sh_builtin.o $(O_DIR)/srcs/sh_context/sh_env.o \
@@ -141,9 +142,10 @@ PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
 	$(O_DIR)/_public/ft/spanlist.h $(O_DIR)/_public/ft/str_list.h \
 	$(O_DIR)/_public/ft/strset.h $(O_DIR)/_public/ft/term.h \
 	$(O_DIR)/_public/ft/tokenmap_builder.h $(O_DIR)/_public/ft/tokenizer.h \
-	$(O_DIR)/_public/ft/ft_vector.h $(O_DIR)/_public/sh/ast.h \
-	$(O_DIR)/_public/sh/context.h $(O_DIR)/_public/sh/default_builtins.h \
-	$(O_DIR)/_public/sh/exec.h $(O_DIR)/_public/sh/parser.h
+	$(O_DIR)/_public/ft/utils.h $(O_DIR)/_public/ft/ft_vector.h \
+	$(O_DIR)/_public/sh/ast.h $(O_DIR)/_public/sh/context.h \
+	$(O_DIR)/_public/sh/default_builtins.h $(O_DIR)/_public/sh/exec.h \
+	$(O_DIR)/_public/sh/parser.h
 
 sh21: $(O_DIR)/srcs/sh_parser/sh_parse_text.o \
 	$(O_DIR)/libft/ft_base/ft_subnext.o $(O_DIR)/libft/ft_base/ft_memcpy.o \
@@ -189,8 +191,8 @@ sh21: $(O_DIR)/srcs/sh_parser/sh_parse_text.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstradd.o $(O_DIR)/libft/ft_base/ft_memswap.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_for_clause.o \
 	$(O_DIR)/libft/ft_base/ft_subto.o $(O_DIR)/libft/ft_bst/ft_bstgetall.o \
-	$(O_DIR)/srcs/editor/editor_init.o $(O_DIR)/libft/ft_base/ft_rand.o \
-	$(O_DIR)/srcs/sh_ast/destroy_compound.o \
+	$(O_DIR)/srcs/editor/editor_init.o $(O_DIR)/srcs/ft_utils/ft_subis.o \
+	$(O_DIR)/libft/ft_base/ft_rand.o $(O_DIR)/srcs/sh_ast/destroy_compound.o \
 	$(O_DIR)/srcs/editor/binding/delete.o \
 	$(O_DIR)/libft/get_next_line/get_next_line.o \
 	$(O_DIR)/libft/ft_list/ft_listadd.o $(O_DIR)/libft/ft_base/ft_wstrlen.o \
@@ -779,6 +781,10 @@ $(O_DIR)/libft/ft_tokenizer/ft_tokenize.o \
 $(O_DIR)/libft/ft_tokenizer/ft_tokenmap_builder.o: INCLUDE_FLAGS += \
 	-Ilibft/ft_tokenizer
 
+# module ft::utils
+$(O_DIR)/srcs/ft_utils/ft_subis.o: srcs/ft_utils/ft_subis.c \
+	libft/ft_base/public/libft.h srcs/ft_utils/public/utils.h
+
 # module ft::vector
 $(O_DIR)/libft/ft_vector/ft_vclear.o: libft/ft_vector/ft_vclear.c \
 	libft/ft_base/public/libft.h libft/ft_vector/public/ft_vector.h
@@ -917,7 +923,7 @@ $(O_DIR)/srcs/sh_default_builtins/builtins/unset.o: \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
 	libft/ft_set/public/set.h srcs/ft_str_list/public/str_list.h \
-	srcs/sh_context/public/context.h \
+	srcs/ft_utils/public/utils.h srcs/sh_context/public/context.h \
 	srcs/sh_default_builtins/p_default_builtins.h \
 	srcs/sh_default_builtins/public/default_builtins.h \
 	srcs/strset/public/strset.h
@@ -1032,8 +1038,8 @@ $(O_DIR)/srcs/sh_parser/sh_parse_cmd.o: srcs/sh_parser/sh_parse_cmd.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_in/public/ft_in.h libft/ft_lexer/public/lexer.h \
 	libft/ft_tokenizer/public/tokenizer.h libft/ft_vector/public/ft_vector.h \
-	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
-	srcs/sh_parser/public/parser.h
+	srcs/ft_utils/public/utils.h srcs/sh_ast/public/ast.h \
+	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_compound.o: \
 	srcs/sh_parser/sh_parse_compound.c libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
@@ -1050,8 +1056,9 @@ $(O_DIR)/srcs/sh_parser/sh_parse_for_clause.o: \
 	srcs/sh_parser/sh_parse_for_clause.c libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
 	libft/ft_lexer/public/lexer.h libft/ft_tokenizer/public/tokenizer.h \
-	libft/ft_vector/public/ft_vector.h srcs/sh_ast/public/ast.h \
-	srcs/sh_parser/p_sh_parser.h srcs/sh_parser/public/parser.h
+	libft/ft_vector/public/ft_vector.h srcs/ft_utils/public/utils.h \
+	srcs/sh_ast/public/ast.h srcs/sh_parser/p_sh_parser.h \
+	srcs/sh_parser/public/parser.h
 $(O_DIR)/srcs/sh_parser/sh_parse_if_clause.o: \
 	srcs/sh_parser/sh_parse_if_clause.c libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_in/public/ft_in.h \
@@ -1165,6 +1172,7 @@ $(O_DIR)/_public/ft/term.h: libft/ft_term/public/term.h
 $(O_DIR)/_public/ft/tokenizer.h: libft/ft_tokenizer/public/tokenizer.h
 $(O_DIR)/_public/ft/tokenmap_builder.h: \
 libft/ft_tokenizer/public/tokenmap_builder.h
+$(O_DIR)/_public/ft/utils.h: srcs/ft_utils/public/utils.h
 $(O_DIR)/_public/sh/ast.h: srcs/sh_ast/public/ast.h
 $(O_DIR)/_public/sh/context.h: srcs/sh_context/public/context.h
 $(O_DIR)/_public/sh/default_builtins.h: \

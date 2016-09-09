@@ -108,3 +108,8 @@ printf "%s\n" "[$@]"
 
 set 1 2 3 4 5 6 7 8 9
 printf "[%s] " "$@"; echo "=> $#"; shift
+
+####
+
+function a if [ "$#" -gt 0 ]; then for arg in "$@"; do echo "[${arg}]"; done; else echo "Nothing"; fi
+function b { echo "[$@]"; }

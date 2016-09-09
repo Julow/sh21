@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:32:48 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 18:36:35 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 00:06:52 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,15 @@ static int		sh_exec_cmd_bracket_clause(t_sh_context *c,
 	return (status);
 }
 
+static int		sh_exec_cmd_function_def(t_sh_context *c,
+					t_sh_cmd const *cmd, bool no_fork)
+{
+	ASSERT(!"TODO: exec function_def");
+	if (no_fork)
+		exit(0);
+	return (0);
+}
+
 int				(*const g_sh_exec_cmd[])(t_sh_context *c,
 					t_sh_cmd const *cmd, bool no_fork) = {
 	[SH_CMD_EMPTY] = &sh_exec_cmd_empty,
@@ -90,4 +99,5 @@ int				(*const g_sh_exec_cmd[])(t_sh_context *c,
 	[SH_CMD_TIME_CLAUSE] = &sh_exec_cmd_time_clause,
 	[SH_CMD_NOT_CLAUSE] = &sh_exec_cmd_not_clause,
 	[SH_CMD_BRACKET_CLAUSE] = &sh_exec_cmd_bracket_clause,
+	[SH_CMD_FUNCTION_DEF] = &sh_exec_cmd_function_def,
 };

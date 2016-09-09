@@ -7,4 +7,6 @@ module sh::parser:
 	public require sh::ast
 
 	private require ft::lexer
+	private require ft::tokenizer
+	private require ft::utils
 	private require ft::vector

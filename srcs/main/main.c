@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/07 16:27:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 18:45:17 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -480,6 +480,11 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 		PRINT_CMD(indent, "");
 		print_sh_compound(cmd->bracket_clause, indent + 1);
 		PRINT_CMD(indent, "\033[33m}\033[0m");
+		break ;
+	case SH_CMD_FUNCTION_DEF:
+		ft_printf("\033[33mfunction\033[0m \033[36m%ts\033[0m ",
+			cmd->function_def->name);
+		print_sh_cmd(&cmd->function_def->body, indent + 1);
 		break ;
 	}
 	print_sh_redir_lst(&cmd->redirs, indent);

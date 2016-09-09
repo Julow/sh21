@@ -6,3 +6,4 @@ module sh::default_builtins:
 	public require sh::context
 
 	private require ft::printf
+	private require ft::utils

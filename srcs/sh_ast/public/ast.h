@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/07 10:33:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 18:51:18 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ typedef struct s_sh_for			t_sh_for;
 typedef struct s_sh_else		t_sh_else;
 typedef struct s_sh_if			t_sh_if;
 typedef struct s_sh_while		t_sh_while;
+typedef struct s_sh_func_def	t_sh_func_def;
 
 typedef enum e_sh_redir_t		t_sh_redir_t;
 typedef struct s_sh_redir		t_sh_redir;
@@ -228,6 +229,7 @@ enum			e_sh_cmd_t
 	SH_CMD_TIME_CLAUSE, // rec // TODO: stronger than pipe
 	SH_CMD_NOT_CLAUSE, // rec // TODO: stronger than pipe
 	SH_CMD_BRACKET_CLAUSE,
+	SH_CMD_FUNCTION_DEF, // TODO: stronger than pipe
 };
 
 struct			s_sh_cmd
@@ -242,6 +244,7 @@ struct			s_sh_cmd
 		t_sh_while		*while_clause;
 		t_sh_cmd		*rec;
 		t_sh_compound	*bracket_clause;
+		t_sh_func_def	*function_def;
 	};
 };
 
@@ -320,6 +323,12 @@ struct			s_sh_while
 {
 	t_sh_compound	cond;
 	t_sh_compound	body;
+};
+
+struct			s_sh_func_def
+{
+	t_sub			name;
+	t_sh_cmd		body;
 };
 
 /*

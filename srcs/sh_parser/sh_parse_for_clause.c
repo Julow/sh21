@@ -6,20 +6,14 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/12 16:04:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:03:32 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/09 18:40:33 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/utils.h"
 #include "p_sh_parser.h"
+
 #include <stdlib.h>
-
-#define SUB_DST(DST, S)		SUB(ft_memcpy(DST, (S).str, (S).length), (S).length)
-
-static bool		is_identifier(t_sub str)
-{
-	return (str.length >= 1 && IS(str.str[0], IS_ALPHA | IS_UNDERSCORE)
-		&& ft_subis(SUB_FOR(str, 1), IS_WORD));
-}
 
 static bool		parse_for_clause_data(t_sh_parser *p, t_sh_text *dst)
 {
@@ -34,7 +28,7 @@ bool			sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
 	sh_ignore_newlines(p);
 	if (!sh_except_token(p, SH_PARSE_T(TEXT)))
 		return (false);
-	if (!is_identifier(p->t.token_str))
+	if (!ft_subis_identifier(p->t.token_str))
 		return (sh_parse_error(p, SH_E_INVALID_ID));
 	dst->for_clause = MALLOC(sizeof(t_sh_for) + p->t.token_str.length);
 	dst->for_clause->var = SUB_DST(ENDOF(dst->for_clause), p->t.token_str);

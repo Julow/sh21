@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/07 18:34:11 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 00:02:14 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 		if (sh_exec_cmd_simple_builtin(c, ARGV(param_buff.count, V(params)),
 				no_fork, &status))
 			;
+		// TODO: exec function
 		else if (no_fork)
 			sh_exec_cmd_simple_exec(c, cmd, params);
 		else

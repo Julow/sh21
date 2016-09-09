@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:02:52 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/09 18:35:02 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,8 +153,6 @@ bool			sh_parse_do_clause(t_sh_parser *p, t_sh_compound *dst);
 /*
 ** -
 */
-
-bool			ft_subis(t_sub sub, t_is is); // TODO: move to libft
 
 bool			sh_ignore_spaces(t_sh_parser *p);
 bool			sh_ignore_newlines(t_sh_parser *p);

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 17:19:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/24 21:42:44 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/09 18:46:16 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,10 @@ void			sh_destroy_cmd(t_sh_cmd *cmd)
 	case SH_CMD_BRACKET_CLAUSE:
 		sh_destroy_compound(cmd->bracket_clause);
 		free(cmd->bracket_clause);
+		break ;
+	case SH_CMD_FUNCTION_DEF:
+		sh_destroy_cmd(&cmd->function_def->body);
+		free(cmd->function_def);
 		break ;
 	}
 }
