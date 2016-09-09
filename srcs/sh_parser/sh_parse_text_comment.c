@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/08 17:58:02 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/08 18:01:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:04:17 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,16 @@ bool			sh_parse_text_comment(t_sh_parser *p,
 	t_lexer_frame			frame;
 	t_sh_parse_token const	*t;
 
-	ft_lexer_push(&p->l, &frame, &g_sh_text_comment_lexer);
+	ft_lexer_push(&p->t, &frame, &g_sh_text_comment_lexer);
 	while (true)
 	{
-		if (!ft_lexer_ahead(&p->l, NULL, V(&t))
+		if (!ft_tokenize_ahead(&p->t, NULL, V(&t))
 			|| t->type == SH_PARSE_T_COMMENT)
 			break ;
-		if (!ft_lexer_next(&p->l))
+		if (!ft_tokenize(&p->t))
 			ASSERT(false);
 	}
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	return (true);
 	(void)dst;
 	(void)quoted;

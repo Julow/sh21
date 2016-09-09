@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:21:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 18:37:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:04:19 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ bool			ft_subis(t_sub sub, t_is is)
 
 bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t)
 {
-	ft_lexer_next(&p->l);
-	if (p->l.eof)
+	ft_tokenize(&p->t);
+	if (p->t.eof)
 		return (sh_parse_error(p, SH_E_EOF));
 	if (SH_T(p)->type != t.type || SH_T(p)->_val != t._val)
 		return (sh_parse_error(p, SH_E_UNEXPECTED));
@@ -41,11 +41,11 @@ bool			sh_ignore_spaces(t_sh_parser *p)
 {
 	t_sh_parse_token const	*t;
 
-	while (ft_lexer_ahead(&p->l, NULL, V(&t)))
+	while (ft_tokenize_ahead(&p->t, NULL, V(&t)))
 	{
 		if (t->type != SH_PARSE_T_SPACE)
 			return (true);
-		ft_lexer_next(&p->l);
+		ft_tokenize(&p->t);
 	}
 	return (false);
 }
@@ -54,15 +54,15 @@ bool			sh_ignore_newlines(t_sh_parser *p)
 {
 	t_sh_parse_token const	*t;
 
-	while (ft_lexer_ahead(&p->l, NULL, V(&t)))
+	while (ft_tokenize_ahead(&p->t, NULL, V(&t)))
 	{
 		if (t->type != SH_PARSE_T_SPACE
 				&& !(t->type == SH_PARSE_T_COMPOUND_END
 					&& t->compound_end == SH_PARSE_T_COMPOUND_NEWLINE))
 			return (true);
-		ft_lexer_next(&p->l);
+		ft_tokenize(&p->t);
 	}
-	ft_lexer_next(&p->l);
+	ft_tokenize(&p->t);
 	return (false);
 }
 

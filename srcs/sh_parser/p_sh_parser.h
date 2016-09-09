@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/08 18:49:20 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:02:52 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define P_SH_PARSER_H
 
 # include "ft/lexer.h"
+# include "ft/tokenizer.h"
 # include "sh/parser.h"
 
 typedef struct s_sh_parse_token		t_sh_parse_token;
@@ -110,7 +111,7 @@ struct			s_sh_parse_token
 
 struct			s_sh_parser
 {
-	t_lexer			l;
+	t_tokenizer		t;
 	t_sh_parse_err	*err;
 	bool			error_set;
 };
@@ -121,12 +122,12 @@ struct			s_sh_parser
 
 # define SH(T)				SH_PARSE_T_##T
 
-# define SH_T(P)			((t_sh_parse_token const*)((P)->l.token))
+# define SH_T(P)			((t_sh_parse_token const*)((P)->t.token))
 
 # define SH_T_EQU(P,T,V)	(SH_T(P)->type == SH(T) && SH_T(P)->_val == SH(V))
 
 # define SH_T_EXCEPT(P,T,V)	\
-		((P)->l.eof ? (sh_parse_error(P, SH_E_EOF), false) : \
+		((P)->t.eof ? (sh_parse_error(P, SH_E_EOF), false) : \
 			(SH_T_EQU(P,T,V) || (sh_parse_error(P, SH_E_UNEXPECTED), false)))
 
 /*

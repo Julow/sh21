@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:24:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/08 18:23:45 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:04:15 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static bool		(*const g_sh_parse_subst[])(t_sh_parser*, t_sh_text*, bool) = {
 
 static bool		sh_parse_text_param(t_sh_parser *p, t_sh_text *dst, bool quoted)
 {
-	t_sub const			param_str = SUB_FOR(p->l.t.token_str, SH_T(p)->param_prefix);
+	t_sub const			param_str = SUB_FOR(p->t.token_str, SH_T(p)->param_prefix);
 	t_sh_param const	param = SH_PARAM(STR, .str_length=param_str.length);
 
 	sh_text_push(dst, param_str, SH_TOKEN(PARAM, .param=param), quoted);
@@ -31,7 +31,7 @@ static bool		sh_parse_text_param(t_sh_parser *p, t_sh_text *dst, bool quoted)
 
 static bool		sh_parse_text_param_pos(t_sh_parser *p, t_sh_text *dst, bool quoted)
 {
-	uint32_t			val = p->l.t.token_str.str[SH_T(p)->param_prefix] - '0';
+	uint32_t			val = p->t.token_str.str[SH_T(p)->param_prefix] - '0';
 	t_sh_param const	param = SH_PARAM(POS, .pos=val);
 
 	sh_text_push(dst, SUB0(), SH_TOKEN(PARAM, .param=param), quoted);
@@ -51,10 +51,10 @@ static bool		sh_parse_text_backslash(t_sh_parser *p, t_sh_text *dst, bool quoted
 	t_sh_parse_token const	*t;
 
 	TRACE();
-	if (!ft_lexer_ahead(&p->l, NULL, V(&t)))
+	if (!ft_tokenize_ahead(&p->t, NULL, V(&t)))
 		return (sh_parse_error(p, SH_E_EOF));
 	if (t->type == SH(COMPOUND_END) && t->compound_end == SH(COMPOUND_NEWLINE))
-		ft_lexer_next(&p->l); // TODO: '\\\n' token 'ESCAPED'
+		ft_tokenize(&p->t); // TODO: '\\\n' token 'ESCAPED'
 	else
 		sh_text_push_string(dst, SUB0(), true);
 	return (true);
@@ -63,7 +63,7 @@ static bool		sh_parse_text_backslash(t_sh_parser *p, t_sh_text *dst, bool quoted
 
 static bool		sh_parse_text_text(t_sh_parser *p, t_sh_text *dst, bool quoted)
 {
-	sh_text_push_string(dst, p->l.t.token_str, quoted);
+	sh_text_push_string(dst, p->t.token_str, quoted);
 	return (true);
 }
 

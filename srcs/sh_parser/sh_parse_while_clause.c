@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 10:48:16 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/08 18:59:27 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:06:14 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 static bool		sh_parse_while_cond(t_sh_parser *p, t_sh_cmd *dst)
 {
-	return ((!p->l.eof || sh_parse_error(p, SH_E_EOF))
+	return ((!p->t.eof || sh_parse_error(p, SH_E_EOF))
 		&& sh_parse_compound(p, &dst->while_clause->cond, true)
 		&& ((sh_parse_do_clause(p, &dst->while_clause->body)
 			&& (sh_parse_trailing_redirs(p, &dst->redirs)

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/08 19:02:17 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:04:03 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static bool		sh_parse_pipeline(t_sh_parser *p, t_sh_pipeline *dst)
 		dst->next = NULL;
 		if (!sh_parse_cmd(p, &dst->cmd))
 			return (false);
-		if (p->l.eof || SH_T(p)->type != SH(PIPELINE_END))
+		if (p->t.eof || SH_T(p)->type != SH(PIPELINE_END))
 			break ;
 		if (!sh_ignore_newlines(p))
 			return (sh_parse_error(p, SH_E_EOF));
@@ -38,7 +38,7 @@ static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 		dst->next = NULL;
 		if (!sh_parse_pipeline(p, &dst->pipeline))
 			return (false);
-		if (p->l.eof || SH_T(p)->type != SH(LIST_END))
+		if (p->t.eof || SH_T(p)->type != SH(LIST_END))
 			break ;
 		next_t = SH_T(p)->list_end;
 		if (!sh_ignore_newlines(p))
@@ -73,13 +73,13 @@ bool			sh_parse_compound_end(t_sh_parser *p)
 	if ((SH_T(p)->compound_end == SH(COMPOUND_SEMICOLON)
 			|| SH_T(p)->compound_end == SH(COMPOUND_NEWLINE))
 		&& sh_ignore_newlines(p)
-		&& ft_lexer_ahead(&p->l, &word, V(&t)) && t->type == SH(TEXT))
+		&& ft_tokenize_ahead(&p->t, &word, V(&t)) && t->type == SH(TEXT))
 		while (i < ARRAY_LEN(g_end_keywords))
 		{
 			if (SUB_EQU(g_end_keywords[i].name, word))
 			{
-				ft_lexer_next(&p->l);
-				p->l.token = &g_end_keywords[i].t;
+				ft_tokenize(&p->t);
+				p->t.token = &g_end_keywords[i].t;
 				return (true);
 			}
 			i++;
@@ -98,7 +98,7 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 		dst->next = NULL;
 		if (!sh_parse_list(p, &dst->list))
 			return (false);
-		if (p->l.eof || !ASSERT(SH_T(p)->type == SH(COMPOUND_END)))
+		if (p->t.eof || !ASSERT(SH_T(p)->type == SH(COMPOUND_END)))
 			break ;
 		if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
 			dst->flags |= SH_COMPOUND_ASYNC;
@@ -106,7 +106,7 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 			|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
 				&& !allow_newline))
 			break ;
-		if (sh_parse_compound_end(p) || p->l.eof)
+		if (sh_parse_compound_end(p) || p->t.eof)
 			break ;
 		dst->next = NEW(t_sh_compound);
 		dst = dst->next;

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 10:43:46 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/18 15:46:07 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/09 13:06:13 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static bool		parse_if(t_sh_parser *p, t_sh_if *dst)
 	{
 		if (parse_if_then(p, &dst->body))
 		{
-			if (!p->l.eof)
+			if (!p->t.eof)
 			{
 				dst->else_clause = NULL;
 				if (SH_T_EQU(p, COMPOUND_END, COMPOUND_FI)

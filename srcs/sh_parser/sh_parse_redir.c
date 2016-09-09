@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/15 17:58:07 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/28 01:45:36 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/09 13:04:05 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@ static bool		parse_redir(t_sh_parser *p, t_sh_redir_lst *dst,
 	redir = ft_vpush(&dst->redirs, NULL, 1);
 	*redir = SH_REDIR(SH_T(p)->redir, left_fd);
 	sh_ignore_spaces(p);
-	while (ft_lexer_next(&p->l) && SH_T(p)->type != SH(SPACE)
+	while (ft_tokenize(&p->t) && SH_T(p)->type != SH(SPACE)
 			&& g_sh_parse_text[SH_T(p)->type] != NULL)
 	{
 		if (!g_sh_parse_text[SH_T(p)->type](p, &redir->right_text, false))
 			return (false);
 	}
 	return (redir->right_text.tokens.length > 0
-		|| sh_parse_error(p, p->l.eof ? SH_E_EOF : SH_E_UNEXPECTED));
+		|| sh_parse_error(p, p->t.eof ? SH_E_EOF : SH_E_UNEXPECTED));
 }
 
 bool			sh_parse_redir(t_sh_parser *p, t_sh_redir_lst *lst)
@@ -44,11 +44,11 @@ bool			sh_parse_redir_left(t_sh_parser *p,
 	t_sh_parse_token const	*t;
 
 	ASSERT(SH_T(p)->type == SH(TEXT));
-	if (ft_subto_int(p->l.t.token_str, &left_fd) != p->l.t.token_str.length
-		|| left_fd < 0 || !ft_lexer_ahead(&p->l, NULL, V(&t))
+	if (ft_subto_int(p->t.token_str, &left_fd) != p->t.token_str.length
+		|| left_fd < 0 || !ft_tokenize_ahead(&p->t, NULL, V(&t))
 		|| t->type != SH(REDIR))
 		return (false);
-	ft_lexer_next(&p->l);
+	ft_tokenize(&p->t);
 	*r = parse_redir(p, lst, left_fd);
 	return (true);
 }
@@ -68,10 +68,10 @@ bool			sh_parse_trailing_redirs(t_sh_parser *p, t_sh_redir_lst *lst)
 {
 	bool			r;
 
-	if (!ft_lexer_next(&p->l))
+	if (!ft_tokenize(&p->t))
 		return (true);
 	r = true;
-	while (r && !p->l.eof)
+	while (r && !p->t.eof)
 		if (SH_T(p)->type == SH(REDIR))
 			r = sh_parse_redir(p, lst);
 		else if (SH_T(p)->type == SH(HEREDOC))
@@ -84,6 +84,6 @@ bool			sh_parse_trailing_redirs(t_sh_parser *p, t_sh_redir_lst *lst)
 		else if (SH_T(p)->type != SH(SPACE))
 			r = sh_parse_error(p, SH_E_UNEXPECTED);
 		else
-			ft_lexer_next(&p->l);
+			ft_tokenize(&p->t);
 	return (r);
 }

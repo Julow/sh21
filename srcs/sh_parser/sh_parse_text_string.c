@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/08 18:01:46 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/08 18:29:10 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:03:28 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,8 @@ bool					sh_parse_text_string(t_sh_parser *p,
 {
 	t_lexer_frame	frame;
 
-	ft_lexer_push(&p->l, &frame, get_string_state(p));
-	while (ft_lexer_next(&p->l))
+	ft_lexer_push(&p->t, &frame, get_string_state(p));
+	while (ft_tokenize(&p->t))
 		if (SH_T_EQU(p, STRING, STRING_END))
 			break ;
 		else if (g_sh_parse_text[SH_T(p)->type] != NULL)
@@ -66,7 +66,7 @@ bool					sh_parse_text_string(t_sh_parser *p,
 		}
 		else
 			return (sh_parse_error(p, SH_E_ERROR));
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	return (true);
 	(void)quoted;
 }

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/08 19:02:39 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:03:30 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,14 @@ static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_cmd *dst)
 
 	dst->simple.text = SH_TEXT();
 	r = true;
-	while (!p->l.eof)
+	while (!p->t.eof)
 		if (SH_T(p)->type == SH(TEXT)
 			&& sh_parse_redir_left(p, &dst->redirs, &r))
 			;
 		else if (g_sh_parse_text[SH_T(p)->type] != NULL)
 		{
 			r = g_sh_parse_text[SH_T(p)->type](p, &dst->simple.text, false);
-			if (!r || !ft_lexer_next(&p->l))
+			if (!r || !ft_tokenize(&p->t))
 				break ;
 		}
 		else if (SH_T(p)->type == SH_PARSE_T_REDIR)
@@ -59,7 +59,7 @@ static bool		sh_parse_rec_cmd(t_sh_parser *p, t_sh_cmd *dst)
 {
 	bool			r;
 
-	if (!ft_lexer_next(&p->l))
+	if (!ft_tokenize(&p->t))
 		return (sh_parse_error(p, SH_E_EOF));
 	if (SH_T(p)->type != SH_PARSE_T_SPACE)
 		return (sh_parse_error(p, SH_E_UNEXPECTED));
@@ -121,7 +121,7 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 
 	cmd->type = SH_CMD_EMPTY;
 	cmd->redirs = SH_REDIR_LST();
-	if (!ft_lexer_next(&p->l))
+	if (!ft_tokenize(&p->t))
 		return (true);
 	cmd->type = SH_CMD_SIMPLE;
 	if (SH_T(p)->type == SH(TEXT))
@@ -129,7 +129,7 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 		// HERE alias
 		i = 0;
 		while (i < ARRAY_LEN(g_clauses_begin))
-			if (SUB_EQU(p->l.t.token_str, g_clauses_begin[i].name))
+			if (SUB_EQU(p->t.token_str, g_clauses_begin[i].name))
 			{
 				cmd->type = g_clauses_begin[i].type;
 				break ;

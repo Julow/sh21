@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/28 01:19:30 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 17:58:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:04:07 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static bool		get_escaped_value(t_sh_parser *p, uint32_t *value)
 	t_sub					str;
 	uint32_t				len;
 
-	if (!ft_lexer_ahead(&p->l, &str, V(&t)) || t->type != SH(TEXT))
+	if (!ft_tokenize_ahead(&p->t, &str, V(&t)) || t->type != SH(TEXT))
 		return (false);
 	len = 0;
 	if (SH_T(p)->escape_sequence == SH(ESCAPE_OCTAL))
@@ -68,8 +68,8 @@ static bool		get_escaped_value(t_sh_parser *p, uint32_t *value)
 		ASSERT(false);
 	if (len == 0)
 		return (false);
-	ft_lexer_next(&p->l);
-	ft_tokenizer_inject(&p->l.t, SUB_FOR(str, len));
+	ft_tokenize(&p->t);
+	ft_tokenizer_inject(&p->t, SUB_FOR(str, len));
 	return (true);
 }
 

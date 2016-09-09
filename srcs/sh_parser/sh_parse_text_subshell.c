@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/08 18:15:20 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/08 18:29:55 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:00:25 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,15 +61,15 @@ bool			sh_parse_text_subshell(t_sh_parser *p,
 	t_sh_compound *const	cmd = NEW(t_sh_compound);
 	bool					r;
 
-	ft_lexer_push(&p->l, &frame, get_subshell_state(p));
+	ft_lexer_push(&p->t, &frame, get_subshell_state(p));
 	if ((r = sh_parse_compound(p, cmd, true)
-			&& (!p->l.eof || sh_parse_error(p, SH_E_EOF))
+			&& (!p->t.eof || sh_parse_error(p, SH_E_EOF))
 			&& (SH_T(p)->type == SH_PARSE_T_COMPOUND_END || sh_parse_error(p, SH_E_ERROR))
 			&& (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL)
 		))
 		sh_text_push(dst, SUB0(), SH_TOKEN(SUBSHELL, .cmd=cmd), quoted);
 	else
 		free(cmd);
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	return (r);
 }

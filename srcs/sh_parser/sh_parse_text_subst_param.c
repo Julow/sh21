@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/05 12:16:01 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/08 19:23:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:03:34 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,19 +92,19 @@ static void		parse_subst_param(t_sh_parser *p,
 
 	if (SH_T(p)->type == SH(PARAM))
 	{
-		param_str = SUB_FOR(p->l.t.token_str, SH_T(p)->param_prefix);
+		param_str = SUB_FOR(p->t.token_str, SH_T(p)->param_prefix);
 		*dst = SH_PARAM(STR, .str_length=param_str.length);
 		ft_dstradd(&dst_text->text, param_str);
 	}
 	else if (SH_T(p)->type == SH(PARAM_LENGTH))
 	{
-		param_str = SUB_FOR(p->l.t.token_str, SH_T(p)->param_prefix);
+		param_str = SUB_FOR(p->t.token_str, SH_T(p)->param_prefix);
 		*dst = SH_PARAM(LENGTH, .str_length=param_str.length);
 		ft_dstradd(&dst_text->text, param_str);
 	}
 	else if (SH_T(p)->type == SH(PARAM_POS))
 	{
-		param_str = SUB_FOR(p->l.t.token_str, SH_T(p)->param_prefix);
+		param_str = SUB_FOR(p->t.token_str, SH_T(p)->param_prefix);
 		*dst = SH_PARAM(POS, .pos=param_str.str[0] - '0');
 	}
 	else if (SH_T(p)->type == SH(PARAM_SPECIAL))
@@ -119,7 +119,7 @@ static bool		parse_param_text(t_sh_parser *p, t_sh_text *dst)
 {
 	while (true)
 	{
-		if (!ft_lexer_next(&p->l))
+		if (!ft_tokenize(&p->t))
 			return (sh_parse_error(p, SH_E_EOF));
 		if (g_sh_parse_text[SH_T(p)->type] != NULL)
 		{
@@ -138,11 +138,11 @@ static bool		sh_parse_text_subst_param_str(t_sh_parser *p,
 {
 	t_lexer_frame	frame;
 
-	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_str_lexer);
+	ft_lexer_push(&p->t, &frame, &g_sh_text_subst_param_str_lexer);
 	dst->str = SH_TEXT();
 	if (!parse_param_text(p, &dst->str))
 		return (false);
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	return (true);
 }
 
@@ -151,12 +151,12 @@ static bool		sh_parse_text_subst_param_end(t_sh_parser *p,
 {
 	t_lexer_frame	frame;
 
-	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_end_lexer);
-	if (!ft_lexer_next(&p->l))
+	ft_lexer_push(&p->t, &frame, &g_sh_text_subst_param_end_lexer);
+	if (!ft_tokenize(&p->t))
 		return (sh_parse_error(p, SH_E_EOF));
 	if (SH_T(p) == NULL)
 		return (sh_parse_error(p, SH_E_ERROR));
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	return (true);
 	(void)dst;
 }
@@ -166,20 +166,20 @@ static bool		sh_parse_text_subst_param_repl(t_sh_parser *p,
 {
 	t_lexer_frame	frame;
 
-	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_replace_lexer);
+	ft_lexer_push(&p->t, &frame, &g_sh_text_subst_param_replace_lexer);
 	dst->repl[0] = SH_TEXT();
 	dst->repl[1] = SH_TEXT();
 	if (!parse_param_text(p, &dst->repl[0]))
 		return (false);
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	if (SH_T(p)->type != SH(SUBST_PARAM_OP))
 		return (true);
-	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_str_lexer);
+	ft_lexer_push(&p->t, &frame, &g_sh_text_subst_param_str_lexer);
 	if (!parse_param_text(p, &dst->repl[1]))
 		return (false);
 	if (SH_T(p)->type != SH(SUBST_PARAM_END))
 		return (sh_parse_error(p, SH_E_UNEXPECTED));
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	return (true);
 }
 
@@ -234,14 +234,14 @@ bool			sh_parse_text_subst_param(t_sh_parser *p,
 	t_lexer_frame			frame;
 	t_sh_param				param;
 
-	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_lexer);
-	if (!ft_lexer_next(&p->l))
-		return (sh_parse_error(p, p->l.eof ? SH_E_EOF : SH_E_ERROR));
+	ft_lexer_push(&p->t, &frame, &g_sh_text_subst_param_lexer);
+	if (!ft_tokenize(&p->t))
+		return (sh_parse_error(p, p->t.eof ? SH_E_EOF : SH_E_ERROR));
 	parse_subst_param(p, dst, &param);
-	ft_lexer_pop(&p->l, &frame);
-	ft_lexer_push(&p->l, &frame, &g_sh_text_subst_param_op_lexer);
-	if (!ft_lexer_next(&p->l))
-		return (sh_parse_error(p, p->l.eof ? SH_E_EOF : SH_E_ERROR));
+	ft_lexer_pop(&p->t, &frame);
+	ft_lexer_push(&p->t, &frame, &g_sh_text_subst_param_op_lexer);
+	if (!ft_tokenize(&p->t))
+		return (sh_parse_error(p, p->t.eof ? SH_E_EOF : SH_E_ERROR));
 	if (SH_T(p)->type == SH(SUBST_PARAM_END))
 		sh_text_push(dst, SUB0(), SH_TOKEN(PARAM, .param=param), quoted);
 	else
@@ -249,6 +249,6 @@ bool			sh_parse_text_subst_param(t_sh_parser *p,
 		if (!parse_text_subst_param_op(p, dst, quoted, &param))
 			return (false);
 	}
-	ft_lexer_pop(&p->l, &frame);
+	ft_lexer_pop(&p->t, &frame);
 	return (true);
 }

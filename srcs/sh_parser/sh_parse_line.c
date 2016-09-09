@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/08 19:23:00 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/09 13:07:18 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,13 +122,13 @@ bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
 	t_sh_parser				p;
 	bool					r;
 
-	p = (t_sh_parser){LEXER(in), err, false}; // TODO: receive lexer from args
-	ft_lexer_push(&p.l, &frame, &g_sh_compound_lexer);
+	p = (t_sh_parser){TOKENIZER(in, NULL), err, false}; // TODO: receive tokenizer from args
+	ft_lexer_push(&p.t, &frame, &g_sh_compound_lexer);
 	sh_ignore_newlines(&p);
 	r = sh_parse_compound(&p, dst, false)
-		&& (p.l.eof || (SH_T_EQU(&p, COMPOUND_END, COMPOUND_NEWLINE)
+		&& (p.t.eof || (SH_T_EQU(&p, COMPOUND_END, COMPOUND_NEWLINE)
 			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED))));
-	ft_lexer_pop(&p.l, &frame);
-	ft_lexer_destroy(&p.l);
+	ft_lexer_pop(&p.t, &frame);
+	ft_tokenizer_reset(&p.t, true);
 	return (r);
 }
