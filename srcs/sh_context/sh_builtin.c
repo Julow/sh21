@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 15:28:33 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:42:17 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 11:14:02 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void			sh_c_builtin_unregister(t_sh_context *c, t_sub name,
 	ft_set_remove(&c->builtins, node);
 }
 
-int				sh_c_builtin_cmd(t_sh_c_builtin const *v, t_sub const *key)
+int				sh_c_builtin_cmp(t_sh_c_builtin const *v, t_sub const *key)
 {
 	return (SUB_CMP(v->name, *key));
 }

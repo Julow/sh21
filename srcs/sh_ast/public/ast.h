@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:51:18 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/10 13:53:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -343,5 +343,9 @@ void			sh_destroy_redir_lst(t_sh_redir_lst *lst);
 void			sh_destroy_compound(t_sh_compound *c);
 void			sh_destroy_cmd(t_sh_cmd *c);
 void			sh_destroy_text(t_sh_text *text);
+
+void			sh_copy_compound(t_sh_compound const *src, t_sh_compound *dst);
+void			sh_copy_cmd(t_sh_cmd const *src, t_sh_cmd *dst);
+void			sh_copy_text(t_sh_text const *src, t_sh_text *dst);
 
 #endif

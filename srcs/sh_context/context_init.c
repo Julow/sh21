@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 15:06:31 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:40:01 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 11:14:12 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ void			sh_context_init(t_sh_context *dst)
 		STRSET(0),
 		STR_LIST(),
 		0,
-		SET(sh_c_builtin_cmd, 0)
+		SET(sh_c_builtin_cmp, 0),
+		SET(sh_c_function_cmp, 0),
 	};
 	i = 0;
 	while (environ[i] != NULL)

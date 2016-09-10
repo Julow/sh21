@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:53:51 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 16:19:03 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "ft/set.h"
 # include "ft/str_list.h"
 # include "ft/strset.h"
+# include "sh/ast.h"
 
 typedef struct s_sh_context		t_sh_context;
 typedef int						(*t_sh_builtin)(t_sh_context *c,
@@ -35,6 +36,7 @@ typedef int						(*t_sh_builtin)(t_sh_context *c,
 ** pos_params		=> positional params
 ** last_status		=> $?
 ** builtins			=> builtin set
+** functions		=> user defined functions
 */
 struct			s_sh_context
 {
@@ -43,11 +45,12 @@ struct			s_sh_context
 	t_str_list		pos_params;
 	uint32_t		last_status;
 	t_set			builtins;
+	t_set			functions;
 };
 
 void			sh_context_init(t_sh_context *dst);
 
-# define SH_C_ENV_SIZE(C)		((C).env_keys.count)
+# define SH_C_ENV_SIZE(C)		((C).env_keys.count + 1)
 
 /*
 ** ========================================================================== **
@@ -73,7 +76,7 @@ t_sub			sh_c_var_get(t_sh_context const *c, t_sub key);
 
 /*
 ** Build the environ array
-** 'env' array must be of size SH_C_ENV_SIZE(c) + 1
+** 'env' array must be of size SH_C_ENV_SIZE(c)
 ** A NULL value is put at the end of the array
 */
 void			sh_c_env_build(t_sh_context const *c, char const **env);
@@ -111,5 +114,23 @@ void			*sh_c_builtin_register(t_sh_context *c, t_sub name,
 */
 void			sh_c_builtin_unregister(t_sh_context *c, t_sub name,
 					void (*clean)(void *data));
+
+/*
+** ========================================================================== **
+** Functions
+*/
+
+/*
+** Search for a function
+** Return it's body if found, NULL otherwise
+*/
+t_sh_cmd const	*sh_c_function_get(t_sh_context const *c, t_sub name);
+
+/*
+** Define a function
+** If a function with the same name already exists, override it
+** 'f' is copied
+*/
+void			sh_c_function_define(t_sh_context *c, t_sh_func_def const *f);
 
 #endif

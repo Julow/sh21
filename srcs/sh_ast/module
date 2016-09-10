@@ -5,3 +5,5 @@ module sh::ast:
 	public require ft::base
 	public require ft::dstr
 	public require ft::vector
+
+	private require ft::utils

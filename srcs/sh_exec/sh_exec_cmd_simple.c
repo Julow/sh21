@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/10 00:02:14 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/10 16:20:27 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,14 @@ static void		sh_exec_text_load_params(t_str_list const *param_buff,
 
 __attribute__ ((noreturn))
 static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
-					char const *const *params)
+					t_str_list const *param_buff)
 {
+	char const		*params[param_buff->count + 1];
 	char const		*env[SH_C_ENV_SIZE(*c)];
 	t_sub			cmd_name;
 	t_dstr			cmd_path;
 
-	cmd_name = ft_sub(params[0], 0, -1);
+	cmd_name = STR_LIST_SUB(*param_buff, 0);
 	if (!sh_exec_redir(c, &cmd->redirs, NULL))
 		exit(1);
 	cmd_path = DSTR0();
@@ -53,6 +54,7 @@ static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
 		ft_dprintf(2, "%ts: command not found%n", cmd_name);
 		exit(127);
 	}
+	sh_exec_text_load_params(param_buff, params);
 	sh_c_env_build(c, env);
 	execve(cmd_path.str, V(params), V(env));
 	ft_printf("%ts: %s%n", DSTR_SUB(cmd_path), strerror(errno));
@@ -60,7 +62,7 @@ static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
 }
 
 static int		sh_exec_cmd_simple_fork(t_sh_context *c, t_sh_cmd const *cmd,
-					char const *const *params)
+					t_str_list const *param_buff)
 {
 	pid_t			pid;
 
@@ -68,22 +70,50 @@ static int		sh_exec_cmd_simple_fork(t_sh_context *c, t_sh_cmd const *cmd,
 		return (ASSERT(!"fork fail"), -1);
 	if (pid == 0)
 	{
-		sh_exec_cmd_simple_exec(c, cmd, params);
+		sh_exec_cmd_simple_exec(c, cmd, param_buff);
 		ASSERT(false);
 		exit(-1);
 	}
 	return (sh_wait_pid(c, pid, NULL));
 }
 
-static bool		sh_exec_cmd_simple_builtin(t_sh_context *c, t_argv args,
-					bool no_fork, int *status)
+void			ft_str_list_copy(t_str_list const *src, t_str_list *dst) // TODO: move
 {
+	dst->buff = DSTR0();
+	ft_dstradd(&dst->buff, DSTR_SUB(src->buff));
+	dst->last_break = src->last_break;
+	dst->last_offset = src->last_offset;
+	dst->count = src->count;
+}
+
+static bool		sh_exec_cmd_simple_function(t_sh_context *c,
+					t_str_list const *param_buff, bool no_fork, int *status)
+{
+	t_sh_cmd const		*cmd;
+	t_str_list			save_params;
+
+	if ((cmd = sh_c_function_get(c, STR_LIST_SUB(*param_buff, 0))) == NULL)
+		return (false);
+	save_params = c->pos_params;
+	ft_str_list_copy(param_buff, &c->pos_params);
+	*status = g_sh_exec_cmd[cmd->type](c, cmd, no_fork);
+	ft_str_list_clear(&c->pos_params);
+	c->pos_params = save_params;
+	return (true);
+}
+
+static bool		sh_exec_cmd_simple_builtin(t_sh_context *c,
+					t_str_list const *param_buff, bool no_fork, int *status)
+{
+	char const		*params[param_buff->count + 1];
 	t_sh_builtin	builtin;
 	void			*builtin_data;
 
-	if (!sh_c_builtin_get(c, ft_sub(args.argv[0], 0, -1), &builtin, &builtin_data))
+	if (!sh_c_builtin_get(c, STR_LIST_SUB(*param_buff, 0),
+			&builtin, &builtin_data))
 		return (false);
-	*status = builtin(c, builtin_data, args);
+	sh_exec_text_load_params(param_buff, params);
+	*status = builtin(c, builtin_data, ARGV(param_buff->count, V(params)));
 	if (no_fork)
 		exit(*status);
 	return (true);
@@ -99,19 +129,15 @@ int				sh_exec_cmd_simple(t_sh_context *c, t_sh_cmd const *cmd,
 	param_buff = STR_LIST();
 	exec_text = SH_EXEC_TEXT(&cmd->simple.text);
 	sh_exec_text(c, &exec_text, 0, &param_buff);
-	{
-		char const		*params[param_buff.count + 1];
-
-		sh_exec_text_load_params(&param_buff, params);
-		if (sh_exec_cmd_simple_builtin(c, ARGV(param_buff.count, V(params)),
-				no_fork, &status))
-			;
-		// TODO: exec function
-		else if (no_fork)
-			sh_exec_cmd_simple_exec(c, cmd, params);
-		else
-			status = sh_exec_cmd_simple_fork(c, cmd, params);
-	}
+	HARD_ASSERT(param_buff.count > 0);
+	if (sh_exec_cmd_simple_function(c, &param_buff, no_fork, &status))
+		;
+	else if (sh_exec_cmd_simple_builtin(c, &param_buff, no_fork, &status))
+		;
+	else if (no_fork)
+		sh_exec_cmd_simple_exec(c, cmd, &param_buff);
+	else
+		status = sh_exec_cmd_simple_fork(c, cmd, &param_buff);
 	ft_str_list_clear(&param_buff);
 	return (status);
 }

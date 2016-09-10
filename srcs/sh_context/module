@@ -7,3 +7,4 @@ module sh::context:
 	public require ft::set
 	public require ft::str_list
 	public require ft::strset
+	public require sh::ast

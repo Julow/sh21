@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:32:48 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/10 00:06:52 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/10 13:58:46 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ static int		sh_exec_cmd_bracket_clause(t_sh_context *c,
 static int		sh_exec_cmd_function_def(t_sh_context *c,
 					t_sh_cmd const *cmd, bool no_fork)
 {
-	ASSERT(!"TODO: exec function_def");
+	sh_c_function_define(c, cmd->function_def);
 	if (no_fork)
 		exit(0);
 	return (0);

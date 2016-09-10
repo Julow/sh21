@@ -6,10 +6,11 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/22 14:55:41 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/07 16:37:40 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 14:16:06 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/ft_printf.h"
 #include "p_sh_exec.h"
 
 #include <unistd.h>
@@ -44,9 +45,15 @@ int				sh_wait_pid(t_sh_context *c, pid_t pid, struct rusage *u)
 
 	wait4(pid, &status, WUNTRACED, u);
 	if (WIFSTOPPED(status))
-		return (TRACE("Stopped"), 0);
+	{
+		ft_printf("Stopped%n");
+		return (0);
+	}
 	if (WIFSIGNALED(status))
-		return (TRACE("Killed"), WTERMSIG(status) + 128);
+	{
+		ft_printf("Killed by signal %u%n", WTERMSIG(status));
+		return (WTERMSIG(status) + 128);
+	}
 	ASSERT(WIFEXITED(status));
 	return (WEXITSTATUS(status));
 	(void)c;

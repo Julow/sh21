@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 15:11:57 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 16:44:31 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 11:13:54 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 typedef struct s_sh_c_var			t_sh_c_var;
 typedef struct s_sh_c_builtin		t_sh_c_builtin;
+typedef struct s_sh_c_function		t_sh_c_function;
 
 /*
 ** ========================================================================== **
@@ -64,6 +65,20 @@ struct			s_sh_c_builtin
 	t_sh_builtin	f;
 };
 
-int				sh_c_builtin_cmd(t_sh_c_builtin const *v, t_sub const *key);
+int				sh_c_builtin_cmp(t_sh_c_builtin const *v, t_sub const *key);
+
+/*
+** ========================================================================== **
+** functions
+*/
+
+struct			s_sh_c_function
+{
+	t_set_h			set_h;
+	t_sub			name;
+	t_sh_cmd		body;
+};
+
+int				sh_c_function_cmp(t_sh_c_function const *v, t_sub const *key);
 
 #endif
