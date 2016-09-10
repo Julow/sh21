@@ -49,3 +49,13 @@ Shift positional parameters
 _(all `$i` are set to `${ i + n }`)_
 
 Default value for `n` is `1`
+
+### `cd [dir]`
+
+Change working directory to `dir`
+
+If `dir` is `-`, cd back to `$OLDPWD`
+
+Default value for `dir` is the value of `$HOME`
+
+`OLDPWD` and `PWD` variables are set to the old and current directory

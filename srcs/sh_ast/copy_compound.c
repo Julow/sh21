@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/10 11:38:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/10 16:24:05 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 23:22:46 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,19 @@ void			sh_copy_token_subshell(t_sh_token const *src, t_sh_token *dst)
 
 void			sh_copy_param_str_len(t_sh_param const *src, t_sh_param *dst)
 {
+	dst->type = src->type;
 	dst->str_length = src->str_length;
 }
 
 void			sh_copy_param_pos(t_sh_param const *src, t_sh_param *dst)
 {
+	dst->type = src->type;
 	dst->pos = src->pos;
 }
 
 void			sh_copy_param_special(t_sh_param const *src, t_sh_param *dst)
 {
+	dst->type = src->type;
 	dst->special = src->special;
 }
 
@@ -131,13 +134,13 @@ void			sh_copy_text(t_sh_text const *src, t_sh_text *dst)
 
 	*dst = SH_TEXT();
 	ft_dstradd(&dst->text, DSTR_SUB(src->text));
-	t_src = src->tokens.data;
 	t_dst = ft_vpush(&dst->tokens, NULL, src->tokens.length);
 	i = 0;
 	while (i < src->tokens.length)
 	{
-		t_dst[i].type = t_src[i].type;
-		g_sh_copy_token[t_src[i].type & ~SH_F_T_QUOTED](t_src + i, t_dst + i);
+		t_src = VECTOR_GET(src->tokens, i);
+		t_dst[i].type = t_src->type;
+		g_sh_copy_token[t_src->type & ~SH_F_T_QUOTED](t_src, t_dst + i);
 		i++;
 	}
 }

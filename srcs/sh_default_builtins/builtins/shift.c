@@ -6,23 +6,27 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 18:47:39 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 18:58:01 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 23:07:35 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/ft_printf.h"
 #include "p_default_builtins.h"
 
-static void		ft_str_list_shift(t_str_list *lst, uint32_t shift)
+static void		ft_str_list_shift(t_str_list *lst, uint32_t shift, uint32_t i)
 {
-	uint32_t		offset;
+	uint32_t		from;
+	uint32_t		to;
 
 	lst->count -= shift;
-	offset = 0;
+	from = 0;
+	while (i-- > 0)
+		from += STR_LIST_NEXT(*lst, from);
+	to = from;
 	while (shift-- > 0)
-		offset += STR_LIST_NEXT(*lst, offset);
-	lst->last_offset -= offset;
-	ft_dstrspan(&lst->buff, 0, offset, 0);
+		to += STR_LIST_NEXT(*lst, to);
+	lst->last_offset -= to - from;
+	ft_dstrspan(&lst->buff, from, to, 0);
 }
 
 int				sh_builtin_shift(t_sh_context *c, void *data, t_argv args)
@@ -45,10 +49,10 @@ int				sh_builtin_shift(t_sh_context *c, void *data, t_argv args)
 		ft_dprintf(2, "shift: too many arguments%n");
 		return (1);
 	}
-	if (shift >= c->pos_params.count)
-		ft_str_list_clear(&c->pos_params);
+	if (shift >= c->pos_params.count - 1)
+		ft_str_list_trunc(&c->pos_params, 1);
 	else
-		ft_str_list_shift(&c->pos_params, shift);
+		ft_str_list_shift(&c->pos_params, shift, 1);
 	return (0);
 	(void)data;
 }

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 16:13:18 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 18:58:32 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 23:42:25 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ t_sh_builtin_def const	g_sh_default_builtins[] = {
 	{SUBC("set"), &sh_builtin_set},
 	{SUBC("unset"), &sh_builtin_unset},
 	{SUBC("shift"), &sh_builtin_shift},
+	{SUBC("cd"), &sh_builtin_cd},
 };
 
 void			sh_init_default_builtins(t_sh_context *c)

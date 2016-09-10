@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 18:50:45 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/10 17:31:28 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 22:08:06 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,12 +128,12 @@ static void		sh_exec_text_t_param_special_argv(t_sh_context *c,
 	char const		sep = (ifs_val.length >= 1) ? ifs_val.str[0] : ' ';
 	uint32_t		offset;
 
-	if (c->pos_params.count == 0)
+	if (c->pos_params.count <= 1)
 	{
 		sh_exec_text_append_ifs(c, t, SUB0(), dst);
 		return ;
 	}
-	offset = 0;
+	offset = STR_LIST_NEXT(c->pos_params, 0);
 	while (true)
 	{
 		sh_exec_text_append_ifs(c, t, STR_LIST_SUB(c->pos_params, offset), dst);
@@ -149,12 +149,11 @@ static void		sh_exec_text_t_param_special_argv2(t_sh_context *c,
 {
 	uint32_t		offset;
 
-	if (!(t->type & SH_F_T_QUOTED) || c->pos_params.count == 0)
-	{
-		sh_exec_text_t_param_special_argv(c, t, dst);
+	if (c->pos_params.count <= 1)
 		return ;
-	}
-	offset = 0;
+	if (!(t->type & SH_F_T_QUOTED))
+		return (sh_exec_text_t_param_special_argv(c, t, dst));
+	offset = STR_LIST_NEXT(c->pos_params, 0);
 	while (true)
 	{
 		ft_str_list_append(dst, STR_LIST_SUB(c->pos_params, offset));
@@ -171,7 +170,8 @@ static void		sh_exec_text_t_param_special_argc(t_sh_context *c,
 	char			buff[16];
 	uint32_t		len;
 
-	len = ft_sprintf(buff, "%u", c->pos_params.count);
+	len = ft_sprintf(buff, "%u", (c->pos_params.count == 0) ?
+				0 : c->pos_params.count - 1);
 	sh_exec_text_append_ifs(c, t, SUB(buff, len), dst);
 }
 

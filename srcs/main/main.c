@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:45:17 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/10 23:23:25 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -569,7 +569,7 @@ static bool		binding_runshell_one(t_main *main, t_editor *editor, t_key key)
 	return (binding_runshell(main, editor, key));
 }
 
-static bool		init_main(t_main *main)
+static bool		init_main(t_main *main, char const *const *argv)
 {
 	ft_bzero(main, sizeof(t_main));
 	if (isatty(1))
@@ -593,7 +593,7 @@ static bool		init_main(t_main *main)
 		// 		DEFAULT_SYNTAX_COLOR);
 		main->flags |= FLAG_INTERACTIVE;
 	}
-	sh_context_init(&main->sh_context);
+	sh_context_init(&main->sh_context, argv);
 	sh_init_default_builtins(&main->sh_context);
 	return (true);
 }
@@ -659,15 +659,16 @@ static void		loop(t_main *main)
 ** Main
 */
 
-int				main(void)
+int				main(int argc, char const *const *argv)
 {
 	t_main			main;
 
-	if (!init_main(&main))
+	if (!init_main(&main, argv))
 		return (1);
 	if (main.flags & FLAG_INTERACTIVE)
 		interactive_loop(&main);
 	else
 		loop(&main);
 	return (0);
+	(void)argc;
 }

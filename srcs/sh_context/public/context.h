@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/10 16:19:03 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/10 23:32:34 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ struct			s_sh_context
 	t_set			functions;
 };
 
-void			sh_context_init(t_sh_context *dst);
+void			sh_context_init(t_sh_context *dst, char const *const *argv);
 
 # define SH_C_ENV_SIZE(C)		((C).env_keys.count + 1)
 
@@ -71,6 +71,7 @@ void			sh_c_var_unset(t_sh_context *c, t_sub key);
 /*
 ** Get a variable value by key
 ** If the variable is unset, return an empty sub
+** The returned sub '.str' is always '\0'-terminated
 */
 t_sub			sh_c_var_get(t_sh_context const *c, t_sub key);
 

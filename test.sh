@@ -113,3 +113,5 @@ printf "[%s] " "$@"; echo "=> $#"; shift
 
 function a if [ "$#" -gt 0 ]; then for arg in "$@"; do echo "[${arg}]"; done; else echo "Nothing"; fi
 function b { echo "[$@]"; }
+function c echo "<$0> #$# [$@]"
+function d while [ "$#" -gt 0 ]; do echo "[$1]"; shift; done
