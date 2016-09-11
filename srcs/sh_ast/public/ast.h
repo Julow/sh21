@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 14:31:53 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 17:26:04 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,13 +335,17 @@ struct			s_sh_func_def
 ** Clean functions
 */
 
-/*
-** 'c' and 'text' pointers are not freed
-*/
 void			sh_destroy_redir_lst(t_sh_redir_lst *lst);
 void			sh_destroy_compound(t_sh_compound *c);
+void			sh_destroy_pipeline(t_sh_pipeline *p);
+void			sh_destroy_list(t_sh_list *l);
 void			sh_destroy_cmd(t_sh_cmd *c);
 void			sh_destroy_text(t_sh_text *text);
+
+/*
+** ========================================================================== **
+** Copy functions
+*/
 
 void			sh_copy_compound(t_sh_compound const *src, t_sh_compound *dst);
 void			sh_copy_cmd(t_sh_cmd const *src, t_sh_cmd *dst);

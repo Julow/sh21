@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 15:21:52 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 18:37:20 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -556,6 +556,7 @@ static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 					[SH_E_UNTERMINATED_BRACKET] = "{",
 					[SH_E_UNTERMINATED_IF] = "if",
 					[SH_E_UNTERMINATED_THEN] = "then",
+					[SH_E_UNTERMINATED_ELIF] = "elif",
 					[SH_E_UNTERMINATED_ELSE] = "else",
 					[SH_E_UNTERMINATED_WHILE] = "while",
 					[SH_E_UNTERMINATED_FOR] = "for",
@@ -594,6 +595,8 @@ static bool		binding_runshell_one(t_main *main, t_editor *editor, t_key key)
 	return (binding_runshell(main, editor, key));
 }
 
+extern char const *const	*environ;
+
 static bool		init_main(t_main *main, char const *const *argv)
 {
 	ft_bzero(main, sizeof(t_main));
@@ -618,7 +621,7 @@ static bool		init_main(t_main *main, char const *const *argv)
 		// 		DEFAULT_SYNTAX_COLOR);
 		main->flags |= FLAG_INTERACTIVE;
 	}
-	sh_context_init(&main->sh_context, argv);
+	sh_context_init(&main->sh_context, argv, environ);
 	sh_init_default_builtins(&main->sh_context);
 	return (true);
 }
@@ -694,6 +697,7 @@ int				main(int argc, char const *const *argv)
 		interactive_loop(&main);
 	else
 		loop(&main);
+	exit(0);
 	return (0);
 	(void)argc;
 }

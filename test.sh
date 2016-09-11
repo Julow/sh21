@@ -170,3 +170,5 @@ if a; then a; elif a; then a; else
 if a; then a; elif a; then a; else a
 if a; then a; elif a; then a; else a;
 if a; then a; elif a; then a; else a; fi
+
+echo a && echo b | cat || echo err ; echo c | cat && true && true && echo d | cat | cat | cat `

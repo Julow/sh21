@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:09:25 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 15:16:56 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 15:53:45 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ enum			e_sh_parse_err_unterminated
 	SH_E_UNTERMINATED_BRACKET,
 	SH_E_UNTERMINATED_IF,
 	SH_E_UNTERMINATED_THEN,
+	SH_E_UNTERMINATED_ELIF,
 	SH_E_UNTERMINATED_ELSE,
 	SH_E_UNTERMINATED_WHILE,
 	SH_E_UNTERMINATED_FOR,

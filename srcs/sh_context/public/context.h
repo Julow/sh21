@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/10 23:32:34 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 17:57:25 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ struct			s_sh_context
 	t_set			functions;
 };
 
-void			sh_context_init(t_sh_context *dst, char const *const *argv);
+void			sh_context_init(t_sh_context *dst,
+					char const *const *argv, char const *const *env);
 
 # define SH_C_ENV_SIZE(C)		((C).env_keys.count + 1)
 

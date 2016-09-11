@@ -6,51 +6,56 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 14:37:00 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 17:33:21 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
+#include <stdlib.h>
 
-// TODO: destroy on error
 static bool		sh_parse_pipeline(t_sh_parser *p, t_sh_pipeline *dst)
 {
-	while (true)
+	if (!sh_parse_cmd(p, &dst->cmd))
+		return (false);
+	dst->next = NULL;
+	if (p->t.eof || SH_T(p)->type != SH(PIPELINE_END))
+		return (true);
+	if (sh_ignore_newlines(p))
 	{
-		dst->next = NULL;
-		if (!sh_parse_cmd(p, &dst->cmd))
-			return (false);
-		if (p->t.eof || SH_T(p)->type != SH(PIPELINE_END))
-			break ;
-		if (!sh_ignore_newlines(p))
-			return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_PIPE));
 		dst->next = NEW(t_sh_pipeline);
-		dst = dst->next;
+		if (sh_parse_pipeline(p, dst->next))
+			return (true);
+		free(dst->next);
 	}
-	return (true);
+	else
+		sh_parse_error_unterminated(p, SH_E_UNTERMINATED_PIPE);
+	sh_destroy_cmd(&dst->cmd);
+	return (false);
 }
 
-// TODO: destroy on error
 static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 {
 	t_sh_list_next_t	next_t;
 
-	while (true)
+	if (!sh_parse_pipeline(p, &dst->pipeline))
+		return (false);
+	dst->next = NULL;
+	if (p->t.eof || SH_T(p)->type != SH(LIST_END))
+		return (true);
+	next_t = SH_T(p)->list_end;
+	if (sh_ignore_newlines(p))
 	{
-		dst->next = NULL;
-		if (!sh_parse_pipeline(p, &dst->pipeline))
-			return (false);
-		if (p->t.eof || SH_T(p)->type != SH(LIST_END))
-			break ;
-		next_t = SH_T(p)->list_end;
-		if (!sh_ignore_newlines(p))
-			return (sh_parse_error_unterminated(p, (next_t == SH_LIST_AND) ?
-					SH_E_UNTERMINATED_AND : SH_E_UNTERMINATED_OR));
 		dst->next = NEW(t_sh_list_next);
 		dst->next->type = next_t;
-		dst = &dst->next->next;
+		if (sh_parse_list(p, &dst->next->next))
+			return (true);
+		free(dst->next);
 	}
-	return (true);
+	else
+		sh_parse_error_unterminated(p, (next_t == SH_LIST_AND) ?
+				SH_E_UNTERMINATED_AND : SH_E_UNTERMINATED_OR);
+	sh_destroy_pipeline(&dst->pipeline);
+	return (false);
 }
 
 static struct {
@@ -91,28 +96,27 @@ bool			sh_parse_compound_end(t_sh_parser *p)
 	return (false);
 }
 
-// TODO: destroy on error
 bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 					bool allow_newline)
 {
-	while (true)
-	{
-		dst->flags = 0;
-		dst->next = NULL;
-		if (!sh_parse_list(p, &dst->list))
-			return (false);
-		if (p->t.eof || !ASSERT(SH_T(p)->type == SH(COMPOUND_END)))
-			break ;
-		if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
-			dst->flags |= SH_COMPOUND_ASYNC;
-		else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL
-			|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
-				&& !allow_newline))
-			break ;
-		if (sh_parse_compound_end(p) || p->t.eof)
-			break ;
-		dst->next = NEW(t_sh_compound);
-		dst = dst->next;
-	}
-	return (true);
+	dst->flags = 0;
+	dst->next = NULL;
+	if (!sh_parse_list(p, &dst->list))
+		return (false);
+	if (p->t.eof || !ASSERT(SH_T(p)->type == SH(COMPOUND_END)))
+		return (true);
+	if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
+		dst->flags |= SH_COMPOUND_ASYNC;
+	else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL
+		|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
+			&& !allow_newline))
+		return (true);
+	if (sh_parse_compound_end(p) || p->t.eof)
+		return (true);
+	dst->next = NEW(t_sh_compound);
+	if (sh_parse_compound(p, dst->next, allow_newline))
+		return (true);
+	free(dst->next);
+	sh_destroy_list(&dst->list);
+	return (false);
 }

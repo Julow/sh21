@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/24 17:19:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 14:35:15 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 17:26:48 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void			sh_destroy_cmd(t_sh_cmd *cmd)
 	}
 }
 
-static void		sh_destroy_pipeline(t_sh_pipeline *p)
+void			sh_destroy_pipeline(t_sh_pipeline *p)
 {
 	sh_destroy_cmd(&p->cmd);
 	if (p->next != NULL)
@@ -66,7 +66,7 @@ static void		sh_destroy_pipeline(t_sh_pipeline *p)
 	}
 }
 
-static void		sh_destroy_list(t_sh_list *list)
+void			sh_destroy_list(t_sh_list *list)
 {
 	sh_destroy_pipeline(&list->pipeline);
 	if (list->next != NULL)

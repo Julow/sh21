@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 15:27:33 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 15:47:56 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,8 @@ static bool		sh_parse_rec_cmd(t_sh_parser *p, t_sh_cmd *dst)
 
 static bool		sh_parse_bracket_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	sh_ignore_newlines(p);
+	if (!sh_ignore_newlines(p))
+		return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_BRACKET));
 	dst->bracket_clause = NEW(t_sh_compound);
 	if (sh_parse_compound(p, dst->bracket_clause, true))
 	{
@@ -109,7 +110,7 @@ static bool		sh_parse_function_def(t_sh_parser *p, t_sh_cmd *dst)
 	func_def = MALLOC(sizeof(t_sh_func_def) + p->t.token_str.length);
 	func_def->name = SUB_DST(ENDOF(func_def), p->t.token_str);
 	sh_ignore_newlines(p);
-	if ((!p->t.eof || sh_parse_error_unterminated(p, SH_E_UNTERMINATED_LINE)) // TODO: fix double error
+	if ((p->t.eof && !sh_parse_error_unterminated(p, SH_E_UNTERMINATED_LINE))
 		|| !sh_parse_cmd(p, &func_def->body))
 	{
 		free(func_def);

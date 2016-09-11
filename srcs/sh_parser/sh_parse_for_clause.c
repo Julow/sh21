@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/12 16:04:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 15:00:28 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 15:50:16 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,10 @@ bool			sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
 		dst->for_clause->data = SH_TEXT();
 		if (parse_for_clause_data(p, &dst->for_clause->data))
 		{
-			if (!sh_parse_compound_end(p))
-				sh_parse_error(p, SH_E_UNEXPECTED);
+			if (p->t.eof)
+				sh_parse_error_unterminated(p, SH_E_UNTERMINATED_IN);
+			else if (!sh_parse_compound_end(p))
+				sh_parse_error(p, p->t.eof ? SH_E_EOF : SH_E_UNEXPECTED);
 			else if (sh_parse_do_clause(p, &dst->for_clause->body))
 			{
 				if (sh_parse_trailing_redirs(p, &dst->redirs))
