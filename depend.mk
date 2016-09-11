@@ -12,10 +12,10 @@ OBJ_DIR_TREE += $(O_DIR)/srcs/strset/ $(O_DIR)/srcs/spanlist/ \
 	$(O_DIR)/libft/ft_term/ $(O_DIR)/libft/ft_set/ \
 	$(O_DIR)/libft/ft_printf/formats/ $(O_DIR)/libft/ft_printf/ \
 	$(O_DIR)/libft/ft_out/ $(O_DIR)/libft/ft_list/ $(O_DIR)/libft/ft_lexer/ \
-	$(O_DIR)/libft/ft_in/ $(O_DIR)/libft/ft_getkey/ $(O_DIR)/libft/ft_dstr/ \
-	$(O_DIR)/libft/ft_bst/ $(O_DIR)/libft/ft_base/ $(O_DIR)/libft/ft_argv/ \
-	$(O_DIR)/libft/ $(O_DIR)/_public/sh/ $(O_DIR)/_public/ft/ \
-	$(O_DIR)/_public/ $(O_DIR)/
+	$(O_DIR)/libft/ft_in/ $(O_DIR)/libft/ft_getkey/ $(O_DIR)/libft/ft_file_in/ \
+	$(O_DIR)/libft/ft_file/ $(O_DIR)/libft/ft_dstr/ $(O_DIR)/libft/ft_bst/ \
+	$(O_DIR)/libft/ft_base/ $(O_DIR)/libft/ft_argv/ $(O_DIR)/libft/ \
+	$(O_DIR)/_public/sh/ $(O_DIR)/_public/ft/ $(O_DIR)/_public/ $(O_DIR)/
 O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/editor/binding/delete.o \
 	$(O_DIR)/srcs/editor/binding/extra_mod.o \
@@ -51,7 +51,9 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/libft/ft_bst/ft_bstmin.o $(O_DIR)/libft/ft_bst/ft_bstput.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstradd.o $(O_DIR)/libft/ft_dstr/ft_dstrclear.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstrextend.o \
-	$(O_DIR)/libft/ft_dstr/ft_dstrspan.o \
+	$(O_DIR)/libft/ft_dstr/ft_dstrspan.o $(O_DIR)/libft/ft_file/open.o \
+	$(O_DIR)/libft/ft_file_in/file_in.o \
+	$(O_DIR)/libft/ft_file_in/file_in_open.o \
 	$(O_DIR)/libft/get_next_line/get_next_line.o \
 	$(O_DIR)/libft/ft_getkey/ft_getkey.o $(O_DIR)/libft/ft_getkey/get_seq.o \
 	$(O_DIR)/libft/ft_getkey/next_char.o $(O_DIR)/libft/ft_in/ft_in_refresh.o \
@@ -98,7 +100,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_ast/destroy_text.o \
 	$(O_DIR)/srcs/sh_context/context_init.o \
 	$(O_DIR)/srcs/sh_context/sh_builtin.o $(O_DIR)/srcs/sh_context/sh_env.o \
-	$(O_DIR)/srcs/sh_context/sh_function.o $(O_DIR)/srcs/sh_context/sh_var.o \
+	$(O_DIR)/srcs/sh_context/sh_function.o $(O_DIR)/srcs/sh_context/sh_path.o \
+	$(O_DIR)/srcs/sh_context/sh_var.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/cd.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/echo.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/exit.o \
@@ -106,6 +109,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/pwd.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/set.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/shift.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/source.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/true.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/unset.o \
 	$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o \
@@ -133,7 +137,8 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_utils.o \
 	$(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o
 PUBLIC_LINKS += $(O_DIR)/_public/editor.h $(O_DIR)/_public/editor_bindings.h \
-	$(O_DIR)/_public/ft/argv.h $(O_DIR)/_public/ft/ft_bst.h \
+	$(O_DIR)/_public/ft/argv.h $(O_DIR)/_public/ft/file.h \
+	$(O_DIR)/_public/ft/file_in.h $(O_DIR)/_public/ft/ft_bst.h \
 	$(O_DIR)/_public/ft/ft_colors.h $(O_DIR)/_public/ft/ft_dstr.h \
 	$(O_DIR)/_public/ft/ft_in.h $(O_DIR)/_public/ft/ft_list.h \
 	$(O_DIR)/_public/ft/ft_out.h $(O_DIR)/_public/ft/ft_printf.h \
@@ -398,6 +403,19 @@ $(O_DIR)/libft/ft_dstr/ft_dstrextend.o: libft/ft_dstr/ft_dstrextend.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h
 $(O_DIR)/libft/ft_dstr/ft_dstrspan.o: libft/ft_dstr/ft_dstrspan.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h
+
+# module ft::file
+$(O_DIR)/libft/ft_file/open.o: libft/ft_file/open.c \
+	libft/ft_base/public/libft.h libft/ft_file/public/file.h
+
+# module ft::file_in
+$(O_DIR)/libft/ft_file_in/file_in.o: libft/ft_file_in/file_in.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_file_in/public/file_in.h libft/ft_in/public/ft_in.h
+$(O_DIR)/libft/ft_file_in/file_in_open.o: libft/ft_file_in/file_in_open.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_file/public/file.h libft/ft_file_in/public/file_in.h \
+	libft/ft_in/public/ft_in.h
 
 # module ft::get_next_line
 $(O_DIR)/libft/get_next_line/get_next_line.o: \
@@ -748,6 +766,12 @@ $(O_DIR)/srcs/sh_context/sh_function.o: srcs/sh_context/sh_function.c \
 	srcs/ft_utils/public/utils.h srcs/sh_ast/public/ast.h \
 	srcs/sh_context/p_sh_context.h srcs/sh_context/public/context.h \
 	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_context/sh_path.o: srcs/sh_context/sh_path.c \
+	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
+	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
+	libft/ft_vector/public/ft_vector.h srcs/ft_str_list/public/str_list.h \
+	srcs/sh_ast/public/ast.h srcs/sh_context/p_sh_context.h \
+	srcs/sh_context/public/context.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_context/sh_var.o: srcs/sh_context/sh_var.c \
 	libft/ft_argv/public/argv.h libft/ft_base/public/libft.h \
 	libft/ft_dstr/public/ft_dstr.h libft/ft_set/public/set.h \
@@ -757,7 +781,8 @@ $(O_DIR)/srcs/sh_context/sh_var.o: srcs/sh_context/sh_var.c \
 
 $(O_DIR)/srcs/sh_context/context_init.o $(O_DIR)/srcs/sh_context/sh_builtin.o \
 $(O_DIR)/srcs/sh_context/sh_env.o $(O_DIR)/srcs/sh_context/sh_function.o \
-$(O_DIR)/srcs/sh_context/sh_var.o: INCLUDE_FLAGS += -Isrcs/sh_context
+$(O_DIR)/srcs/sh_context/sh_path.o $(O_DIR)/srcs/sh_context/sh_var.o: \
+	INCLUDE_FLAGS += -Isrcs/sh_context
 
 # module sh::default_builtins
 $(O_DIR)/srcs/sh_default_builtins/builtins/cd.o: \
@@ -829,6 +854,18 @@ $(O_DIR)/srcs/sh_default_builtins/builtins/shift.o: \
 	srcs/sh_default_builtins/p_default_builtins.h \
 	srcs/sh_default_builtins/public/default_builtins.h \
 	srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/source.o: \
+	srcs/sh_default_builtins/builtins/source.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_file_in/public/file_in.h libft/ft_in/public/ft_in.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/sh_exec/public/exec.h srcs/sh_parser/public/parser.h \
+	srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_default_builtins/builtins/true.o: \
 	srcs/sh_default_builtins/builtins/true.c libft/ft_argv/public/argv.h \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
@@ -865,6 +902,7 @@ $(O_DIR)/srcs/sh_default_builtins/builtins/false.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/pwd.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/set.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/shift.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/source.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/true.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/unset.o \
 $(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: INCLUDE_FLAGS += \
@@ -1072,6 +1110,8 @@ $(O_DIR)/srcs/sh_parser/sh_parse_while_clause.o: INCLUDE_FLAGS += \
 $(O_DIR)/_public/editor.h: srcs/editor/public/editor.h
 $(O_DIR)/_public/editor_bindings.h: srcs/editor/public/editor_bindings.h
 $(O_DIR)/_public/ft/argv.h: libft/ft_argv/public/argv.h
+$(O_DIR)/_public/ft/file.h: libft/ft_file/public/file.h
+$(O_DIR)/_public/ft/file_in.h: libft/ft_file_in/public/file_in.h
 $(O_DIR)/_public/ft/ft_bst.h: libft/ft_bst/public/ft_bst.h
 $(O_DIR)/_public/ft/ft_colors.h: libft/ft_base/public/ft_colors.h
 $(O_DIR)/_public/ft/ft_dstr.h: libft/ft_dstr/public/ft_dstr.h

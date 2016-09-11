@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/18 22:10:40 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/07 16:08:42 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 19:25:03 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,12 +63,6 @@ int				sh_exec_cmd_for_clause(t_sh_context *c,
 /*
 ** -
 */
-
-/*
-** Search for a command in the PATH
-** 'dst' content is set to the full path of the binary
-*/
-bool			sh_search_path(t_sh_context const *c, t_sub name, t_dstr *dst);
 
 /*
 ** Wait for a process and return it's status code

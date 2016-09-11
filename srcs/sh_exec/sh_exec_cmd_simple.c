@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:53:56 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/10 16:20:27 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 19:30:56 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,8 @@ static void		sh_exec_cmd_simple_exec(t_sh_context *c, t_sh_cmd const *cmd,
 	if (!sh_exec_redir(c, &cmd->redirs, NULL))
 		exit(1);
 	cmd_path = DSTR0();
-	if (ft_subfind_c(cmd_name, '/', 0) < cmd_name.length)
-		ft_dstradd(&cmd_path, cmd_name);
-	else if (!sh_search_path(c, cmd_name, &cmd_path))
+	if (!sh_c_path_search(c, sh_c_var_get(c, SUBC("PATH")),
+			cmd_name, &cmd_path))
 	{
 		ft_dprintf(2, "%ts: command not found%n", cmd_name);
 		exit(127);

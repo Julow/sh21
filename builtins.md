@@ -59,3 +59,12 @@ If `dir` is `-`, cd back to `$OLDPWD`
 Default value for `dir` is the value of `$HOME`
 
 `OLDPWD` and `PWD` variables are set to the old and current directory
+
+### `source file`
+### `. file`
+
+Execute `file` in the current context
+(eg. variable/function definitions are persistent)
+
+TODO: look for file in `$PATH` paths
+TODO: optional position params

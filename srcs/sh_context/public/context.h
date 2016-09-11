@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/11 17:57:25 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 19:29:03 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,5 +134,20 @@ t_sh_cmd const	*sh_c_function_get(t_sh_context const *c, t_sub name);
 ** 'f' is copied
 */
 void			sh_c_function_define(t_sh_context *c, t_sh_func_def const *f);
+
+/*
+** ========================================================================== **
+** Path search
+*/
+
+/*
+** Look for executable file 'name' in ':'-separated path of 'path'
+** Put result to 'dst'
+** -
+** If 'name' contains any '/', it is used as result
+** TODO: cache binary locations
+*/
+bool			sh_c_path_search(t_sh_context *c, t_sub path,
+					t_sub name, t_dstr *dst);
 
 #endif

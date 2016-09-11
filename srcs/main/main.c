@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 18:37:20 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 19:12:28 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -531,6 +531,41 @@ static void 	print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
 
 #include <stdlib.h>
 
+void			sh_print_parse_err(t_sh_parse_err const *err)
+{
+	if (err->type == SH_E_UNTERMINATED)
+		ft_printf("ERROR: unterminated '%s'%n", ((char const*[]){
+			[SH_E_UNTERMINATED_AND] = "&&",
+			[SH_E_UNTERMINATED_OR] = "||",
+			[SH_E_UNTERMINATED_PIPE] = "|",
+			[SH_E_UNTERMINATED_SUBSHELL] = "(",
+			[SH_E_UNTERMINATED_SUBST_SUBSHELL] = "$(",
+			[SH_E_UNTERMINATED_SUBST_BACKQUOTE] = "`",
+			[SH_E_UNTERMINATED_SUBST_BACKQUOTE_REV] = "\\`",
+			[SH_E_UNTERMINATED_BRACKET] = "{",
+			[SH_E_UNTERMINATED_IF] = "if",
+			[SH_E_UNTERMINATED_THEN] = "then",
+			[SH_E_UNTERMINATED_ELIF] = "elif",
+			[SH_E_UNTERMINATED_ELSE] = "else",
+			[SH_E_UNTERMINATED_WHILE] = "while",
+			[SH_E_UNTERMINATED_FOR] = "for",
+			[SH_E_UNTERMINATED_IN] = "in",
+			[SH_E_UNTERMINATED_DO] = "do",
+			[SH_E_UNTERMINATED_LINE] = "\\",
+			[SH_E_UNTERMINATED_STRING] = "\"",
+			[SH_E_UNTERMINATED_STRING_SINGLE] = "'",
+			[SH_E_UNTERMINATED_STRING_ANSI] = "$'",
+		})[err->unterminated]);
+	else if (err->type == SH_E_UNEXPECTED)
+		ft_printf("ERROR: unexpected token '%ts'%n", err->token);
+	else if (err->type == SH_E_UNEXPECTED)
+		ft_printf("ERROR: invalid token '%ts'%n", err->token);
+	else if (err->type == SH_E_EOF)
+		ft_printf("ERROR: unexpected eof%n");
+	else
+		ft_printf("ERROR: error wtf%n");
+}
+
 static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 {
 	t_sub const		text = DSTR_SUB(editor->text);
@@ -544,38 +579,7 @@ static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 		// TMP
 		if ((err = sh_parse(&in, &cmd)) != NULL)
 		{
-			if (err->type == SH_E_UNTERMINATED)
-				ft_printf("ERROR: unterminated '%s'%n", ((char const*[]){
-					[SH_E_UNTERMINATED_AND] = "&&",
-					[SH_E_UNTERMINATED_OR] = "||",
-					[SH_E_UNTERMINATED_PIPE] = "|",
-					[SH_E_UNTERMINATED_SUBSHELL] = "(",
-					[SH_E_UNTERMINATED_SUBST_SUBSHELL] = "$(",
-					[SH_E_UNTERMINATED_SUBST_BACKQUOTE] = "`",
-					[SH_E_UNTERMINATED_SUBST_BACKQUOTE_REV] = "\\`",
-					[SH_E_UNTERMINATED_BRACKET] = "{",
-					[SH_E_UNTERMINATED_IF] = "if",
-					[SH_E_UNTERMINATED_THEN] = "then",
-					[SH_E_UNTERMINATED_ELIF] = "elif",
-					[SH_E_UNTERMINATED_ELSE] = "else",
-					[SH_E_UNTERMINATED_WHILE] = "while",
-					[SH_E_UNTERMINATED_FOR] = "for",
-					[SH_E_UNTERMINATED_IN] = "in",
-					[SH_E_UNTERMINATED_DO] = "do",
-					[SH_E_UNTERMINATED_LINE] = "\\",
-					[SH_E_UNTERMINATED_STRING] = "\"",
-					[SH_E_UNTERMINATED_STRING_SINGLE] = "'",
-					[SH_E_UNTERMINATED_STRING_ANSI] = "$'",
-				})[err->unterminated]);
-			else if (err->type == SH_E_UNEXPECTED)
-				ft_printf("ERROR: unexpected token '%ts'%n", err->token);
-			else if (err->type == SH_E_UNEXPECTED)
-				ft_printf("ERROR: invalid token '%ts'%n", err->token);
-			else if (err->type == SH_E_EOF)
-				ft_printf("ERROR: unexpected eof%n");
-			else
-				ft_printf("ERROR: error wtf%n");
-
+			sh_print_parse_err(err);
 			free(err);
 			break ;
 		}
