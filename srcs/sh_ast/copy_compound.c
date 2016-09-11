@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/10 11:38:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/10 23:22:46 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 14:34:53 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,12 +168,6 @@ void			sh_copy_redir_lst(t_sh_redir_lst const *src,
 	}
 }
 
-static void		sh_copy_cmd_empty(t_sh_cmd const *src, t_sh_cmd *dst)
-{
-	(void)src;
-	(void)dst;
-}
-
 static void		sh_copy_cmd_simple(t_sh_cmd const *src, t_sh_cmd *dst)
 {
 	sh_copy_text(&src->simple.text, &dst->simple.text);
@@ -247,7 +241,6 @@ static void		sh_copy_cmd_function_def(t_sh_cmd const *src, t_sh_cmd *dst)
 }
 
 static void		(*const g_sh_copy_cmd[])(t_sh_cmd const *src, t_sh_cmd *dst) = {
-	[SH_CMD_EMPTY] = &sh_copy_cmd_empty,
 	[SH_CMD_SIMPLE] = &sh_copy_cmd_simple,
 	[SH_CMD_SUBSHELL] = &sh_copy_cmd_subshell,
 	[SH_CMD_IF_CLAUSE] = &sh_copy_cmd_if_clause,

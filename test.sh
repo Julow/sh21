@@ -115,3 +115,58 @@ function a if [ "$#" -gt 0 ]; then for arg in "$@"; do echo "[${arg}]"; done; el
 function b { echo "[$@]"; }
 function c echo "<$0> #$# [$@]"
 function d while [ "$#" -gt 0 ]; do echo "[$1]"; shift; done
+
+#### UNEXPECTED TOKEN
+
+for a in a b c; d
+( a; done
+
+#### UNEXPECTED EOF
+
+function
+time
+!
+for a in a b c;
+
+#### UNTERMINATED
+
+# TODO: unterminated strings
+
+` \` ` a
+` \` ` a `
+` \` ` a ` \`
+
+a \
+(
+( a
+( a;
+function lol
+a |
+a &&
+a ||
+{
+{ a
+{ a |
+{ a;
+for
+for a
+for a in
+for a in a
+for a in a b
+for a in a b c; do
+for a in a b c; do a
+for a in a b c; do a;
+if
+if a
+if a; then
+if a; then a
+if a; then a; elif
+if a; then a; elif a
+if a; then a; elif a;
+if a; then a; elif a; then
+if a; then a; elif a; then a
+if a; then a; elif a; then a;
+if a; then a; elif a; then a; else
+if a; then a; elif a; then a; else a
+if a; then a; elif a; then a; else a;
+if a; then a; elif a; then a; else a; fi

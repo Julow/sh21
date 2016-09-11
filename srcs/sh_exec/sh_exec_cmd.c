@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/21 20:32:48 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/10 13:58:46 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 14:35:57 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,6 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-
-static int		sh_exec_cmd_empty(t_sh_context *c,
-					t_sh_cmd const *cmd, bool no_fork)
-{
-	ASSERT(!"TODO: sh_exec empty");
-	if (no_fork)
-		exit(1);
-	return (-1);
-	(void)c; (void)cmd;
-}
 
 static int		sh_exec_cmd_subshell(t_sh_context *c,
 					t_sh_cmd const *cmd, bool no_fork)
@@ -89,7 +79,6 @@ static int		sh_exec_cmd_function_def(t_sh_context *c,
 
 int				(*const g_sh_exec_cmd[])(t_sh_context *c,
 					t_sh_cmd const *cmd, bool no_fork) = {
-	[SH_CMD_EMPTY] = &sh_exec_cmd_empty,
 	[SH_CMD_SIMPLE] = &sh_exec_cmd_simple,
 	[SH_CMD_SUBSHELL] = &sh_exec_cmd_subshell,
 	[SH_CMD_IF_CLAUSE] = &sh_exec_cmd_if_clause,

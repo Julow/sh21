@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:09:25 by juloo             #+#    #+#             */
-/*   Updated: 2016/08/12 16:14:07 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 15:16:56 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,9 @@
 # include "ft/libft.h"
 # include "sh/ast.h"
 
-typedef enum e_sh_parse_err_t	t_sh_parse_err_t;
-typedef struct s_sh_parse_err	t_sh_parse_err;
+typedef enum e_sh_parse_err_t				t_sh_parse_err_t;
+typedef enum e_sh_parse_err_unterminated	t_sh_parse_err_unterminated;
+typedef struct s_sh_parse_err				t_sh_parse_err;
 
 /*
 ** ========================================================================== **
@@ -27,34 +28,53 @@ typedef struct s_sh_parse_err	t_sh_parse_err;
 
 enum			e_sh_parse_err_t
 {
-	SH_E_ERROR = 0,
+	SH_E_ERROR,
 	SH_E_UNEXPECTED,
 	SH_E_EOF,
-	SH_E_INVALID_ID,
-	SH_E_UNCLOSED_STRING,
-	SH_E_UNCLOSED_SUBSHELL,
+	SH_E_INVALID,
+	SH_E_UNTERMINATED,
+};
+
+enum			e_sh_parse_err_unterminated
+{
+	SH_E_UNTERMINATED_AND,
+	SH_E_UNTERMINATED_OR,
+	SH_E_UNTERMINATED_PIPE,
+	SH_E_UNTERMINATED_SUBSHELL,
+	SH_E_UNTERMINATED_SUBST_SUBSHELL,
+	SH_E_UNTERMINATED_SUBST_BACKQUOTE,
+	SH_E_UNTERMINATED_SUBST_BACKQUOTE_REV,
+	SH_E_UNTERMINATED_BRACKET,
+	SH_E_UNTERMINATED_IF,
+	SH_E_UNTERMINATED_THEN,
+	SH_E_UNTERMINATED_ELSE,
+	SH_E_UNTERMINATED_WHILE,
+	SH_E_UNTERMINATED_FOR,
+	SH_E_UNTERMINATED_IN,
+	SH_E_UNTERMINATED_DO,
+	SH_E_UNTERMINATED_LINE,
+	SH_E_UNTERMINATED_STRING,
+	SH_E_UNTERMINATED_STRING_SINGLE,
+	SH_E_UNTERMINATED_STRING_ANSI,
 };
 
 struct			s_sh_parse_err
 {
-	t_sh_parse_err_t	err;
+	t_sh_parse_err_t	type;
+	union {
+		t_sub						token;
+		t_sh_parse_err_unterminated	unterminated;
+	};
 };
-
-/*
-** SH_PARSE_ERR()		sh_parse_err constructor
-** D_SH_PARSE_ERR(ERR)	sh_parse_err destructor
-*/
-# define SH_PARSE_ERR()		((t_sh_parse_err){SH_E_UNEXPECTED_ERROR, DSTR0()})
-# define D_SH_PARSE_ERR(E)	(ft_dstrclear(&((E).str)))
 
 /*
 ** Parse a full line + heredoc
 ** -
-** On success return true and fill 'dst' with the parsed command
-** On error return false and fill 'error' with the corresponding error
+** On success return NULL and fill 'dst' with the parsed command
+** On error return an error object
 ** -
-** If 'err' is NULL, no error is reported
+** The returned error object can be freed using free
 */
-bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err);
+t_sh_parse_err	*sh_parse(t_in *in, t_sh_compound *dst);
 
 #endif

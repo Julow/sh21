@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:35:02 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 12:01:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,6 @@ struct			s_sh_parser
 {
 	t_tokenizer		t;
 	t_sh_parse_err	*err;
-	bool			error_set;
 };
 
 #define T(T, ...)			(&SH_PARSE_T(T, ##__VA_ARGS__))
@@ -156,8 +155,15 @@ bool			sh_parse_do_clause(t_sh_parser *p, t_sh_compound *dst);
 
 bool			sh_ignore_spaces(t_sh_parser *p);
 bool			sh_ignore_newlines(t_sh_parser *p);
-bool			sh_parse_error(t_sh_parser *p, t_sh_parse_err_t t);
 bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t);
+
+/*
+** Create error object
+** Return false
+*/
+bool			sh_parse_error(t_sh_parser *p, t_sh_parse_err_t err);
+bool			sh_parse_error_unterminated(t_sh_parser *p,
+					t_sh_parse_err_unterminated t);
 
 void			sh_text_push(t_sh_text *text, t_sub str, t_sh_token t, bool quoted);
 void			sh_text_push_string(t_sh_text *text, t_sub str, bool quoted);

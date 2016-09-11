@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/08 18:15:20 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/09 13:00:25 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 15:14:16 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,16 +54,28 @@ static t_lexer_def		*get_subshell_state(t_sh_parser *p)
 	HARD_ASSERT(false);
 }
 
+static bool				unterminated_error(t_sh_parser *p, uint32_t t)
+{
+	if (t == SH(SUBSHELL_BRACE))
+		sh_parse_error_unterminated(p, SH_E_UNTERMINATED_SUBST_SUBSHELL);
+	else if (t == SH(SUBSHELL_BACKQUOTE))
+		sh_parse_error_unterminated(p, SH_E_UNTERMINATED_SUBST_BACKQUOTE);
+	else if (t == SH(SUBSHELL_BACKQUOTE_REV))
+		sh_parse_error_unterminated(p, SH_E_UNTERMINATED_SUBST_BACKQUOTE_REV);
+	return (false);
+}
+
 bool			sh_parse_text_subshell(t_sh_parser *p,
 					t_sh_text *dst, bool quoted)
 {
+	uint32_t const			subshell_type = SH_T(p)->subshell;
 	t_lexer_frame			frame;
 	t_sh_compound *const	cmd = NEW(t_sh_compound);
 	bool					r;
 
 	ft_lexer_push(&p->t, &frame, get_subshell_state(p));
 	if ((r = sh_parse_compound(p, cmd, true)
-			&& (!p->t.eof || sh_parse_error(p, SH_E_EOF))
+			&& (!p->t.eof || unterminated_error(p, subshell_type))
 			&& (SH_T(p)->type == SH_PARSE_T_COMPOUND_END || sh_parse_error(p, SH_E_ERROR))
 			&& (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL)
 		))

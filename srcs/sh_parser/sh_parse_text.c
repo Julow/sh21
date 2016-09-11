@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:24:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:04:15 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 15:02:48 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,8 @@ static bool		sh_parse_text_backslash(t_sh_parser *p, t_sh_text *dst, bool quoted
 {
 	t_sh_parse_token const	*t;
 
-	TRACE();
 	if (!ft_tokenize_ahead(&p->t, NULL, V(&t)))
-		return (sh_parse_error(p, SH_E_EOF));
+		return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_LINE));
 	if (t->type == SH(COMPOUND_END) && t->compound_end == SH(COMPOUND_NEWLINE))
 		ft_tokenize(&p->t); // TODO: '\\\n' token 'ESCAPED'
 	else

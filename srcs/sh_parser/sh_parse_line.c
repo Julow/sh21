@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:07:18 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 14:20:55 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,13 +116,13 @@ static t_lexer_def		g_sh_compound_lexer = LEXER_DEF(
 	LEXER_STATE("sh-compound", ("sh-base-cmd")),
 );
 
-bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
+t_sh_parse_err	*sh_parse(t_in *in, t_sh_compound *dst)
 {
 	t_lexer_frame			frame;
 	t_sh_parser				p;
 	bool					r;
 
-	p = (t_sh_parser){TOKENIZER(in, NULL), err, false}; // TODO: receive tokenizer from args
+	p = (t_sh_parser){TOKENIZER(in, NULL), NULL};
 	ft_lexer_push(&p.t, &frame, &g_sh_compound_lexer);
 	sh_ignore_newlines(&p);
 	r = sh_parse_compound(&p, dst, false)
@@ -130,5 +130,6 @@ bool			sh_parse(t_in *in, t_sh_compound *dst, t_sh_parse_err *err)
 			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED))));
 	ft_lexer_pop(&p.t, &frame);
 	ft_tokenizer_reset(&p.t, true);
-	return (r);
+	ASSERT(r == !BOOL_OF(p.err));
+	return (p.err);
 }

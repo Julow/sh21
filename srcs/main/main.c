@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/10 23:23:25 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 15:21:52 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -438,9 +438,6 @@ static void		print_sh_cmd(t_sh_cmd const *cmd, uint32_t indent)
 {
 	switch (cmd->type)
 	{
-	case SH_CMD_EMPTY:
-		ft_printf("\033[33m<empty>\033[0m");
-		break ;
 	case SH_CMD_SIMPLE:
 		print_sh_text(&cmd->simple.text, indent);
 		break ;
@@ -532,25 +529,53 @@ static void 	print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
 
 #define MOD_CTRL_X		(1 << 8)
 
+#include <stdlib.h>
+
 static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
 {
 	t_sub const		text = DSTR_SUB(editor->text);
 	t_in			in;
 	t_sh_compound	cmd;
-	t_sh_parse_err	err;
+	t_sh_parse_err	*err;
 
 	in = IN(text.str, text.length, NULL);
-	while (IN_REFRESH(&in)) // TODO: pass tokenizer to sh_parse
+	while (IN_REFRESH(&in))
 	{
-		if (!sh_parse(&in, &cmd, &err))
+		// TMP
+		if ((err = sh_parse(&in, &cmd)) != NULL)
 		{
-			ft_printf("ERROR: %s%n", ((char const*[]){
-				[SH_E_ERROR] = "wtf",
-				[SH_E_UNEXPECTED] = "unexpected token",
-				[SH_E_EOF] = "unexpected end of file",
-				[SH_E_UNCLOSED_STRING] = "unclosed string",
-				[SH_E_UNCLOSED_SUBSHELL] = "unclosed subshell",
-			})[err.err]);
+			if (err->type == SH_E_UNTERMINATED)
+				ft_printf("ERROR: unterminated '%s'%n", ((char const*[]){
+					[SH_E_UNTERMINATED_AND] = "&&",
+					[SH_E_UNTERMINATED_OR] = "||",
+					[SH_E_UNTERMINATED_PIPE] = "|",
+					[SH_E_UNTERMINATED_SUBSHELL] = "(",
+					[SH_E_UNTERMINATED_SUBST_SUBSHELL] = "$(",
+					[SH_E_UNTERMINATED_SUBST_BACKQUOTE] = "`",
+					[SH_E_UNTERMINATED_SUBST_BACKQUOTE_REV] = "\\`",
+					[SH_E_UNTERMINATED_BRACKET] = "{",
+					[SH_E_UNTERMINATED_IF] = "if",
+					[SH_E_UNTERMINATED_THEN] = "then",
+					[SH_E_UNTERMINATED_ELSE] = "else",
+					[SH_E_UNTERMINATED_WHILE] = "while",
+					[SH_E_UNTERMINATED_FOR] = "for",
+					[SH_E_UNTERMINATED_IN] = "in",
+					[SH_E_UNTERMINATED_DO] = "do",
+					[SH_E_UNTERMINATED_LINE] = "\\",
+					[SH_E_UNTERMINATED_STRING] = "\"",
+					[SH_E_UNTERMINATED_STRING_SINGLE] = "'",
+					[SH_E_UNTERMINATED_STRING_ANSI] = "$'",
+				})[err->unterminated]);
+			else if (err->type == SH_E_UNEXPECTED)
+				ft_printf("ERROR: unexpected token '%ts'%n", err->token);
+			else if (err->type == SH_E_UNEXPECTED)
+				ft_printf("ERROR: invalid token '%ts'%n", err->token);
+			else if (err->type == SH_E_EOF)
+				ft_printf("ERROR: unexpected eof%n");
+			else
+				ft_printf("ERROR: error wtf%n");
+
+			free(err);
 			break ;
 		}
 

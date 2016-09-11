@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/10 13:53:51 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 14:31:53 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,6 @@ struct			s_sh_redir_lst
 
 enum			e_sh_cmd_t
 {
-	SH_CMD_EMPTY,
 	SH_CMD_SIMPLE,
 	SH_CMD_SUBSHELL,
 	SH_CMD_IF_CLAUSE,

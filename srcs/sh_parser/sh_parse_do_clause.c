@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/12 21:19:03 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/05 18:21:06 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/11 15:20:39 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,11 @@
 bool			sh_parse_do_clause(t_sh_parser *p, t_sh_compound *dst)
 {
 	return (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_DO)
-		&& (sh_ignore_newlines(p) || sh_parse_error(p, SH_E_EOF))
+		&& (sh_ignore_newlines(p)
+				|| sh_parse_error_unterminated(p, SH_E_UNTERMINATED_DO))
 		&& sh_parse_compound(p, dst, true)
-		&& (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_DONE)
+		&& (((!p->t.eof
+				|| sh_parse_error_unterminated(p, SH_E_UNTERMINATED_DO))
+			&& SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_DONE))
 			|| (sh_destroy_compound(dst), false)));
 }

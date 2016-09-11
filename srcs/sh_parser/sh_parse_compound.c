@@ -6,12 +6,13 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:04:03 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 14:37:00 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
 
+// TODO: destroy on error
 static bool		sh_parse_pipeline(t_sh_parser *p, t_sh_pipeline *dst)
 {
 	while (true)
@@ -22,13 +23,14 @@ static bool		sh_parse_pipeline(t_sh_parser *p, t_sh_pipeline *dst)
 		if (p->t.eof || SH_T(p)->type != SH(PIPELINE_END))
 			break ;
 		if (!sh_ignore_newlines(p))
-			return (sh_parse_error(p, SH_E_EOF));
+			return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_PIPE));
 		dst->next = NEW(t_sh_pipeline);
 		dst = dst->next;
 	}
 	return (true);
 }
 
+// TODO: destroy on error
 static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 {
 	t_sh_list_next_t	next_t;
@@ -42,7 +44,8 @@ static bool		sh_parse_list(t_sh_parser *p, t_sh_list *dst)
 			break ;
 		next_t = SH_T(p)->list_end;
 		if (!sh_ignore_newlines(p))
-			return (sh_parse_error(p, SH_E_EOF));
+			return (sh_parse_error_unterminated(p, (next_t == SH_LIST_AND) ?
+					SH_E_UNTERMINATED_AND : SH_E_UNTERMINATED_OR));
 		dst->next = NEW(t_sh_list_next);
 		dst->next->type = next_t;
 		dst = &dst->next->next;

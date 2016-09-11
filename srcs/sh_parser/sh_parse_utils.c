@@ -6,10 +6,11 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:21:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:33:52 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 14:20:45 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft/utils.h"
 #include "p_sh_parser.h"
 
 bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t)
@@ -51,11 +52,24 @@ bool			sh_ignore_newlines(t_sh_parser *p)
 	return (false);
 }
 
-bool			sh_parse_error(t_sh_parser *p, t_sh_parse_err_t t)
+bool			sh_parse_error(t_sh_parser *p, t_sh_parse_err_t err)
 {
-	if (ASSERT(!p->error_set, "Double error") && p->err != NULL)
-		p->err->err = t;
-	p->error_set = true;
+	if (!ASSERT(p->err == NULL, "Double error"))
+		return (false);
+	p->err = MALLOC(sizeof(t_sh_parse_err) + p->t.token_str.length);
+	p->err->type = err;
+	p->err->token = SUB_DST(ENDOF(p->err), p->t.token_str);
+	return (false);
+}
+
+bool			sh_parse_error_unterminated(t_sh_parser *p,
+					t_sh_parse_err_unterminated t)
+{
+	if (!ASSERT(p->err == NULL, "Double error"))
+		return (false);
+	p->err = NEW(t_sh_parse_err);
+	p->err->type = SH_E_UNTERMINATED;
+	p->err->unterminated = t;
 	return (false);
 }
 

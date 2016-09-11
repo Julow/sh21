@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:47:12 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 15:27:33 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,11 +42,14 @@ static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_cmd *dst)
 
 static bool		sh_parse_subshell(t_sh_parser *p, t_sh_cmd *dst)
 {
+	if (!sh_ignore_newlines(p))
+		return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_SUBSHELL));
 	dst->subshell = NEW(t_sh_compound);
-	sh_ignore_newlines(p);
 	if (sh_parse_compound(p, dst->subshell, true))
 	{
-		if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_SUBSHELL))
+		if (p->t.eof)
+			sh_parse_error_unterminated(p, SH_E_UNTERMINATED_SUBSHELL);
+		else if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_SUBSHELL))
 		{
 			if (sh_parse_trailing_redirs(p, &dst->redirs))
 				return (true);
@@ -61,10 +64,6 @@ static bool		sh_parse_rec_cmd(t_sh_parser *p, t_sh_cmd *dst)
 {
 	bool			r;
 
-	if (!ft_tokenize(&p->t))
-		return (sh_parse_error(p, SH_E_EOF));
-	if (SH_T(p)->type != SH_PARSE_T_SPACE)
-		return (sh_parse_error(p, SH_E_UNEXPECTED));
 	if (!sh_ignore_spaces(p))
 		return (sh_parse_error(p, SH_E_EOF));
 	dst->rec = NEW(t_sh_cmd);
@@ -79,13 +78,13 @@ static bool		sh_parse_bracket_clause(t_sh_parser *p, t_sh_cmd *dst)
 	dst->bracket_clause = NEW(t_sh_compound);
 	if (sh_parse_compound(p, dst->bracket_clause, true))
 	{
-		if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_BRACKET))
+		if (p->t.eof)
+			sh_parse_error_unterminated(p, SH_E_UNTERMINATED_BRACKET);
+		else if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_BRACKET))
 		{
 			if (sh_parse_trailing_redirs(p, &dst->redirs))
 				return (true);
 		}
-		else
-			sh_parse_error(p, SH_E_UNEXPECTED);
 		sh_destroy_compound(dst->bracket_clause);
 	}
 	free(dst->bracket_clause);
@@ -106,11 +105,12 @@ static bool		sh_parse_function_def(t_sh_parser *p, t_sh_cmd *dst)
 	if (SH_T(p)->type != SH_PARSE_T_TEXT)
 		return (sh_parse_error(p, SH_E_UNEXPECTED));
 	if (!ft_subis_identifier(p->t.token_str))
-		return (sh_parse_error(p, SH_E_INVALID_ID));
+		return (sh_parse_error(p, SH_E_INVALID));
 	func_def = MALLOC(sizeof(t_sh_func_def) + p->t.token_str.length);
 	func_def->name = SUB_DST(ENDOF(func_def), p->t.token_str);
 	sh_ignore_newlines(p);
-	if (!sh_parse_cmd(p, &func_def->body))
+	if ((!p->t.eof || sh_parse_error_unterminated(p, SH_E_UNTERMINATED_LINE)) // TODO: fix double error
+		|| !sh_parse_cmd(p, &func_def->body))
 	{
 		free(func_def);
 		return (false);
@@ -150,10 +150,9 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 {
 	uint32_t				i;
 
-	cmd->type = SH_CMD_EMPTY;
-	cmd->redirs = SH_REDIR_LST();
 	if (!ft_tokenize(&p->t))
-		return (true);
+		return (sh_parse_error(p, SH_E_EOF));
+	cmd->redirs = SH_REDIR_LST();
 	cmd->type = SH_CMD_SIMPLE;
 	if (SH_T(p)->type == SH(TEXT))
 	{

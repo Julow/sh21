@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/12 16:04:33 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:40:33 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 15:00:28 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,19 +25,22 @@ static bool		parse_for_clause_data(t_sh_parser *p, t_sh_text *dst)
 
 bool			sh_parse_for_clause(t_sh_parser *p, t_sh_cmd *dst)
 {
-	sh_ignore_newlines(p);
+	if (!sh_ignore_newlines(p))
+		return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_FOR));
 	if (!sh_except_token(p, SH_PARSE_T(TEXT)))
 		return (false);
 	if (!ft_subis_identifier(p->t.token_str))
-		return (sh_parse_error(p, SH_E_INVALID_ID));
+		return (sh_parse_error(p, SH_E_INVALID));
 	dst->for_clause = MALLOC(sizeof(t_sh_for) + p->t.token_str.length);
 	dst->for_clause->var = SUB_DST(ENDOF(dst->for_clause), p->t.token_str);
-	sh_ignore_newlines(p);
+	if (!sh_ignore_newlines(p))
+		return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_FOR));
 	if (sh_except_token(p, SH_PARSE_T(TEXT))
 		&& (SUB_EQU(p->t.token_str, SUBC("in"))
 			|| sh_parse_error(p, SH_E_UNEXPECTED)))
 	{
-		sh_ignore_newlines(p);
+		if (!sh_ignore_newlines(p))
+			return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_IN));
 		dst->for_clause->data = SH_TEXT();
 		if (parse_for_clause_data(p, &dst->for_clause->data))
 		{

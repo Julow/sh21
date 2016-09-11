@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 10:43:46 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:06:13 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/11 15:21:00 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ static bool		parse_if_then(t_sh_parser *p, t_sh_compound *dst)
 {
 	if (!SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_THEN))
 		return (false);
-	sh_ignore_newlines(p);
+	if (!sh_ignore_newlines(p))
+		return (true);
 	return (sh_parse_compound(p, dst, true));
 }
 
@@ -35,10 +36,13 @@ static bool		parse_if_end(t_sh_parser *p, t_sh_else **dst)
 	else if (SH_T_EQU(p, COMPOUND_END, COMPOUND_ELSE))
 	{
 		(*dst)->type = SH_ELSE_ELSE;
-		sh_ignore_newlines(p);
+		if (!sh_ignore_newlines(p))
+			return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_ELSE));
 		if (sh_parse_compound(p, &(*dst)->else_clause, true))
 		{
-			if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_FI))
+			if (p->t.eof)
+				sh_parse_error_unterminated(p, SH_E_UNTERMINATED_ELSE);
+			else if (SH_T_EXCEPT(p, COMPOUND_END, COMPOUND_FI))
 				return (true);
 			sh_parse_error(p, SH_E_UNEXPECTED);
 			sh_destroy_compound(&(*dst)->else_clause);
@@ -52,10 +56,13 @@ static bool		parse_if_end(t_sh_parser *p, t_sh_else **dst)
 
 static bool		parse_if(t_sh_parser *p, t_sh_if *dst)
 {
-	sh_ignore_newlines(p);
+	if (!sh_ignore_newlines(p))
+		return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_IF));
 	if (sh_parse_compound(p, &dst->cond, true))
 	{
-		if (parse_if_then(p, &dst->body))
+		if (p->t.eof)
+			sh_parse_error_unterminated(p, SH_E_UNTERMINATED_IF);
+		else if (parse_if_then(p, &dst->body))
 		{
 			if (!p->t.eof)
 			{
@@ -65,7 +72,7 @@ static bool		parse_if(t_sh_parser *p, t_sh_if *dst)
 					return (true);
 			}
 			else
-				sh_parse_error(p, SH_E_EOF);
+				sh_parse_error_unterminated(p, SH_E_UNTERMINATED_THEN);
 			sh_destroy_compound(&dst->body);
 		}
 		sh_destroy_compound(&dst->cond);
