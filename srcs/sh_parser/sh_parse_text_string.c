@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/08 18:01:46 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/09 13:03:28 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/12 22:36:25 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ bool					sh_parse_text_string(t_sh_parser *p,
 	t_lexer_frame	frame;
 
 	ft_lexer_push(&p->t, &frame, get_string_state(p));
+	sh_text_push_string(dst, SUB0(), true);
 	while (ft_tokenize(&p->t))
 		if (SH_T_EQU(p, STRING, STRING_END))
 			break ;

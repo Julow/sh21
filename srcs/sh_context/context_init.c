@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 15:06:31 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/11 17:58:49 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/12 19:04:59 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ void			sh_context_init(t_sh_context *dst,
 		0,
 		SET(sh_c_builtin_cmp, 0),
 		SET(sh_c_function_cmp, 0),
+		SET(sh_c_path_cmp, 0),
 	};
 	context_init_argv(dst, argv);
 	context_init_env(dst, env);

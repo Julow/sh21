@@ -66,5 +66,15 @@ Default value for `dir` is the value of `$HOME`
 Execute `file` in the current context
 (eg. variable/function definitions are persistent)
 
-TODO: look for file in `$PATH` paths
-TODO: optional position params
+### `hash [-rtd] [-p path name] [names...]`
+
+Cache/show command full-path
+
+Without argument, print full path of all cached commands
+otherwise find and cache each 'names' (except if `-t` or `-d` option is set)
+
+Options:
+`-r`			Clear cache
+`-d`			Forget each 'names' (override `-t`)
+`-t`			Print path of each 'names' (override `-d`)
+`-p path name`	Set path for a command

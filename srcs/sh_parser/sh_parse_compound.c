@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 17:33:21 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/12 16:54:04 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,20 +103,25 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 	dst->next = NULL;
 	if (!sh_parse_list(p, &dst->list))
 		return (false);
-	if (p->t.eof || !ASSERT(SH_T(p)->type == SH(COMPOUND_END)))
+	if (p->t.eof)
 		return (true);
-	if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
-		dst->flags |= SH_COMPOUND_ASYNC;
-	else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL
-		|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
-			&& !allow_newline))
-		return (true);
-	if (sh_parse_compound_end(p) || p->t.eof)
-		return (true);
-	dst->next = NEW(t_sh_compound);
-	if (sh_parse_compound(p, dst->next, allow_newline))
-		return (true);
-	free(dst->next);
+	if (SH_T(p)->type == SH(COMPOUND_END))
+	{
+		if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
+			dst->flags |= SH_COMPOUND_ASYNC;
+		else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL
+			|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
+				&& !allow_newline))
+			return (true);
+		if (sh_parse_compound_end(p) || p->t.eof)
+			return (true);
+		dst->next = NEW(t_sh_compound);
+		if (sh_parse_compound(p, dst->next, allow_newline))
+			return (true);
+		free(dst->next);
+	}
+	else
+		sh_parse_error(p, SH_E_UNEXPECTED);
 	sh_destroy_list(&dst->list);
 	return (false);
 }

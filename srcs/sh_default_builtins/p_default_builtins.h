@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 16:11:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/11 19:09:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/12 19:42:43 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,6 @@ int				sh_builtin_unset(t_sh_context *c, void *data, t_argv args);
 int				sh_builtin_shift(t_sh_context *c, void *data, t_argv args);
 int				sh_builtin_cd(t_sh_context *c, void *data, t_argv args);
 int				sh_builtin_source(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_hash(t_sh_context *c, void *data, t_argv args);
 
 #endif

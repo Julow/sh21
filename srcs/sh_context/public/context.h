@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/11 19:29:03 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/12 20:42:23 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,11 @@ typedef struct s_sh_context		t_sh_context;
 typedef int						(*t_sh_builtin)(t_sh_context *c,
 									void *data, t_argv args);
 
+typedef struct s_sh_c_var			t_sh_c_var;
+typedef struct s_sh_c_builtin		t_sh_c_builtin;
+typedef struct s_sh_c_function		t_sh_c_function;
+typedef struct s_sh_c_path			t_sh_c_path;
+
 /*
 ** ========================================================================== **
 ** Sh context
@@ -37,6 +42,7 @@ typedef int						(*t_sh_builtin)(t_sh_context *c,
 ** last_status		=> $?
 ** builtins			=> builtin set
 ** functions		=> user defined functions
+** path_cache		=> path lookup cache
 */
 struct			s_sh_context
 {
@@ -46,6 +52,7 @@ struct			s_sh_context
 	uint32_t		last_status;
 	t_set			builtins;
 	t_set			functions;
+	t_set			path_cache;
 };
 
 void			sh_context_init(t_sh_context *dst,
@@ -57,6 +64,20 @@ void			sh_context_init(t_sh_context *dst,
 ** ========================================================================== **
 ** Variables
 */
+
+/*
+** Var are stored as 0-terminated string
+** length			=> total length of the variable string
+** key_len			=> length of the key
+*/
+struct			s_sh_c_var
+{
+	t_set_h			set_h;
+	uint32_t		length;
+	uint32_t		key_len;
+};
+
+# define SH_C_VAR_STR(V)	(ENDOF(V))
 
 /*
 ** Set a variable's value
@@ -94,6 +115,16 @@ void			sh_c_env_export(t_sh_context *c, t_sub key, bool exported);
 */
 
 /*
+** ENDOF()			=> builtin data
+*/
+struct			s_sh_c_builtin
+{
+	t_set_h			set_h;
+	t_sub			name;
+	t_sh_builtin	f;
+};
+
+/*
 ** Search a builtin by it's name
 ** If true, fill 'builtin' and 'builtin_data' and return true
 ** otherwise return false
@@ -122,6 +153,13 @@ void			sh_c_builtin_unregister(t_sh_context *c, t_sub name,
 ** Functions
 */
 
+struct			s_sh_c_function
+{
+	t_set_h			set_h;
+	t_sub			name;
+	t_sh_cmd		body;
+};
+
 /*
 ** Search for a function
 ** Return it's body if found, NULL otherwise
@@ -140,14 +178,43 @@ void			sh_c_function_define(t_sh_context *c, t_sh_func_def const *f);
 ** Path search
 */
 
+struct			s_sh_c_path
+{
+	t_set_h			set_h;
+	t_sub			name;
+	t_sub			path;
+};
+
 /*
-** Look for executable file 'name' in ':'-separated path of 'path'
+** Look for executable file 'name' in ':'-separated path of '$PATH'
 ** Put result to 'dst'
 ** -
+** Cache result for faster lookup
+** -
 ** If 'name' contains any '/', it is used as result
-** TODO: cache binary locations
 */
-bool			sh_c_path_search(t_sh_context *c, t_sub path,
-					t_sub name, t_dstr *dst);
+bool			sh_c_path_search(t_sh_context *c, t_sub name, t_dstr *dst);
+
+/*
+** Clear path cache
+*/
+void			sh_c_path_clear(t_sh_context *c);
+
+/*
+** Set path for a command
+*/
+void			sh_c_path_set(t_sh_context *c, t_sub name, t_sub path);
+
+/*
+** Get saved path for a command
+** Return an empty sub if not found
+*/
+t_sub			sh_c_path_get(t_sh_context const *c, t_sub name);
+
+/*
+** Remove the saved path for a command
+** Return false if not found
+*/
+bool			sh_c_path_remove(t_sh_context *c, t_sub name);
 
 #endif
