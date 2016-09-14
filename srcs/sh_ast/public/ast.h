@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/23 19:04:59 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 17:26:04 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/14 11:47:31 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 
 typedef enum e_sh_special_param	t_sh_special_param;
 typedef struct s_sh_param		t_sh_param;
-typedef struct s_sh_heredoc		t_sh_heredoc;
 typedef enum e_sh_token_t		t_sh_token_t;
 typedef struct s_sh_token		t_sh_token;
 typedef struct s_sh_text		t_sh_text;
@@ -185,17 +184,19 @@ enum			e_sh_redir_t
 	SH_REDIR_OUTPUT_FD,			// [n]>&word	// 1
 	// SH_REDIR_OUTPUT_CLOSE,	// [n]>&-		// 1
 	SH_REDIR_OPEN,				// [n]<>word	// 1
+	SH_REDIR_STRING,			// [n]<<word	// 0
 };
 
 // TODO: share 'right_text' text object with all redirections
 struct			s_sh_redir
 {
 	int32_t			left_fd;
-	t_sh_text		right_text;
 	t_sh_redir_t	type;
+	union {
+		t_sh_text		right_text;
+		t_sh_text		*here_string;
+	};
 };
-
-# define SH_REDIR(TYPE, LEFT)	((t_sh_redir){(LEFT), SH_TEXT(), (TYPE)})
 
 struct			s_sh_redir_lst
 {
@@ -203,15 +204,6 @@ struct			s_sh_redir_lst
 };
 
 # define SH_REDIR_LST()			((t_sh_redir_lst){VECTOR(t_sh_redir)})
-
-// struct			s_sh_heredoc
-// {
-// 	enum {
-// 		SH_HEREDOC_F_STRIP_TABS = 1 << 0,
-// 		SH_HEREDOC_F_READ = 1 << 1,
-// 	}			flags;
-// 	t_sh_text	text;
-// };
 
 /*
 ** Pipeline

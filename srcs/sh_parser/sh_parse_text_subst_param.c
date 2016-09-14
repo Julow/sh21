@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/05 12:16:01 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/09 13:03:34 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/13 15:36:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,8 @@ static t_lexer_def const	g_sh_text_subst_param_lexer_base = LEXER_DEF(
 		LEXER_T("//", T(SUBST_PARAM_OP, SH_SUBST_PARAM_REPL_ALL)),
 	),
 
-	LEXER_STATE("sh-subst-param-str", ("sh-base-text", "sh-subst-param-end"),
+	LEXER_STATE("sh-subst-param-str",
+			("sh-base-text", "sh-base-subst", "sh-subst-param-end"),
 		LEXER_T("\\}", T(ESCAPED, '}')),
 	),
 

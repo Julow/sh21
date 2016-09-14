@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/10 11:38:19 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/11 14:34:53 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/14 15:10:59 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,13 @@ void			sh_copy_redir(t_sh_redir const *src, t_sh_redir *dst)
 {
 	dst->left_fd = src->left_fd;
 	dst->type = src->type;
-	sh_copy_text(&src->right_text, &dst->right_text);
+	if (src->type == SH_REDIR_STRING)
+	{
+		dst->here_string = NEW(t_sh_text);
+		sh_copy_text(src->here_string, dst->here_string);
+	}
+	else
+		sh_copy_text(&src->right_text, &dst->right_text);
 }
 
 void			sh_copy_redir_lst(t_sh_redir_lst const *src,

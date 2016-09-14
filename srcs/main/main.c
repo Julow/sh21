@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 19:12:28 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/14 11:48:02 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -429,8 +429,12 @@ static void		print_sh_redir_lst(t_sh_redir_lst const *redirs, uint32_t indent)
 			[SH_REDIR_INPUT_FD] = "<&",
 			[SH_REDIR_OUTPUT_FD] = ">&",
 			[SH_REDIR_OPEN] = "<>",
+			[SH_REDIR_STRING] = "<<<",
 		})[redir->type]);
-		print_sh_text(&redir->right_text, indent);
+		if (redir->type == SH_REDIR_STRING)
+			print_sh_text(redir->here_string, indent);
+		else
+			print_sh_text(&redir->right_text, indent);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 14:20:55 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/14 10:52:01 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ t_lexer_def const			g_sh_lexer_base = LEXER_DEF(
 		LEXER_T("\\$", T(ESCAPED, '$')),
 	),
 
-	LEXER_STATE("sh-base-escape", (),
+	LEXER_STATE("sh-base-escape", ("sh-base"),
 		LEXER_T("\\a", T(ESCAPED, '\a')),
 		LEXER_T("\\b", T(ESCAPED, '\b')),
 		LEXER_T("\\e", T(ESCAPED, '\x1b')),
@@ -61,7 +61,7 @@ t_lexer_def const			g_sh_lexer_base = LEXER_DEF(
 		LEXER_T("\\C", T(ESCAPE_SEQUENCE, .escape_sequence=SH(ESCAPE_CONTROL))),
 	),
 
-	LEXER_STATE("sh-base-text", ("sh-base-subst"),
+	LEXER_STATE("sh-base-text", ("sh-base"),
 		LEXER_T(" ", T(SPACE)),
 		LEXER_T("\t", T(SPACE)),
 		LEXER_T("\\ ", T(ESCAPED, ' ')),
@@ -80,7 +80,7 @@ t_lexer_def const			g_sh_lexer_base = LEXER_DEF(
 		LEXER_T("\\\\", T(ESCAPED, '\\')),
 	),
 
-	LEXER_STATE("sh-base-cmd", ("sh-base-text"),
+	LEXER_STATE("sh-base-cmd", ("sh-base-text", "sh-base-subst"),
 		LEXER_T("|", T(PIPELINE_END)),
 		LEXER_T("&&", T(LIST_END, .list_end=SH_LIST_AND)),
 		LEXER_T("||", T(LIST_END, .list_end=SH_LIST_OR)),
@@ -100,7 +100,8 @@ t_lexer_def const			g_sh_lexer_base = LEXER_DEF(
 		LEXER_T("<", T(REDIR, .redir=SH_REDIR_INPUT)),
 		LEXER_T("<&", T(REDIR, .redir=SH_REDIR_INPUT_FD)),
 		LEXER_T("<>", T(REDIR, .redir=SH_REDIR_OPEN)),
-		LEXER_T("<<", T(HEREDOC)),
+		LEXER_T("<<", T(HEREDOC, .heredoc_strip=false)),
+		LEXER_T("<<-", T(HEREDOC, .heredoc_strip=true)),
 
 		LEXER_T("\\;", T(ESCAPED, ';')),
 		LEXER_T("\\|", T(ESCAPED, '|')),
@@ -122,7 +123,7 @@ t_sh_parse_err	*sh_parse(t_in *in, t_sh_compound *dst)
 	t_sh_parser				p;
 	bool					r;
 
-	p = (t_sh_parser){TOKENIZER(in, NULL), NULL};
+	p = (t_sh_parser){TOKENIZER(in, NULL), NULL, NULL};
 	ft_lexer_push(&p.t, &frame, &g_sh_compound_lexer);
 	sh_ignore_newlines(&p);
 	r = sh_parse_compound(&p, dst, false)

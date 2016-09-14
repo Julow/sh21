@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 15:47:56 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/14 10:36:21 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,14 @@ static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_cmd *dst)
 
 	dst->simple.text = SH_TEXT();
 	r = true;
-	while (!p->t.eof)
-		if (SH_T(p)->type == SH(TEXT)
+	while (r && !p->t.eof)
+		if (SH_T(p) == NULL)
+		{
+			ASSERT(p->t.eof);
+			r = false;
+			break ;
+		}
+		else if (SH_T(p)->type == SH(TEXT)
 			&& sh_parse_redir_left(p, &dst->redirs, &r))
 			;
 		else if (g_sh_parse_text[SH_T(p)->type] != NULL)
@@ -31,10 +37,9 @@ static bool		sh_parse_simple_cmd(t_sh_parser *p, t_sh_cmd *dst)
 			if (!r || !ft_tokenize(&p->t))
 				break ;
 		}
-		else if (SH_T(p)->type == SH_PARSE_T_REDIR)
+		else if (SH_T(p)->type == SH_PARSE_T_REDIR
+			|| SH_T(p)->type == SH_PARSE_T_HEREDOC)
 			r = sh_parse_redir(p, &dst->redirs);
-		else if (SH_T(p)->type == SH_PARSE_T_HEREDOC)
-			r = HARD_ASSERT(!"TODO: heredoc");
 		else
 			break ;
 	return (r);

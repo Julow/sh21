@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/15 17:58:07 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:04:05 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/13 17:26:57 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,13 @@ static bool		parse_redir(t_sh_parser *p, t_sh_redir_lst *dst,
 {
 	t_sh_redir			*redir;
 
-	ASSERT(SH_T(p)->type == SH(REDIR));
 	redir = ft_vpush(&dst->redirs, NULL, 1);
-	*redir = SH_REDIR(SH_T(p)->redir, left_fd);
+	redir->left_fd = left_fd;
+	if (SH_T(p)->type == SH(HEREDOC))
+		return (sh_parse_redir_heredoc(p, redir));
+	ASSERT(SH_T(p)->type == SH(REDIR));
+	redir->type = SH_T(p)->redir;
+	redir->right_text = SH_TEXT();
 	sh_ignore_spaces(p);
 	while (ft_tokenize(&p->t) && SH_T(p)->type != SH(SPACE)
 			&& g_sh_parse_text[SH_T(p)->type] != NULL)
@@ -33,7 +37,6 @@ static bool		parse_redir(t_sh_parser *p, t_sh_redir_lst *dst,
 
 bool			sh_parse_redir(t_sh_parser *p, t_sh_redir_lst *lst)
 {
-	ASSERT(SH_T(p)->type == SH(REDIR));
 	return (parse_redir(p, lst, -1));
 }
 
@@ -53,7 +56,6 @@ bool			sh_parse_redir_left(t_sh_parser *p,
 	return (true);
 }
 
-
 #define _BIT_FIELD(T, ...)	(1 << SH(T))
 #define BIT_FIELD(...)		(FOR_EACH(_BIT_FIELD, |, , ##__VA_ARGS__))
 
@@ -72,10 +74,8 @@ bool			sh_parse_trailing_redirs(t_sh_parser *p, t_sh_redir_lst *lst)
 		return (true);
 	r = true;
 	while (r && !p->t.eof)
-		if (SH_T(p)->type == SH(REDIR))
+		if (SH_T(p)->type == SH(REDIR) || SH_T(p)->type == SH(HEREDOC))
 			r = sh_parse_redir(p, lst);
-		else if (SH_T(p)->type == SH(HEREDOC))
-			r = ASSERT(!"TODO: heredoc");
 		else if (SH_T(p)->type == SH(TEXT))
 			sh_parse_redir_left(p, lst, &r)
 				|| (r = sh_parse_error(p, SH_E_UNEXPECTED));

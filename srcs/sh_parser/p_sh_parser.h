@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 12:01:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/14 15:11:44 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 typedef struct s_sh_parse_token		t_sh_parse_token;
 typedef struct s_sh_parser			t_sh_parser;
+typedef struct s_sh_parser_heredoc	t_sh_parser_heredoc;
 
 /*
 ** ========================================================================== **
@@ -52,8 +53,8 @@ struct			s_sh_parse_token
 		SH_PARSE_T_BACKSLASH,
 		SH_PARSE_T_ESCAPED,
 		SH_PARSE_T_ESCAPE_SEQUENCE,
-		SH_PARSE_T_REDIR,
 		SH_PARSE_T_HEREDOC,
+		SH_PARSE_T_REDIR,
 		_SH_PARSE_T_COUNT_
 	}				type;
 	union {
@@ -105,17 +106,30 @@ struct			s_sh_parse_token
 			SH_PARSE_T_ESCAPE_CONTROL,
 		}					escape_sequence;
 
+		bool				heredoc_strip;
 		t_sh_redir_t		redir;
 	};
 };
 
 struct			s_sh_parser
 {
-	t_tokenizer		t;
-	t_sh_parse_err	*err;
+	t_tokenizer			t;
+	t_sh_parse_err		*err;
+	t_sh_parser_heredoc	*heredoc_lst;
 };
 
-#define T(T, ...)			(&SH_PARSE_T(T, ##__VA_ARGS__))
+struct			s_sh_parser_heredoc
+{
+	t_sh_parser_heredoc	*next;
+	t_sub				end;
+	enum {
+		SH_HEREDOC_QUOTED = 1 << 0,
+		SH_HEREDOC_STRIP = 1 << 1,
+	}					flags;
+	t_sh_text			*dst;
+};
+
+# define T(T, ...)			(&SH_PARSE_T(T, ##__VA_ARGS__))
 
 # define SH_PARSE_T(T, ...)	((t_sh_parse_token){SH_PARSE_T_##T, {__VA_ARGS__}})
 
@@ -133,6 +147,7 @@ struct			s_sh_parser
 ** -
 */
 
+extern t_lexer_def const	g_sh_text_string_lexer_base;
 extern t_lexer_def const	g_sh_lexer_base;
 
 /*
@@ -157,6 +172,8 @@ bool			sh_ignore_spaces(t_sh_parser *p);
 bool			sh_ignore_newlines(t_sh_parser *p);
 bool			sh_except_token(t_sh_parser *p, t_sh_parse_token t);
 
+bool			sh_parse_heredoc_lst(t_sh_parser *p);
+
 /*
 ** Create error object
 ** Return false
@@ -178,6 +195,7 @@ bool			sh_parse_compound_end(t_sh_parser *p);
 ** The current token must be a REDIR token
 */
 bool			sh_parse_redir(t_sh_parser *p, t_sh_redir_lst *lst);
+bool			sh_parse_redir_heredoc(t_sh_parser *p, t_sh_redir *dst);
 
 /*
 ** Parse a redirection

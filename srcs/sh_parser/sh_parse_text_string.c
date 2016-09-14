@@ -6,13 +6,13 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/08 18:01:46 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/12 22:36:25 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/13 16:36:53 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "p_sh_parser.h"
 
-static t_lexer_def const	g_sh_text_string_lexer_base = LEXER_DEF(
+t_lexer_def const		g_sh_text_string_lexer_base = LEXER_DEF(
 	(&g_sh_lexer_base), NULL,
 
 	LEXER_STATE("sh-string", ("sh-base-subst"),
@@ -55,19 +55,18 @@ bool					sh_parse_text_string(t_sh_parser *p,
 {
 	t_lexer_frame	frame;
 
+	ASSERT(!quoted);
 	ft_lexer_push(&p->t, &frame, get_string_state(p));
 	sh_text_push_string(dst, SUB0(), true);
-	while (ft_tokenize(&p->t))
-		if (SH_T_EQU(p, STRING, STRING_END))
+	while (true)
+		if (!ft_tokenize(&p->t))
+			return (sh_parse_error_unterminated(p, SH_E_UNTERMINATED_STRING));
+		else if (SH_T_EQU(p, STRING, STRING_END))
 			break ;
-		else if (g_sh_parse_text[SH_T(p)->type] != NULL)
-		{
-			if (!g_sh_parse_text[SH_T(p)->type](p, dst, true))
-				return (false);
-		}
-		else
+		else if (g_sh_parse_text[SH_T(p)->type] == NULL)
 			return (sh_parse_error(p, SH_E_ERROR));
+		else if (!g_sh_parse_text[SH_T(p)->type](p, dst, true))
+			return (false);
 	ft_lexer_pop(&p->t, &frame);
 	return (true);
-	(void)quoted;
 }

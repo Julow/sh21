@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/12 16:54:04 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/14 15:29:20 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,16 +104,19 @@ bool			sh_parse_compound(t_sh_parser *p, t_sh_compound *dst,
 	if (!sh_parse_list(p, &dst->list))
 		return (false);
 	if (p->t.eof)
-		return (true);
-	if (SH_T(p)->type == SH(COMPOUND_END))
+	{
+		if (sh_parse_heredoc_lst(p))
+			return (true);
+	}
+	else if (SH_T(p)->type == SH(COMPOUND_END))
 	{
 		if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_AMPERSAND)
 			dst->flags |= SH_COMPOUND_ASYNC;
-		else if (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL
-			|| (SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
-				&& !allow_newline))
+		else if ((SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_NEWLINE
+				&& !allow_newline)
+			|| SH_T(p)->compound_end == SH_PARSE_T_COMPOUND_SUBSHELL)
 			return (true);
-		if (sh_parse_compound_end(p) || p->t.eof)
+		if (sh_parse_compound_end(p))
 			return (true);
 		dst->next = NEW(t_sh_compound);
 		if (sh_parse_compound(p, dst->next, allow_newline))
