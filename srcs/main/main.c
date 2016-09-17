@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 19:12:28 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/17 16:29:43 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -511,7 +511,7 @@ static void		print_sh_list(t_sh_list const *cmd, uint32_t indent)
 	}
 }
 
-static void 	print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
+static void		print_sh_compound(t_sh_compound const *cmd, uint32_t indent)
 {
 	while (cmd != NULL)
 	{
@@ -566,45 +566,12 @@ void			sh_print_parse_err(t_sh_parse_err const *err)
 		ft_printf("ERROR: error wtf%n");
 }
 
-static bool		binding_runshell(t_main *main, t_editor *editor, t_key key)
-{
-	t_sub const		text = DSTR_SUB(editor->text);
-	t_in			in;
-	t_sh_compound	cmd;
-	t_sh_parse_err	*err;
-
-	in = IN(text.str, text.length, NULL);
-	while (IN_REFRESH(&in))
-	{
-		// TMP
-		if ((err = sh_parse(&in, &cmd)) != NULL)
-		{
-			sh_print_parse_err(err);
-			free(err);
-			break ;
-		}
-
-		print_sh_compound(&cmd, 0);
-		sh_exec_compound(&main->sh_context, &cmd, false);
-		sh_destroy_compound(&cmd);
-	}
-	return (true);
-	(void)key;
-}
-
-static bool		binding_runshell_one(t_main *main, t_editor *editor, t_key key)
-{
-	if (editor->line_stops.length > 1)
-		return (false);
-	return (binding_runshell(main, editor, key));
-}
-
 extern char const *const	*environ;
 
 static bool		init_main(t_main *main, char const *const *argv)
 {
 	ft_bzero(main, sizeof(t_main));
-	if (isatty(1))
+	if (isatty(0))
 	{
 		if ((main->term = ft_tinit(1, TERM_RAW | TERM_LINE)) == NULL)
 			return (false);
@@ -615,8 +582,6 @@ static bool		init_main(t_main *main, char const *const *argv)
 		main->editor = NEW(t_editor);
 		editor_init(main->editor);
 		editor_bind(main->editor, KEY('x', MOD_CTRL), CALLBACK(editor_bind_extra_mod, V(MOD_CTRL_X)), 0);
-		editor_bind(main->editor, KEY('m', MOD_CTRL), CALLBACK(binding_runshell_one, main), 1);
-		editor_bind(main->editor, KEY('m', MOD_CTRL | MOD_CTRL_X), CALLBACK(binding_runshell, main), 0);
 		editor_bind(main->editor, KEY('n', MOD_CTRL), CALLBACK(editor_bind_write, "\n"), 0);
 
 		// if ((main->syntax_color
@@ -632,58 +597,100 @@ static bool		init_main(t_main *main, char const *const *argv)
 
 /*
 ** ========================================================================== **
-** Loop
+** Interactive Loop
 */
 
-static void		interactive_loop(t_main *main)
+#include "ft/file_in.h"
+
+typedef struct s_interactive_in		t_interactive_in;
+
+struct			s_interactive_in
+{
+	t_in			in;
+	t_main			*main;
+};
+
+#define INTERACTIVE_IN(M)	((t_interactive_in){IN(NULL, 0, &interactive_in_refresh), M})
+
+bool			interactive_in_refresh(t_interactive_in *in)
 {
 	t_key			key;
-	int				key_used;
-	t_vec2u			cursor;
 
-	key_used = -1;
-	ft_trestore(main->term, true);
-	while (!(main->flags & FLAG_EXIT))
+	ft_trestore(in->main->term, true);
+	editor_write(in->main->editor, VEC2U(0, in->main->editor->text.length), SUB0());
+	editor_set_cursor(in->main->editor, 0, 0);
+	while (true)
 	{
-		cursor = editor_rowcol(main->editor, main->editor->cursor);
-		// refresh_syntax(main->editor, main->syntax_color);
-		ft_fprintf(&main->term->out, "[[ ");
-		if (key_used >= 0)
-		{
-			ft_fprintf(&main->term->out, key_used ? C_GREEN : C_RED);
-			put_key(&main->term->out, key);
-			ft_putsub(&main->term->out, SUBC(C_RESET " "));
-		}
-
-		ft_fprintf(&main->term->out, "lines: %u; chars: %u; cursor: %u,%u (%u); spans: %u; line_len: %u ]]%n",
-			main->editor->line_stops.length, main->editor->text.length,
-			cursor.x, cursor.y, main->editor->cursor, main->editor->spans.spans.length,
-			EDITOR_LINE(main->editor, cursor.y));
-
-		ft_flush(&main->term->out);
-		cursor.x += main->term->cursor_x;
-		cursor.y += main->term->cursor_y;
-		editor_out(main->editor, &main->term->out);
-		ft_flush(&main->term->out);
-		ft_tcursor(main->term, cursor.x, cursor.y);
+		ft_tclear(in->main->term);
+		// put_key(&in->main->term->out, key);
+		editor_out(in->main->editor, &in->main->term->out);
+		ft_flush(&in->main->term->out);
 		key = ft_getkey(0);
-		ft_tclear(main->term);
-		key_used = editor_key(main->editor, key);
-		if (key.c == 'd' && key.mods == MOD_CTRL) // TMP
-			main->flags |= FLAG_EXIT; // TMP
+		if (editor_key(in->main->editor, key))
+			;
+		else if (key.c == 'd' && key.mods == MOD_CTRL
+				&& in->main->editor->text.length == 0)
+			break ;
+		if (key.c == 'm' && key.mods == MOD_CTRL)
+			break ;
 
 	}
-	ft_trestore(main->term, false);
+	ft_fprintf(&in->main->term->out, "%n");
+	in->main->term->cursor_x = 0;
+	in->main->term->cursor_y = 0;
+	ft_trestore(in->main->term, false);
+	in->in.buff = in->main->editor->text.str;
+	in->in.buff_i = 0;
+	in->in.buff_len = in->main->editor->text.length;
+	return (in->in.buff_len > 1);
 }
 
-static void		loop(t_main *main)
+static int		interactive_loop(t_main *main)
 {
-	t_sub			line;
+	t_interactive_in	in;
+	t_sh_compound		cmd;
+	t_sh_parse_err		*err;
 
-	ft_dprintf(2, WARNING_MSG("Non-interactive mode"));
-	while (get_next_line(0, &line) > 0)
-		ft_printf("%ts%n", line); // TMP
-	(void)main;
+	in = INTERACTIVE_IN(main);
+	while (true)
+	{
+		ft_fprintf(&main->term->out, "$> ");
+		if ((err = sh_parse(V(&in), &cmd)) != NULL)
+		{
+			sh_print_parse_err(err);
+			free(err);
+			continue ;
+		}
+		sh_exec_compound(&main->sh_context, &cmd, false);
+		sh_destroy_compound(&cmd);
+	}
+	return (0);
+}
+
+/*
+** ========================================================================== **
+** Simple loop
+*/
+
+static int		loop(t_main *main)
+{
+	t_file_in *const	in = ft_in_fdopen(0);
+	t_sh_compound		cmd;
+	t_sh_parse_err		*err;
+
+	while (IN_REFRESH(&in->in) && (err = sh_parse(V(in), &cmd)) == NULL)
+	{
+		sh_exec_compound(&main->sh_context, &cmd, false);
+		sh_destroy_compound(&cmd);
+	}
+	ft_in_close(in);
+	if (err != NULL)
+	{
+		sh_print_parse_err(err);
+		free(err);
+		return (1);
+	}
+	return (0);
 }
 
 /*

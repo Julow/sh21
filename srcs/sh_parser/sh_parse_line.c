@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/30 23:26:24 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 14:20:55 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/17 16:21:55 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ t_sh_parse_err	*sh_parse(t_in *in, t_sh_compound *dst)
 		&& (p.t.eof || (SH_T_EQU(&p, COMPOUND_END, COMPOUND_NEWLINE)
 			|| (sh_destroy_compound(dst), sh_parse_error(&p, SH_E_UNEXPECTED))));
 	ft_lexer_pop(&p.t, &frame);
-	ft_tokenizer_reset(&p.t, true);
+	ft_tokenizer_reset(&p.t);
 	ASSERT(r == !BOOL_OF(p.err));
 	return (p.err);
 }

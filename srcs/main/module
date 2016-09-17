@@ -1,6 +1,7 @@
 main module sh21:
 	private include ./
 	require ft::base
+	require ft::file_in
 	require ft::get_next_line
 	require ft::getkey
 	require ft::printf
