@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/18 10:44:45 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/18 11:02:22 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/18 12:31:27 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ struct			s_sh_c_alias
 	t_sub			name;
 	t_sub			val;
 };
+
+# define SH_ALIAS_NAME_FORBIDDEN	"$`\\ \t\"'#|&;()><="
 
 /*
 ** Set an alias

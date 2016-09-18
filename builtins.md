@@ -1,6 +1,6 @@
 # Builtins
 
-### `echo [-neE] [args...]`
+### `echo [-neE] [args ...]`
 
 Print it's arguments, separated by space
 
@@ -32,13 +32,13 @@ Default value for `n` is the status of the last command (`$?`)
 
 Print the current working directory
 
-### `set [ARG...]`
+### `set [ARG ...]`
 
 TODO: set options
 
 Set positional parameters (`$1`, `$2`, ...)
 
-### `unset [VAR...]`
+### `unset [VAR ...]`
 
 Unset (remove) a variable
 
@@ -66,7 +66,7 @@ Default value for `dir` is the value of `$HOME`
 Execute `file` in the current context
 (eg. variable/function definitions are persistent)
 
-### `hash [-rtd] [-p path name] [names...]`
+### `hash [-rtd] [-p path name] [names ...]`
 
 Cache/show command full-path
 
@@ -78,3 +78,17 @@ Options:
 `-d`			Forget each 'names' (override `-t`)
 `-t`			Print path of each 'names' (override `-d`)
 `-p path name`	Set path for a command
+
+### `alias [-p] [name[=value] ...]`
+
+Set/print aliases
+
+If `-p` is present or if there is no argument, all aliases are print
+
+For each `name=value` arg, set an alias or, if the `=value` part is omitted, print an alias
+
+### `unalias [-a] [name ...]`
+
+For each `name`, remove the corresponding alias
+
+If `-a` is present, remove all aliases

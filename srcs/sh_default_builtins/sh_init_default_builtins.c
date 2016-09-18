@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 16:13:18 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/12 20:52:26 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/18 12:57:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ t_sh_builtin_def const	g_sh_default_builtins[] = {
 	{SUBC("source"), &sh_builtin_source},
 	{SUBC("."), &sh_builtin_source},
 	{SUBC("hash"), &sh_builtin_hash},
+	{SUBC("alias"), &sh_builtin_alias},
+	{SUBC("unalias"), &sh_builtin_unalias},
 };
 
 void			sh_init_default_builtins(t_sh_context *c)

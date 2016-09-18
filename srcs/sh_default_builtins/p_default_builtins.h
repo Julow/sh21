@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 16:11:27 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/12 19:42:43 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/18 12:57:21 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,5 +38,7 @@ int				sh_builtin_shift(t_sh_context *c, void *data, t_argv args);
 int				sh_builtin_cd(t_sh_context *c, void *data, t_argv args);
 int				sh_builtin_source(t_sh_context *c, void *data, t_argv args);
 int				sh_builtin_hash(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_alias(t_sh_context *c, void *data, t_argv args);
+int				sh_builtin_unalias(t_sh_context *c, void *data, t_argv args);
 
 #endif

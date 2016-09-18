@@ -104,6 +104,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_context/sh_builtin.o $(O_DIR)/srcs/sh_context/sh_env.o \
 	$(O_DIR)/srcs/sh_context/sh_function.o $(O_DIR)/srcs/sh_context/sh_path.o \
 	$(O_DIR)/srcs/sh_context/sh_var.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/alias.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/cd.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/echo.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/exit.o \
@@ -114,6 +115,7 @@ O_FILES += $(O_DIR)/srcs/editor/binding/cursor_move.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/shift.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/source.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/true.o \
+	$(O_DIR)/srcs/sh_default_builtins/builtins/unalias.o \
 	$(O_DIR)/srcs/sh_default_builtins/builtins/unset.o \
 	$(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o \
 	$(O_DIR)/srcs/sh_exec/sh_exec_cmd.o \
@@ -804,6 +806,16 @@ $(O_DIR)/srcs/sh_context/sh_path.o $(O_DIR)/srcs/sh_context/sh_var.o: \
 	INCLUDE_FLAGS += -Isrcs/sh_context
 
 # module sh::default_builtins
+$(O_DIR)/srcs/sh_default_builtins/builtins/alias.o: \
+	srcs/sh_default_builtins/builtins/alias.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_out/public/ft_out.h libft/ft_printf/public/ft_printf.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/sh_parser_context/public/parser_context.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_default_builtins/builtins/cd.o: \
 	srcs/sh_default_builtins/builtins/cd.c libft/ft_argv/public/argv.h \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
@@ -904,6 +916,15 @@ $(O_DIR)/srcs/sh_default_builtins/builtins/true.o: \
 	srcs/sh_default_builtins/p_default_builtins.h \
 	srcs/sh_default_builtins/public/default_builtins.h \
 	srcs/sh_parser_context/public/parser_context.h srcs/strset/public/strset.h
+$(O_DIR)/srcs/sh_default_builtins/builtins/unalias.o: \
+	srcs/sh_default_builtins/builtins/unalias.c libft/ft_argv/public/argv.h \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_set/public/set.h libft/ft_vector/public/ft_vector.h \
+	srcs/ft_str_list/public/str_list.h srcs/sh_ast/public/ast.h \
+	srcs/sh_context/public/context.h \
+	srcs/sh_default_builtins/p_default_builtins.h \
+	srcs/sh_default_builtins/public/default_builtins.h \
+	srcs/sh_parser_context/public/parser_context.h srcs/strset/public/strset.h
 $(O_DIR)/srcs/sh_default_builtins/builtins/unset.o: \
 	srcs/sh_default_builtins/builtins/unset.c libft/ft_argv/public/argv.h \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
@@ -924,6 +945,7 @@ $(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: \
 	srcs/sh_default_builtins/public/default_builtins.h \
 	srcs/sh_parser_context/public/parser_context.h srcs/strset/public/strset.h
 
+$(O_DIR)/srcs/sh_default_builtins/builtins/alias.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/cd.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/echo.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/exit.o \
@@ -934,6 +956,7 @@ $(O_DIR)/srcs/sh_default_builtins/builtins/set.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/shift.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/source.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/true.o \
+$(O_DIR)/srcs/sh_default_builtins/builtins/unalias.o \
 $(O_DIR)/srcs/sh_default_builtins/builtins/unset.o \
 $(O_DIR)/srcs/sh_default_builtins/sh_init_default_builtins.o: INCLUDE_FLAGS += \
 	-Isrcs/sh_default_builtins
