@@ -5,6 +5,7 @@ module sh::parser:
 	public require ft::base
 	public require ft::in
 	public require sh::ast
+	public require sh::parser_context
 
 	private require ft::lexer
 	private require ft::tokenizer

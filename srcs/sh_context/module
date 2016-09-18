@@ -8,5 +8,6 @@ module sh::context:
 	public require ft::str_list
 	public require ft::strset
 	public require sh::ast
+	public require sh::parser_context
 
 	private require ft::utils

@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 10:25:14 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/12 20:42:23 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/18 11:01:20 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "ft/str_list.h"
 # include "ft/strset.h"
 # include "sh/ast.h"
+# include "sh/parser_context.h"
 
 typedef struct s_sh_context		t_sh_context;
 typedef int						(*t_sh_builtin)(t_sh_context *c,
@@ -43,16 +44,18 @@ typedef struct s_sh_c_path			t_sh_c_path;
 ** builtins			=> builtin set
 ** functions		=> user defined functions
 ** path_cache		=> path lookup cache
+** parser_context	=> parser config (alias, ...)
 */
 struct			s_sh_context
 {
-	t_set			vars;
-	t_strset		env_keys;
-	t_str_list		pos_params;
-	uint32_t		last_status;
-	t_set			builtins;
-	t_set			functions;
-	t_set			path_cache;
+	t_set				vars;
+	t_strset			env_keys;
+	t_str_list			pos_params;
+	uint32_t			last_status;
+	t_set				builtins;
+	t_set				functions;
+	t_set				path_cache;
+	t_sh_parser_context	parser_context;
 };
 
 void			sh_context_init(t_sh_context *dst,

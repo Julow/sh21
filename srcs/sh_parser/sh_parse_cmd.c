@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/11 11:23:39 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 15:47:56 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/18 11:49:18 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,16 @@ static bool		(*const g_sh_parse_clauses[])(t_sh_parser *p, t_sh_cmd *dst) = {
 	[SH_CMD_FUNCTION_DEF] = &sh_parse_function_def,
 };
 
+static bool		sh_parse_alias(t_sh_parser *p)
+{
+	t_sub const *const	alias = sh_c_alias_get(p->c, p->t.token_str);
+
+	if (alias == NULL)
+		return (false);
+	ft_buff_in_inject(&p->t.buff, *alias);
+	return (true);
+}
+
 bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 {
 	uint32_t				i;
@@ -157,7 +167,8 @@ bool			sh_parse_cmd(t_sh_parser *p, t_sh_cmd *cmd)
 	cmd->type = SH_CMD_SIMPLE;
 	if (SH_T(p)->type == SH(TEXT))
 	{
-		// HERE alias
+		if (sh_parse_alias(p))
+			return (sh_parse_cmd(p, cmd));
 		i = 0;
 		while (i < ARRAY_LEN(g_clauses_begin))
 			if (SUB_EQU(p->t.token_str, g_clauses_begin[i].name))

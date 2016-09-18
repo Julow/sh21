@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/11 18:44:55 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/11 19:13:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/18 11:05:19 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static int		sh_exec_file(t_sh_context *c, t_in *in)
 	status = 0;
 	while (IN_REFRESH(in))
 	{
-		if ((err = sh_parse(in, &compound)) != NULL)
+		if ((err = sh_parse(&c->parser_context, in, &compound)) != NULL)
 		{
 			sh_print_parse_err(err);
 			free(err);

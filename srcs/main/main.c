@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/17 16:29:43 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/18 11:04:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -655,7 +655,8 @@ static int		interactive_loop(t_main *main)
 	while (true)
 	{
 		ft_fprintf(&main->term->out, "$> ");
-		if ((err = sh_parse(V(&in), &cmd)) != NULL)
+		if ((err = sh_parse(&main->sh_context.parser_context,
+				V(&in), &cmd)) != NULL)
 		{
 			sh_print_parse_err(err);
 			free(err);
@@ -678,7 +679,9 @@ static int		loop(t_main *main)
 	t_sh_compound		cmd;
 	t_sh_parse_err		*err;
 
-	while (IN_REFRESH(&in->in) && (err = sh_parse(V(in), &cmd)) == NULL)
+	while (IN_REFRESH(&in->in)
+			&& (err = sh_parse(&main->sh_context.parser_context,
+					V(in), &cmd)) == NULL)
 	{
 		sh_exec_compound(&main->sh_context, &cmd, false);
 		sh_destroy_compound(&cmd);

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:51:52 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 12:01:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/18 11:00:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,9 @@ struct			s_sh_parse_token
 
 struct			s_sh_parser
 {
-	t_tokenizer		t;
-	t_sh_parse_err	*err;
+	t_tokenizer					t;
+	t_sh_parser_context const	*c;
+	t_sh_parse_err				*err;
 };
 
 #define T(T, ...)			(&SH_PARSE_T(T, ##__VA_ARGS__))

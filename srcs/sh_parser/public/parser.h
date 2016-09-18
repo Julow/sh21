@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/28 14:09:25 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/11 15:53:45 by jaguillo         ###   ########.fr       */
+/*   Updated: 2016/09/18 10:57:55 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "ft/ft_in.h"
 # include "ft/libft.h"
 # include "sh/ast.h"
+# include "sh/parser_context.h"
 
 typedef enum e_sh_parse_err_t				t_sh_parse_err_t;
 typedef enum e_sh_parse_err_unterminated	t_sh_parse_err_unterminated;
@@ -76,6 +77,7 @@ struct			s_sh_parse_err
 ** -
 ** The returned error object can be freed using free
 */
-t_sh_parse_err	*sh_parse(t_in *in, t_sh_compound *dst);
+t_sh_parse_err	*sh_parse(t_sh_parser_context const *c, t_in *in,
+					t_sh_compound *dst);
 
 #endif

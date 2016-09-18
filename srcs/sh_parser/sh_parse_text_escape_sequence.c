@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/28 01:19:30 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 13:04:07 by juloo            ###   ########.fr       */
+/*   Updated: 2016/09/18 11:32:57 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,11 +69,11 @@ static bool		get_escaped_value(t_sh_parser *p, uint32_t *value)
 	if (len == 0)
 		return (false);
 	ft_tokenize(&p->t);
-	ft_tokenizer_inject(&p->t, SUB_FOR(str, len));
+	// ft_tokenizer_inject(&p->t, SUB_FOR(str, len));
 	return (true);
 }
 
-bool			sh_parse_text_escape_sequence(t_sh_parser *p,
+bool			sh_parse_text_escape_sequence(t_sh_parser *p, // TODO: rework sh_parse_text_escape_sequence
 					t_sh_text *dst, bool quoted)
 {
 	uint32_t				value;
