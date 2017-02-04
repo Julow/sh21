@@ -12,4 +12,3 @@ main module sh21:
 	require sh::default_builtins
 	require sh::exec
 	require sh::parser
-	require editor

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/12/10 00:47:17 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/18 11:04:51 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/04 19:11:46 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,6 @@
 #include "sh/exec.h"
 #include "sh/parser.h"
 
-#include "editor.h"
-#include "editor_bindings.h"
-
 // #include "syntax_color.h"
 
 #include <termios.h>
@@ -33,8 +30,6 @@
 #include <sys/select.h>
 
 /*
-** TODO: editor: multi cursor
-** TODO: editor: undo/redo history
 ** TODO: tokenizer: reuse buffer
 */
 
@@ -53,7 +48,6 @@ typedef struct s_main		t_main;
 struct			s_main
 {
 	t_term				*term;
-	t_editor			*editor;
 	uint32_t			flags;
 	// t_syntax_color const	*syntax_color;
 	t_sh_context		sh_context;
@@ -579,10 +573,10 @@ static bool		init_main(t_main *main, char const *const *argv)
 			ft_dprintf(2, WARNING_MSG("Invalid $TERM value: Use default: %s"),
 				TERM_DEFAULT_TERM);
 
-		main->editor = NEW(t_editor);
-		editor_init(main->editor);
-		editor_bind(main->editor, KEY('x', MOD_CTRL), CALLBACK(editor_bind_extra_mod, V(MOD_CTRL_X)), 0);
-		editor_bind(main->editor, KEY('n', MOD_CTRL), CALLBACK(editor_bind_write, "\n"), 0);
+		// main->editor = NEW(t_editor);
+		// editor_init(main->editor);
+		// editor_bind(main->editor, KEY('x', MOD_CTRL), CALLBACK(editor_bind_extra_mod, V(MOD_CTRL_X)), 0);
+		// editor_bind(main->editor, KEY('n', MOD_CTRL), CALLBACK(editor_bind_write, "\n"), 0);
 
 		// if ((main->syntax_color
 		// 		= load_syntax_color(SUBC(DEFAULT_SYNTAX_COLOR))) == NULL)
@@ -602,71 +596,71 @@ static bool		init_main(t_main *main, char const *const *argv)
 
 #include "ft/file_in.h"
 
-typedef struct s_interactive_in		t_interactive_in;
+// typedef struct s_interactive_in		t_interactive_in;
 
-struct			s_interactive_in
-{
-	t_in			in;
-	t_main			*main;
-};
+// struct			s_interactive_in
+// {
+// 	t_in			in;
+// 	t_main			*main;
+// };
 
-#define INTERACTIVE_IN(M)	((t_interactive_in){IN(NULL, 0, &interactive_in_refresh), M})
+// #define INTERACTIVE_IN(M)	((t_interactive_in){IN(NULL, 0, &interactive_in_refresh), M})
 
-bool			interactive_in_refresh(t_interactive_in *in)
-{
-	t_key			key;
+// bool			interactive_in_refresh(t_interactive_in *in)
+// {
+// 	t_key			key;
 
-	ft_trestore(in->main->term, true);
-	editor_write(in->main->editor, VEC2U(0, in->main->editor->text.length), SUB0());
-	editor_set_cursor(in->main->editor, 0, 0);
-	while (true)
-	{
-		ft_tclear(in->main->term);
-		// put_key(&in->main->term->out, key);
-		editor_out(in->main->editor, &in->main->term->out);
-		ft_flush(&in->main->term->out);
-		key = ft_getkey(0);
-		if (editor_key(in->main->editor, key))
-			;
-		else if (key.c == 'd' && key.mods == MOD_CTRL
-				&& in->main->editor->text.length == 0)
-			break ;
-		if (key.c == 'm' && key.mods == MOD_CTRL)
-			break ;
+// 	ft_trestore(in->main->term, true);
+// 	editor_write(in->main->editor, VEC2U(0, in->main->editor->text.length), SUB0());
+// 	editor_set_cursor(in->main->editor, 0, 0);
+// 	while (true)
+// 	{
+// 		ft_tclear(in->main->term);
+// 		// put_key(&in->main->term->out, key);
+// 		editor_out(in->main->editor, &in->main->term->out);
+// 		ft_flush(&in->main->term->out);
+// 		key = ft_getkey(0);
+// 		if (editor_key(in->main->editor, key))
+// 			;
+// 		else if (key.c == 'd' && key.mods == MOD_CTRL
+// 				&& in->main->editor->text.length == 0)
+// 			break ;
+// 		if (key.c == 'm' && key.mods == MOD_CTRL)
+// 			break ;
 
-	}
-	ft_fprintf(&in->main->term->out, "%n");
-	in->main->term->cursor_x = 0;
-	in->main->term->cursor_y = 0;
-	ft_trestore(in->main->term, false);
-	in->in.buff = in->main->editor->text.str;
-	in->in.buff_i = 0;
-	in->in.buff_len = in->main->editor->text.length;
-	return (in->in.buff_len > 1);
-}
+// 	}
+// 	ft_fprintf(&in->main->term->out, "%n");
+// 	in->main->term->cursor_x = 0;
+// 	in->main->term->cursor_y = 0;
+// 	ft_trestore(in->main->term, false);
+// 	in->in.buff = in->main->editor->text.str;
+// 	in->in.buff_i = 0;
+// 	in->in.buff_len = in->main->editor->text.length;
+// 	return (in->in.buff_len > 1);
+// }
 
-static int		interactive_loop(t_main *main)
-{
-	t_interactive_in	in;
-	t_sh_compound		cmd;
-	t_sh_parse_err		*err;
+// static int		interactive_loop(t_main *main)
+// {
+// 	t_interactive_in	in;
+// 	t_sh_compound		cmd;
+// 	t_sh_parse_err		*err;
 
-	in = INTERACTIVE_IN(main);
-	while (true)
-	{
-		ft_fprintf(&main->term->out, "$> ");
-		if ((err = sh_parse(&main->sh_context.parser_context,
-				V(&in), &cmd)) != NULL)
-		{
-			sh_print_parse_err(err);
-			free(err);
-			continue ;
-		}
-		sh_exec_compound(&main->sh_context, &cmd, false);
-		sh_destroy_compound(&cmd);
-	}
-	return (0);
-}
+// 	in = INTERACTIVE_IN(main);
+// 	while (true)
+// 	{
+// 		ft_fprintf(&main->term->out, "$> ");
+// 		if ((err = sh_parse(&main->sh_context.parser_context,
+// 				V(&in), &cmd)) != NULL)
+// 		{
+// 			sh_print_parse_err(err);
+// 			free(err);
+// 			continue ;
+// 		}
+// 		sh_exec_compound(&main->sh_context, &cmd, false);
+// 		sh_destroy_compound(&cmd);
+// 	}
+// 	return (0);
+// }
 
 /*
 ** ========================================================================== **
@@ -707,9 +701,9 @@ int				main(int argc, char const *const *argv)
 
 	if (!init_main(&main, argv))
 		return (1);
-	if (main.flags & FLAG_INTERACTIVE)
-		interactive_loop(&main);
-	else
+	// if (main.flags & FLAG_INTERACTIVE)
+		// interactive_loop(&main);
+	// else
 		loop(&main);
 	exit(0);
 	return (0);
