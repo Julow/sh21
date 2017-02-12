@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:13:22 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/11 15:43:45 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/12 21:43:08 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include "ft/ft_vector.h"
 # include "ft/libft.h"
 
-typedef struct s_editor_sel				t_editor_sel;
+typedef t_vec2u							t_editor_sel;
 typedef struct s_editor_text_listener	t_editor_text_listener;
 typedef struct s_editor_cursor_listener	t_editor_cursor_listener;
 typedef struct s_editor_in				t_editor_in;
@@ -30,23 +30,25 @@ typedef struct s_editor					t_editor;
 */
 
 /*
+** editor_sel object
+** -
 ** Represent a range of text (a selection)
 ** -
-** pos				=> position in text
-** sel				=> length of the selection (can be negative)
+** x				=> First point (cursor position)
+** y				=> Second point (may be < than 'x')
 ** -
-** EDITOR_SEL(POS, SEL)		Constructor
+** EDITOR_SEL(X, Y)			Constructor
 ** EDITOR_SEL_NORM(SEL+)	Normalize (make 'sel' positive)
+** EDITOR_SEL_BEGIN(SEL+)	Begin point (left-most point)
+** EDITOR_SEL_END(SEL+)		End point (right most point)
 */
-struct			s_editor_sel
-{
-	uint32_t		pos;
-	int32_t			sel;
-};
 
-# define EDITOR_SEL(POS, SEL)	((t_editor_sel){(POS), (SEL)})
+# define EDITOR_SEL(X, Y)		VEC2U((X), (Y))
 
-# define EDITOR_SEL_NORM(S)		((S).sel < 0 ? _EDITOR_SEL_NORM(S) : (S))
+# define EDITOR_SEL_NORM(S)		N_VEC2U((S).x, (S).y)
+
+# define EDITOR_SEL_BEGIN(S)	MIN((S).x, (S).y)
+# define EDITOR_SEL_END(S)		MAX((S).x, (S).y)
 
 /*
 ** on_change	=> Called when some text is inserted/removed/replaced
@@ -73,7 +75,7 @@ struct			s_editor_text_listener
 struct			s_editor_cursor_listener
 {
 	void			(*on_change)(t_editor_cursor_listener *l,
-						t_editor_sel const *new_cursors, uint32_t len);
+						t_editor_sel const *new_cursors, uint32_t len, bool batch);
 };
 
 # define EDITOR_CURSOR_LISTENER(C)	((t_editor_cursor_listener){V(C)})
@@ -97,7 +99,7 @@ struct			s_editor
 	t_vector		cursor_listeners;
 };
 
-# define EDITOR()	((t_editor){DSTR0(), VECTOR(uint32_t), VECTOR(t_editor_sel), VECTOR(void*), VECTOR(void*)})
+# define EDITOR()	((t_editor){DSTR0(), VECTORC((uint32_t[]){0}), VECTORC(((t_editor_sel[]){{0,0}})), VECTOR(void*), VECTOR(void*)})
 
 /*
 ** Write some text at an arbitrary position
@@ -119,9 +121,10 @@ void			editor_put(t_editor *editor, t_sub text, bool batch);
 /*
 ** Replace current cursors
 ** Notify cursor listeners
+** 'c' does not need to be sorted, dupplicated cursors are removed
 */
-void			editor_set_cursors(t_editor *editor,
-					t_editor_sel const *c, uint32_t len);
+void			editor_set_cursors(t_editor *editor, t_editor_sel const *c,
+					uint32_t cursor_count, bool batch);
 
 /*
 ** Register some listeners
@@ -149,11 +152,5 @@ struct			s_editor_in
 ** Initialize an editor_in
 */
 void			editor_read(t_editor const *editor, t_editor_in *dst);
-
-/*
-** -
-*/
-
-# define _EDITOR_SEL_NORM(S)	(EDITOR_SEL((S).pos + (S).sel, -(S).sel))
 
 #endif
