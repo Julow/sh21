@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/11 15:21:11 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/11 17:43:40 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/20 21:35:11 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,4 +23,14 @@ t_vec2u			editor_getpos(t_editor const *editor, uint32_t pos)
 	if (line_lengths[i] == pos && i < editor->lines.length - 1)
 		return (VEC2U(i + 1, 0));
 	return (VEC2U(i, pos));
+}
+
+uint32_t		editor_getindex(t_editor const *editor, t_vec2u pos)
+{
+	uint32_t		index;
+
+	index = 0;
+	while (pos.x-- > 0)
+		index += EDITOR_LINE(editor, pos.x);
+	return (index + pos.y);
 }

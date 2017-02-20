@@ -6,20 +6,20 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:25:13 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/12 23:26:52 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/20 21:10:39 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "editor.h"
 
 static void		notify_text_listeners(t_vector *listeners,
-					t_editor_sel sel, t_sub new_text, bool batch)
+					t_editor_text_event const *event, bool batch)
 {
-	t_editor_text_listener	*l;
+	t_editor_text_listener	**l;
 
 	l = VECTOR_IT(*listeners);
 	while (VECTOR_NEXT(*listeners, l))
-		l->on_change(l, sel, new_text, batch);
+		(*l)->on_change(*l, event, batch);
 }
 
 /*
@@ -58,12 +58,13 @@ void			editor_write(t_editor *editor, t_editor_sel sel, t_sub text,
 	uint32_t		count;
 
 	sel = EDITOR_SEL_NORM(sel);
-	notify_text_listeners(&editor->text_listeners, sel, text, batch);
+	a = editor_getpos(editor, sel.x);
+	b = (sel.x == sel.y) ? a : editor_getpos(editor, sel.y);
+	count = line_lengths(text, NULL);
+	notify_text_listeners(&editor->text_listeners,
+			&(t_editor_text_event){ sel, a, b, text, count }, batch);
 	ft_memcpy(ft_dstrspan(&editor->text, sel.x, sel.y, text.length),
 			text.str, text.length);
-	a = editor_getpos(editor, sel.x);
-	b = editor_getpos(editor, sel.y);
-	count = line_lengths(text, NULL);
 	ft_vspan(&editor->lines, VEC2U(a.x, b.x), NULL, count - 1);
 	memset(&VGET(uint32_t, editor->lines, a.x), 0, S(uint32_t, count - 1));
 	VGET(uint32_t, editor->lines, a.x) += a.y;

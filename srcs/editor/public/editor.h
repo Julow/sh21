@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:13:22 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/12 21:43:08 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/20 21:33:28 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "ft/libft.h"
 
 typedef t_vec2u							t_editor_sel;
+typedef struct s_editor_text_event		t_editor_text_event;
 typedef struct s_editor_text_listener	t_editor_text_listener;
 typedef struct s_editor_cursor_listener	t_editor_cursor_listener;
 typedef struct s_editor_in				t_editor_in;
@@ -51,17 +52,34 @@ typedef struct s_editor					t_editor;
 # define EDITOR_SEL_END(S)		MAX((S).x, (S).y)
 
 /*
+** Text listener's param
+** -
+** sel			=> Selection in the old text (normalized)
+** sel_begin
+** sel_end		=> Begin/end point (line/col) (computed from 'sel')
+** text			=> New text (that replace the text under 'sel')
+** line_count	=> Number of line in 'text'
+*/
+struct			s_editor_text_event
+{
+	t_editor_sel	sel;
+	t_vec2u			sel_begin;
+	t_vec2u			sel_end;
+	t_sub			text;
+	uint32_t		line_count;
+};
+
+/*
 ** on_change	=> Called when some text is inserted/removed/replaced
 ** 					Text modifications occur after this is called
 ** 				| l			=> listener instance
-** 				| sel		=> range of text that is replaced (normalized)
-** 				| new_text	=> inserted text
+** 				| event		=> event object
 ** 				| batch		=> true if listeners will be called again
 */
 struct			s_editor_text_listener
 {
-	void			(*on_change)(t_editor_text_listener *l, t_editor_sel sel,
-						t_sub new_text, bool batch);
+	void			(*on_change)(t_editor_text_listener *l,
+							t_editor_text_event const *event, bool batch);
 };
 
 # define EDITOR_TEXT_LISTENER(C)	((t_editor_text_listener){V(C)})
@@ -101,6 +119,8 @@ struct			s_editor
 
 # define EDITOR()	((t_editor){DSTR0(), VECTORC((uint32_t[]){0}), VECTORC(((t_editor_sel[]){{0,0}})), VECTOR(void*), VECTOR(void*)})
 
+# define EDITOR_LINE(E,L)	(VGETC(uint32_t, (E)->lines, (L)))
+
 /*
 ** Write some text at an arbitrary position
 ** Overwriting characters in 'sel'
@@ -137,6 +157,11 @@ void			editor_register_listener(t_editor *editor,
 ** Compute the line/column numbers for 'pos'
 */
 t_vec2u			editor_getpos(t_editor const *editor, uint32_t pos);
+
+/*
+** Compute the pos for 'linecol'
+*/
+uint32_t		editor_getindex(t_editor const *editor, t_vec2u linecol);
 
 /*
 ** Stream that read the content of an editor
