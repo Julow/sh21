@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 15:28:33 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/10 11:14:02 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 14:36:40 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void			*sh_c_builtin_register(t_sh_context *c, t_sub name,
 		SUB(ENDOF(node) + data_size, name.length),
 		builtin_f
 	};
-	ft_memcpy(ENDOF(node) + data_size, name.str, name.length);
+	memcpy(ENDOF(node) + data_size, name.str, name.length);
 	ft_set_insert(&c->builtins, node, &name);
 	return (ENDOF(node));
 }

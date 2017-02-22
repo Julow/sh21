@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 14:06:42 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/10 16:19:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 14:36:59 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void			sh_c_env_build(t_sh_context const *c, char const **env)
 	t_strset_node const	*key;
 	t_sh_c_var const	*var;
 
-	key = ft_set_cfirst(&c->env_keys, NULL);
+	key = ft_set_cbegin(&c->env_keys, NULL);
 	while (key != NULL)
 	{
 		var = ft_set_cget(&c->vars, &key->value);

@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/12 19:39:31 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/12 21:07:16 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/22 14:34:30 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ static void		hash_print_all(t_sh_context const *c)
 {
 	t_sh_c_path const	*p;
 
-	p = ft_set_cfirst(&c->path_cache, NULL);
+	p = ft_set_cbegin(&c->path_cache, NULL);
 	while (p != NULL)
 	{
 		ft_printf("%ts\t%ts%n", p->name, p->path);

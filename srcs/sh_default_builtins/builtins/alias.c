@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/18 11:50:50 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/18 13:07:50 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 14:38:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ static bool		set_alias(t_sh_parser_context *c, t_sub name, t_sub val)
 
 static void		print_all_aliases(t_sh_parser_context const *c)
 {
-	t_sh_c_alias const	*alias = ft_set_cfirst(&c->aliases, NULL);
+	t_sh_c_alias const	*alias = ft_set_cbegin(&c->aliases, NULL);
 
 	while (alias != NULL)
 	{

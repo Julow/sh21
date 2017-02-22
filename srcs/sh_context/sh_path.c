@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/11 19:20:48 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/12 21:06:40 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/22 14:32:47 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void			sh_c_path_clear(t_sh_context *c)
 {
 	t_sh_c_path		*p;
 
-	while ((p = c->path_cache.data) != NULL)
+	while ((p = c->path_cache.root) != NULL)
 	{
 		ft_set_remove(&c->path_cache, p);
 		free(p);

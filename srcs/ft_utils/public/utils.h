@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/09 18:28:32 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:41:04 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/22 14:32:17 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@
 ** Copy content of 'S' into buffer 'DST'
 ** and return SUB(DST, S.length)
 */
-# define SUB_DST(DST, S)	SUB(ft_memcpy(DST, (S).str, (S).length), (S).length)
+# define SUB_DST(DST, S)	SUB(memcpy(DST, (S).str, (S).length), (S).length)
 
 /*
-** Test if all chars in 'sub' match 'is'
+** Test if all chars in 'sub' match 'mask'
 */
-bool			ft_subis(t_sub sub, t_is is);
+bool			ft_subis(t_sub sub, uint32_t mask);
 
 /*
 ** Test if 'sub' is a valid identifier

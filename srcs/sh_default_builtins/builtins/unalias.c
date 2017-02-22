@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/18 12:56:59 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/18 13:08:53 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 14:35:22 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static void		remove_all_aliases(t_sh_parser_context *c)
 {
 	t_sh_c_alias	*alias;
 
-	while ((alias = c->aliases.data) != NULL)
+	while ((alias = c->aliases.root) != NULL)
 		sh_c_alias_unset(c, alias->name);
 }
 

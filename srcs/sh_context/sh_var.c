@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/07/11 13:45:59 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/07 18:37:36 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 14:37:52 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ void			sh_c_var_set(t_sh_context *c, t_sub key, t_sub value)
 	var->length = len;
 	var->key_len = key.length;
 	dst = SH_C_VAR_STR(var);
-	ft_memcpy(dst, key.str, key.length);
+	memcpy(dst, key.str, key.length);
 	dst[key.length] = '=';
-	ft_memcpy(dst + key.length + 1, value.str, value.length);
+	memcpy(dst + key.length + 1, value.str, value.length);
 	dst[len] = '\0';
 }
 
@@ -71,5 +71,5 @@ int				sh_c_var_cmp(t_sh_c_var const *v, t_sub const *key)
 {
 	if (v->key_len != key->length)
 		return (v->key_len - key->length);
-	return (ft_memcmp(SH_C_VAR_STR(v), key->str, key->length));
+	return (memcmp(SH_C_VAR_STR(v), key->str, key->length));
 }

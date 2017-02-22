@@ -6,13 +6,13 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/09 18:28:04 by juloo             #+#    #+#             */
-/*   Updated: 2016/09/09 18:33:54 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/22 14:31:15 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft/utils.h"
 
-bool			ft_subis(t_sub sub, t_is is)
+bool			ft_subis(t_sub sub, uint32_t mask)
 {
 	char const *const	end = sub.str + sub.length;
 	char const			*str;
@@ -20,7 +20,7 @@ bool			ft_subis(t_sub sub, t_is is)
 	str = sub.str;
 	while (str < end)
 	{
-		if (!IS(*str, is))
+		if (!IS(*str, mask))
 			return (false);
 		str++;
 	}

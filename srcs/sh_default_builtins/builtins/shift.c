@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/09/07 18:47:39 by jaguillo          #+#    #+#             */
-/*   Updated: 2016/09/10 23:07:35 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/22 14:34:53 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static void		ft_str_list_shift(t_str_list *lst, uint32_t shift, uint32_t i)
 	while (shift-- > 0)
 		to += STR_LIST_NEXT(*lst, to);
 	lst->last_offset -= to - from;
-	ft_dstrspan(&lst->buff, from, to, 0);
+	ft_dstrspan(&lst->buff, from, to, NULL, 0);
 }
 
 int				sh_builtin_shift(t_sh_context *c, void *data, t_argv args)

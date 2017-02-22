@@ -6,7 +6,7 @@
 /*   By: juloo <juloo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/12 14:17:34 by juloo             #+#    #+#             */
-/*   Updated: 2017/02/13 00:03:30 by juloo            ###   ########.fr       */
+/*   Updated: 2017/02/22 14:27:49 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 static void		notify_listeners(t_editor *editor, t_editor_sel const *c,
 					uint32_t cursor_count, bool batch)
 {
-	t_editor_cursor_listener	*l;
+	t_editor_cursor_listener	**l;
 
 	l = VECTOR_IT(editor->cursor_listeners);
 	while (VECTOR_NEXT(editor->cursor_listeners, l))
-		l->on_change(l, c, cursor_count, batch);
+		(*l)->on_change(*l, c, cursor_count, batch);
 }
 
 static int		cursor_cmp(t_editor_sel *data, uint32_t a, uint32_t b)
@@ -71,7 +71,7 @@ void			editor_set_cursors(t_editor *editor, t_editor_sel const *c,
 {
 	t_editor_sel	sels[cursor_count];
 
-	ft_memcpy(sels, c, sizeof(sels));
+	memcpy(sels, c, sizeof(sels));
 	ft_sort(sels, cursor_count, V(&cursor_cmp), V(&cursor_swap));
 	cursor_count = remove_dup(sels, cursor_count);
 	notify_listeners(editor, sels, cursor_count, batch);

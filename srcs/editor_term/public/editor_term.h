@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/18 15:08:16 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/20 22:03:44 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 19:39:04 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,20 +25,6 @@ typedef struct s_editor_term			t_editor_term;
 ** ========================================================================== **
 ** Render an editor's content to the terminal
 */
-
-typedef struct s_vec3u					t_vec3u;
-
-/*
-** TODO: move
-*/
-struct			s_vec3u
-{
-	uint32_t		x;
-	uint32_t		y;
-	uint32_t		z;
-};
-
-# define VEC3U(X, Y, Z)		((t_vec3u){(X), (Y), (Z)})
 
 /*
 ** Update

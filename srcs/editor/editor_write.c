@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:25:13 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/20 21:10:39 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 14:29:37 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,7 @@ void			editor_write(t_editor *editor, t_editor_sel sel, t_sub text,
 	count = line_lengths(text, NULL);
 	notify_text_listeners(&editor->text_listeners,
 			&(t_editor_text_event){ sel, a, b, text, count }, batch);
-	ft_memcpy(ft_dstrspan(&editor->text, sel.x, sel.y, text.length),
-			text.str, text.length);
+	ft_dstrspan(&editor->text, sel.x, sel.y, text.str, text.length);
 	ft_vspan(&editor->lines, VEC2U(a.x, b.x), NULL, count - 1);
 	memset(&VGET(uint32_t, editor->lines, a.x), 0, S(uint32_t, count - 1));
 	VGET(uint32_t, editor->lines, a.x) += a.y;
