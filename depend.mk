@@ -24,23 +24,23 @@ O_FILES += $(O_DIR)/srcs/editor/editor_cursors.o \
 	$(O_DIR)/srcs/editor_bindings/default/editor_move_bind_word.o \
 	$(O_DIR)/srcs/editor_bindings/editor_bindings.o \
 	$(O_DIR)/srcs/editor_term/init.o $(O_DIR)/srcs/editor_term/render.o \
-	$(O_DIR)/libft/ft_argv/arg.o $(O_DIR)/libft/ft_argv/argv_argv.o \
-	$(O_DIR)/libft/ft_argv/argv_argv_t.o $(O_DIR)/libft/ft_argv/opt.o \
-	$(O_DIR)/libft/ft_base/ft_abs.o $(O_DIR)/libft/ft_base/ft_assert.o \
-	$(O_DIR)/libft/ft_base/ft_atoib.o $(O_DIR)/libft/ft_base/ft_bitset.o \
-	$(O_DIR)/libft/ft_base/ft_clock.o $(O_DIR)/libft/ft_base/ft_emalloc.o \
-	$(O_DIR)/libft/ft_base/ft_escape.o $(O_DIR)/libft/ft_base/ft_getenv.o \
-	$(O_DIR)/libft/ft_base/ft_is.o $(O_DIR)/libft/ft_base/ft_max.o \
-	$(O_DIR)/libft/ft_base/ft_memdup.o $(O_DIR)/libft/ft_base/ft_memfill.o \
-	$(O_DIR)/libft/ft_base/ft_memrcpy.o $(O_DIR)/libft/ft_base/ft_memstart.o \
-	$(O_DIR)/libft/ft_base/ft_memswap.o $(O_DIR)/libft/ft_base/ft_min.o \
-	$(O_DIR)/libft/ft_base/ft_rand.o $(O_DIR)/libft/ft_base/ft_sort.o \
-	$(O_DIR)/libft/ft_base/ft_strchri.o $(O_DIR)/libft/ft_base/ft_strlen.o \
-	$(O_DIR)/libft/ft_base/ft_sub.o $(O_DIR)/libft/ft_base/ft_subfind.o \
-	$(O_DIR)/libft/ft_base/ft_subnext.o $(O_DIR)/libft/ft_base/ft_subto.o \
-	$(O_DIR)/libft/ft_base/ft_unescape.o $(O_DIR)/libft/ft_base/ft_widetoa.o \
-	$(O_DIR)/libft/ft_base/ft_wstrconv.o $(O_DIR)/libft/ft_base/ft_wstrlen.o \
-	$(O_DIR)/libft/ft_base/ft_wstrnconv.o \
+	$(O_DIR)/srcs/editor_term/update.o $(O_DIR)/libft/ft_argv/arg.o \
+	$(O_DIR)/libft/ft_argv/argv_argv.o $(O_DIR)/libft/ft_argv/argv_argv_t.o \
+	$(O_DIR)/libft/ft_argv/opt.o $(O_DIR)/libft/ft_base/ft_abs.o \
+	$(O_DIR)/libft/ft_base/ft_assert.o $(O_DIR)/libft/ft_base/ft_atoib.o \
+	$(O_DIR)/libft/ft_base/ft_bitset.o $(O_DIR)/libft/ft_base/ft_clock.o \
+	$(O_DIR)/libft/ft_base/ft_emalloc.o $(O_DIR)/libft/ft_base/ft_escape.o \
+	$(O_DIR)/libft/ft_base/ft_getenv.o $(O_DIR)/libft/ft_base/ft_is.o \
+	$(O_DIR)/libft/ft_base/ft_max.o $(O_DIR)/libft/ft_base/ft_memdup.o \
+	$(O_DIR)/libft/ft_base/ft_memfill.o $(O_DIR)/libft/ft_base/ft_memrcpy.o \
+	$(O_DIR)/libft/ft_base/ft_memstart.o $(O_DIR)/libft/ft_base/ft_memswap.o \
+	$(O_DIR)/libft/ft_base/ft_min.o $(O_DIR)/libft/ft_base/ft_rand.o \
+	$(O_DIR)/libft/ft_base/ft_sort.o $(O_DIR)/libft/ft_base/ft_strchri.o \
+	$(O_DIR)/libft/ft_base/ft_strlen.o $(O_DIR)/libft/ft_base/ft_sub.o \
+	$(O_DIR)/libft/ft_base/ft_subfind.o $(O_DIR)/libft/ft_base/ft_subnext.o \
+	$(O_DIR)/libft/ft_base/ft_subto.o $(O_DIR)/libft/ft_base/ft_unescape.o \
+	$(O_DIR)/libft/ft_base/ft_widetoa.o $(O_DIR)/libft/ft_base/ft_wstrconv.o \
+	$(O_DIR)/libft/ft_base/ft_wstrlen.o $(O_DIR)/libft/ft_base/ft_wstrnconv.o \
 	$(O_DIR)/libft/ft_buff_in/ft_buff_in.o $(O_DIR)/libft/ft_dstr/ft_dstradd.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstrclear.o \
 	$(O_DIR)/libft/ft_dstr/ft_dstrextend.o \
@@ -193,12 +193,23 @@ $(O_DIR)/srcs/editor_term/init.o: srcs/editor_term/init.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_in/public/ft_in.h libft/ft_out/public/ft_out.h \
 	libft/ft_term/public/term.h libft/ft_vector/public/ft_vector.h \
-	srcs/editor/public/editor.h srcs/editor_term/public/editor_term.h
+	srcs/editor/public/editor.h srcs/editor_term/p_editor_term.h \
+	srcs/editor_term/public/editor_term.h
 $(O_DIR)/srcs/editor_term/render.o: srcs/editor_term/render.c \
 	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
 	libft/ft_in/public/ft_in.h libft/ft_out/public/ft_out.h \
 	libft/ft_term/public/term.h libft/ft_vector/public/ft_vector.h \
-	srcs/editor/public/editor.h srcs/editor_term/public/editor_term.h
+	srcs/editor/public/editor.h srcs/editor_term/p_editor_term.h \
+	srcs/editor_term/public/editor_term.h
+$(O_DIR)/srcs/editor_term/update.o: srcs/editor_term/update.c \
+	libft/ft_base/public/libft.h libft/ft_dstr/public/ft_dstr.h \
+	libft/ft_in/public/ft_in.h libft/ft_out/public/ft_out.h \
+	libft/ft_term/public/term.h libft/ft_vector/public/ft_vector.h \
+	srcs/editor/public/editor.h srcs/editor_term/p_editor_term.h \
+	srcs/editor_term/public/editor_term.h
+
+$(O_DIR)/srcs/editor_term/init.o $(O_DIR)/srcs/editor_term/render.o \
+$(O_DIR)/srcs/editor_term/update.o: INCLUDE_FLAGS += -Isrcs/editor_term
 
 # module ft::argv
 $(O_DIR)/libft/ft_argv/arg.o: libft/ft_argv/arg.c libft/ft_argv/public/argv.h \

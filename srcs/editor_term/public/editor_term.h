@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/18 15:08:16 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/22 19:39:04 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/23 18:14:27 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,37 +18,12 @@
 
 # include "editor.h"
 
-typedef struct s_editor_term_update		t_editor_term_update;
 typedef struct s_editor_term			t_editor_term;
 
 /*
 ** ========================================================================== **
 ** Render an editor's content to the terminal
 */
-
-/*
-** Update
-** -
-** REDRAW		=> Redraw a part of a line (line, col, length)
-** INSERT_LINE	=> Insert lines (line, count)
-** DELETE_LINE	=> Delete lines (line, count)
-** SCROLL		=> Scroll (x/y)
-*/
-struct			s_editor_term_update
-{
-	enum {
-		EDITOR_TERM_UPDATE_REDRAW,
-		EDITOR_TERM_UPDATE_INSERT_LINE,
-		EDITOR_TERM_UPDATE_DELETE_LINE,
-		EDITOR_TERM_UPDATE_SCROLL,
-	}				type;
-	union {
-		t_vec3u			redraw;
-		t_vec2u			insert_line;
-		t_vec2u			delete_line;
-		t_vec2i			scroll;
-	};
-};
 
 /*
 ** Editor term object
@@ -74,5 +49,10 @@ void			editor_term_init(t_editor_term *dst, t_term *term,
 ** Update the terminal
 */
 void			editor_render(t_editor_term *t);
+
+/*
+** Rerender everything
+*/
+void			editor_rerender(t_editor_term *t);
 
 #endif

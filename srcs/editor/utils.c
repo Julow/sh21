@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/11 15:21:11 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/20 21:35:11 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/22 14:17:24 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,4 +33,14 @@ uint32_t		editor_getindex(t_editor const *editor, t_vec2u pos)
 	while (pos.x-- > 0)
 		index += EDITOR_LINE(editor, pos.x);
 	return (index + pos.y);
+}
+
+void			editor_register_listener(t_editor *editor,
+					t_editor_text_listener *text_l,
+					t_editor_cursor_listener *cursor_l)
+{
+	if (text_l != NULL)
+		ft_vpush(&editor->text_listeners, &text_l, 1);
+	if (cursor_l != NULL)
+		ft_vpush(&editor->cursor_listeners, &cursor_l, 1);
 }
