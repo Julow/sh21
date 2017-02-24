@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/20 21:37:52 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/23 20:12:36 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/24 22:17:47 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ static void		redraw_text(t_editor_term *t, uint32_t index, uint32_t length)
 		if (EDITOR_SEL_BEGIN(sel) > range.x)
 		{
 			ft_write(V(t->term), t->editor->text.str + range.x,
-					range.x - EDITOR_SEL_BEGIN(sel));
+					EDITOR_SEL_BEGIN(sel) - range.x);
 			range.x = EDITOR_SEL_BEGIN(sel);
 		}
 		if (sel.x > sel.y)
@@ -115,6 +115,7 @@ void			editor_term_update_insert_line(t_editor_term *t,
 					t_editor_term_update const *update)
 {
 	t_vec2u			range;
+	uint32_t		tmp;
 
 	range = VEC2U(update->redraw.x,
 			MIN(update->redraw.x + update->redraw.y, t->scroll.y + t->size.y));
@@ -125,10 +126,15 @@ void			editor_term_update_insert_line(t_editor_term *t,
 	}
 	if (range.x >= range.y)
 		return ;
-	ft_tcursor(t->term, 0, range.x - t->scroll.y);
+	// TODO: delete lines at bottom
+	tmp = ft_tcontent_height(t->term);
+	if (range.y > tmp && t->size.y > tmp)
+		ft_tscroll(t->term, MIN(range.y, t->size.y) - tmp);
+	ft_tcursor(t->term, 0, range.x - t->scroll.y + 1);
 	ft_tline(t->term, range.y - range.x);
 	while (range.x < range.y)
 	{
+		ft_tcursor(t->term, 0, range.x - t->scroll.y);
 		put_line(t, range.x++);
 	}
 }
@@ -153,7 +159,6 @@ void			editor_term_update_delete_line(t_editor_term *t,
 	while (range.x < range.y)
 	{
 		put_line(t, t->size.y - (range.y - range.x));
-		ft_write_char(V(t->term), '\n');
 		range.x++;
 	}
 }
@@ -176,10 +181,13 @@ static void			(*const g_editor_term_update[])(t_editor_term *t,
 void			editor_render(t_editor_term *t)
 {
 	t_editor_term_update const	*update;
+	t_vec2u						main_cursor;
 
 	update = VECTOR_IT(t->updates);
 	while (VECTOR_NEXT(t->updates, update))
 		g_editor_term_update[update->type](t, update);
+	main_cursor = editor_getpos(t->editor, EDITOR_CURSOR(t->editor, 0).x);
+	ft_tcursor(V(t->term), main_cursor.y, main_cursor.x);
 	ft_flush(V(t->term));
 	t->updates.length = 0;
 }

@@ -79,7 +79,7 @@ O_FILES += $(O_DIR)/srcs/editor/editor_cursors.o \
 	$(O_DIR)/srcs/ft_str_list/ft_str_list.o $(O_DIR)/srcs/strset/strset.o \
 	$(O_DIR)/libft/ft_term/ft_tcursor.o $(O_DIR)/libft/ft_term/ft_tinit.o \
 	$(O_DIR)/libft/ft_term/ft_tput.o $(O_DIR)/libft/ft_term/ft_trestore.o \
-	$(O_DIR)/libft/ft_term/term_out_flush.o $(O_DIR)/libft/ft_term/utils.o \
+	$(O_DIR)/libft/ft_term/term_out.o $(O_DIR)/libft/ft_term/utils.o \
 	$(O_DIR)/libft/ft_tokenizer/ft_tokenize.o \
 	$(O_DIR)/libft/ft_tokenizer/ft_tokenmap_builder.o \
 	$(O_DIR)/srcs/ft_utils/ft_subis.o $(O_DIR)/libft/ft_vector/ft_vclear.o \
@@ -558,7 +558,7 @@ $(O_DIR)/libft/ft_term/ft_tput.o: libft/ft_term/ft_tput.c \
 $(O_DIR)/libft/ft_term/ft_trestore.o: libft/ft_term/ft_trestore.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
 	libft/ft_term/public/term.h
-$(O_DIR)/libft/ft_term/term_out_flush.o: libft/ft_term/term_out_flush.c \
+$(O_DIR)/libft/ft_term/term_out.o: libft/ft_term/term_out.c \
 	libft/ft_base/public/libft.h libft/ft_out/public/ft_out.h \
 	libft/ft_term/public/term.h libft/ft_term/term_internal.h
 $(O_DIR)/libft/ft_term/utils.o: libft/ft_term/utils.c \
@@ -567,7 +567,7 @@ $(O_DIR)/libft/ft_term/utils.o: libft/ft_term/utils.c \
 
 $(O_DIR)/libft/ft_term/ft_tcursor.o $(O_DIR)/libft/ft_term/ft_tinit.o \
 $(O_DIR)/libft/ft_term/ft_tput.o $(O_DIR)/libft/ft_term/ft_trestore.o \
-$(O_DIR)/libft/ft_term/term_out_flush.o $(O_DIR)/libft/ft_term/utils.o: \
+$(O_DIR)/libft/ft_term/term_out.o $(O_DIR)/libft/ft_term/utils.o: \
 	INCLUDE_FLAGS += -Ilibft/ft_term
 
 # module ft::tokenizer
