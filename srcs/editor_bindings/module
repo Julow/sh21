@@ -5,3 +5,4 @@ module editor_bindings:
 	public require ft::getkey
 	public require ft::set
 	public require editor
+	public require editor_utils

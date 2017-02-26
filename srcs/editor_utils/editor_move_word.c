@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   editor_move_bind_word.c                            :+:      :+:    :+:   */
+/*   editor_move_word.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/02/18 14:46:50 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/18 14:51:32 by jaguillo         ###   ########.fr       */
+/*   Created: 2017/02/26 17:49:46 by jaguillo          #+#    #+#             */
+/*   Updated: 2017/02/26 18:00:55 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "editor_default_bindings.h"
+#include "editor_utils.h"
 
 static uint32_t const	g_word_stops[][8] = {
 	{
@@ -58,14 +58,14 @@ static t_vec2u	editor_word_range(t_editor *e, uint32_t pos, uint32_t level)
 	return (word);
 }
 
-uint32_t		editor_move_bind_word(t_editor *e, uint32_t pos, bool b)
+uint32_t		editor_move_word(t_editor *e, uint32_t pos, bool b)
 {
 	t_vec2u const	word_bounds = editor_word_range(e, pos, 1);
 
 	return (b ? word_bounds.x : word_bounds.y);
 }
 
-uint32_t		editor_move_bind_subword(t_editor *e, uint32_t pos, bool b)
+uint32_t		editor_move_subword(t_editor *e, uint32_t pos, bool b)
 {
 	t_vec2u const	word_bounds = editor_word_range(e, pos, 2);
 

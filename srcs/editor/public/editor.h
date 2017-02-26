@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:13:22 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/20 21:33:28 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/02/26 19:23:07 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ typedef struct s_editor					t_editor;
 
 # define EDITOR_SEL_BEGIN(S)	MIN((S).x, (S).y)
 # define EDITOR_SEL_END(S)		MAX((S).x, (S).y)
+
+# define EDITOR_SEL_LENGTH(S)	DIFF((S).x, (S).y)
 
 /*
 ** Text listener's param
@@ -120,6 +122,8 @@ struct			s_editor
 # define EDITOR()	((t_editor){DSTR0(), VECTORC((uint32_t[]){0}), VECTORC(((t_editor_sel[]){{0,0}})), VECTOR(void*), VECTOR(void*)})
 
 # define EDITOR_LINE(E,L)	(VGETC(uint32_t, (E)->lines, (L)))
+
+# define EDITOR_CURSOR(E,I)	(VGETC(t_editor_sel, (E)->cursors, (I)))
 
 /*
 ** Write some text at an arbitrary position
