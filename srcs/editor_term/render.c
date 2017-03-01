@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/20 21:37:52 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/24 22:17:47 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/01 19:53:54 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,43 +42,62 @@ static t_vec2u	get_cursors(t_editor const *editor, t_vec2u range)
 	return (i);
 }
 
+#define SELECTION_BG		SUBC("\033[46m")
+#define CURSOR_BG			SUBC("\033[107m")
+
 static void		redraw_text(t_editor_term *t, uint32_t index, uint32_t length)
 {
 	t_vec2u				cursors;
 	t_vec2u				range;
 	t_editor_sel 		sel;
+	t_editor_sel 		sel_n;
 
 	range = VEC2U(index, index + length);
 	cursors = get_cursors(t->editor, range);
 	while (cursors.x < cursors.y)
 	{
 		sel = VGETC(t_editor_sel, t->editor->cursors, cursors.x);
-		if (EDITOR_SEL_BEGIN(sel) > range.x)
+		sel_n = EDITOR_SEL_NORM(sel);
+		if (sel_n.x > range.x)
 		{
-			ft_write(V(t->term), t->editor->text.str + range.x,
-					EDITOR_SEL_BEGIN(sel) - range.x);
-			range.x = EDITOR_SEL_BEGIN(sel);
+			ft_write(V(t->term), t->editor->text.str + range.x, sel_n.x - range.x);
+			range.x = sel_n.x;
 		}
+
 		if (sel.x > sel.y)
 		{
-			range.x = MIN(range.y, range.x + sel.x - 1 - sel.y);
-			ASSERT(range.x >= sel.x, "MAX(range.x, sel.y) - sel.y");
-			ft_fprintf(V(t->term), "\033[46m%ts\033[49m",
-					SUB(t->editor->text.str + sel.y, range.x - sel.y));
+			ft_tput_raw(t->term, SELECTION_BG);
+			ft_write(V(t->term), t->editor->text.str + range.x,
+					MIN(sel_n.y, range.y) - range.x);
+			if (sel_n.y < range.y)
+			{
+				ft_tput_raw(t->term, CURSOR_BG);
+				ft_write(V(t->term), t->editor->text.str + sel_n.y, 1);
+				range.x++;
+			}
 		}
-		if (cursors.x > 0 && range.x < range.y)
-			ft_fprintf(V(t->term), "\033[107m%c\033[49m",
-					t->editor->text.str[range.x++]);
-		if (sel.x < sel.y)
+		else
 		{
-			range.x = MIN(range.y, range.x + sel.y - sel.x - 1);
-			ASSERT(range.x >= sel.x, "MAX(range.x, sel.x) - sel.x");
-			ft_fprintf(V(t->term), "\033[46m%ts\033[49m",
-					SUB(t->editor->text.str + sel.x, range.x - sel.x));
+			if (sel_n.x == range.x)
+			{
+				ft_tput_raw(t->term, CURSOR_BG);
+				ft_write(V(t->term), t->editor->text.str + sel_n.x, 1);
+				range.x++;
+			}
+			if (range.x < sel.y)
+			{
+				ft_tput_raw(t->term, SELECTION_BG);
+				ft_write(V(t->term), t->editor->text.str + range.x,
+						MIN(sel_n.y, range.y) - range.x);
+			}
 		}
+		ft_tput_raw(t->term, SUBC("\033[49m"));
+		range.x += sel_n.y - sel_n.x;
+
 		cursors.x++;
 	}
-	ft_write(V(t->term), t->editor->text.str + range.x, range.y - range.x);
+	if (range.x < range.y)
+		ft_write(V(t->term), t->editor->text.str + range.x, range.y - range.x);
 }
 
 void			editor_term_update_redraw(t_editor_term *t,
