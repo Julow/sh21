@@ -6,33 +6,37 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/11 15:21:11 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/22 14:17:24 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/04 17:05:51 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "editor.h"
 
+void			editor_init(t_editor *dst)
+{
+	*dst = (t_editor){
+		DSTR0(),
+		SUMSET(),
+		VECTOR(t_editor_sel),
+		VECTOR(t_editor_text_listener*),
+		VECTOR(t_editor_cursor_listener*),
+	};
+	ft_sumset_insert(&dst->lines, 0, 0);
+	*(t_editor_sel*)ft_vpush(&dst->cursors, NULL, 1) = EDITOR_SEL(0, 0);
+}
+
 t_vec2u			editor_getpos(t_editor const *editor, uint32_t pos)
 {
-	uint32_t				i;
-	uint32_t const *const	line_lengths = editor->lines.data;
+	t_vec2u const		tmp = ft_sumset_index(&editor->lines, pos);
 
-	i = 0;
-	while (line_lengths[i] < pos)
-		pos -= line_lengths[i++];
-	if (line_lengths[i] == pos && i < editor->lines.length - 1)
-		return (VEC2U(i + 1, 0));
-	return (VEC2U(i, pos));
+	if (tmp.x >= SUMSET_LENGTH(editor->lines))
+		return (VEC2U(tmp.x - 1, ft_sumset_get(&editor->lines, tmp.x - 1).y));
+	return (tmp);
 }
 
 uint32_t		editor_getindex(t_editor const *editor, t_vec2u pos)
 {
-	uint32_t		index;
-
-	index = 0;
-	while (pos.x-- > 0)
-		index += EDITOR_LINE(editor, pos.x);
-	return (index + pos.y);
+	return (ft_sumset_get(&editor->lines, pos.x).x + pos.y);
 }
 
 void			editor_register_listener(t_editor *editor,

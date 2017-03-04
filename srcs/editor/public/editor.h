@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:13:22 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/26 19:23:07 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/02 17:38:26 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "ft/ft_in.h"
 # include "ft/ft_vector.h"
 # include "ft/libft.h"
+# include "ft/sumset.h"
 
 typedef t_vec2u							t_editor_sel;
 typedef struct s_editor_text_event		t_editor_text_event;
@@ -107,23 +108,32 @@ struct			s_editor_cursor_listener
 ** Propagate changes through listeners
 ** -
 ** text			=> text // TODO: rope
-** lines		=> line lengths // TODO: efficient prefix sum
+** lines		=> line lengths
 ** cursors		=> vector of cursor (editor_sel) (sorted by position)
+** -
+** EDITOR()				Constructor
+** EDITOR_LINE(E, I)	Return the length of the line 'I'
+** EDITOR_CURSOR(E, I)	Return the cursor 'I'
 */
 struct			s_editor
 {
 	t_dstr			text;
-	t_vector		lines;
+	t_sumset		lines;
 	t_vector		cursors;
 	t_vector		text_listeners;
 	t_vector		cursor_listeners;
 };
 
-# define EDITOR()	((t_editor){DSTR0(), VECTORC((uint32_t[]){0}), VECTORC(((t_editor_sel[]){{0,0}})), VECTOR(void*), VECTOR(void*)})
+# define EDITOR()	((t_editor){DSTR0(), SUMSET(), VECTORC(((t_editor_sel[]){{0,0}})), VECTOR(void*), VECTOR(void*)})
 
-# define EDITOR_LINE(E,L)	(VGETC(uint32_t, (E)->lines, (L)))
+# define EDITOR_LINE(E,I)	(ft_sumset_get(&(E)->lines, (I)).y)
 
 # define EDITOR_CURSOR(E,I)	(VGETC(t_editor_sel, (E)->cursors, (I)))
+
+/*
+** Init the editor
+*/
+void			editor_init(t_editor *dst);
 
 /*
 ** Write some text at an arbitrary position

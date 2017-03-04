@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:25:13 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/22 14:29:37 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/04 17:15:39 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,51 +22,73 @@ static void		notify_text_listeners(t_vector *listeners,
 		(*l)->on_change(*l, event, batch);
 }
 
-/*
-** The size of the lines in 'text' are added (+=) to the numbers in 'add'
-** If 'add' is NULL, do nothing
-** Return the number of line in 'text'
-*/
-static uint32_t	line_lengths(t_sub text, uint32_t *add)
+static uint32_t	count_lines(t_sub text)
 {
+	uint32_t		offset;
+	uint32_t		count;
+
+	count = 1;
+	offset = 0;
+	while ((offset = ft_subfind_c(text, '\n', offset)) < text.length)
+	{
+		count++;
+		offset++;
+	}
+	return (count);
+}
+
+static void		span_lines(t_editor *editor, t_vec2u range, uint32_t size)
+{
+	uint32_t const	end = range.x + size;
 	uint32_t		i;
+
+	while (range.y > end)
+		ft_sumset_remove(&editor->lines, --range.y);
+	i = range.x;
+	while (i < range.y)
+		ft_sumset_set(&editor->lines, i++, 0);
+	while (range.y < end)
+		ft_sumset_insert(&editor->lines, range.y++, 0);
+}
+
+static uint32_t	add_line_lengths(t_editor *editor, t_sub text, uint32_t i)
+{
 	uint32_t		offset;
 	uint32_t		tmp;
 
-	i = 0;
 	offset = 0;
-	while (true)
+	while ((tmp = ft_subfind_c(text, '\n', offset)) < text.length)
 	{
-		if ((tmp = ft_subfind_c(text, '\n', offset)) >= text.length)
-			break ;
-		tmp++;
-		if (add != NULL)
-			add[i] += tmp - offset;
+		ft_sumset_add(&editor->lines, i, tmp + 1 - offset);
+		offset = tmp + 1;
 		i++;
-		offset = tmp;
 	}
-	if (add != NULL)
-		add[i] += tmp - offset;
-	return (i + 1);
+	return (tmp - offset);
 }
 
-void			editor_write(t_editor *editor, t_editor_sel sel, t_sub text,
+void			editor_write(t_editor *editor, t_vec2u range, t_sub text,
 					bool batch)
 {
 	t_vec2u			a;
 	t_vec2u			b;
-	uint32_t		count;
+	uint32_t const	line_count = count_lines(text);
+	uint32_t		tmp;
 
-	sel = EDITOR_SEL_NORM(sel);
-	a = editor_getpos(editor, sel.x);
-	b = (sel.x == sel.y) ? a : editor_getpos(editor, sel.y);
-	count = line_lengths(text, NULL);
+	range = EDITOR_SEL_NORM(range);
+	a = editor_getpos(editor, range.x);
+	b = (range.x == range.y) ? a : editor_getpos(editor, range.y);
 	notify_text_listeners(&editor->text_listeners,
-			&(t_editor_text_event){ sel, a, b, text, count }, batch);
-	ft_dstrspan(&editor->text, sel.x, sel.y, text.str, text.length);
-	ft_vspan(&editor->lines, VEC2U(a.x, b.x), NULL, count - 1);
-	memset(&VGET(uint32_t, editor->lines, a.x), 0, S(uint32_t, count - 1));
-	VGET(uint32_t, editor->lines, a.x) += a.y;
-	VGET(uint32_t, editor->lines, a.x + count - 1) -= b.y;
-	line_lengths(text, &VGET(uint32_t, editor->lines, a.x));
+			&(t_editor_text_event){ range, a, b, text, line_count }, batch);
+	ft_dstrspan(&editor->text, range.x, range.y, text.str, text.length);
+	span_lines(editor, VEC2U(a.x, b.x), line_count - 1);
+	tmp = add_line_lengths(editor, text, a.x);
+	if (line_count <= 1)
+	{
+		ft_sumset_add(&editor->lines, a.x, a.y - b.y + tmp);
+	}
+	else
+	{
+		ft_sumset_add(&editor->lines, a.x, a.y);
+		ft_sumset_add(&editor->lines, a.x + line_count - 1, tmp - b.y);
+	}
 }

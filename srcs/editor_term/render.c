@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/20 21:37:52 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/03/01 19:53:54 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/02 15:31:10 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,7 @@ void			editor_render(t_editor_term *t)
 void			editor_rerender(t_editor_term *t)
 {
 	uint32_t		i;
-	uint32_t const	end = MIN(t->size.y, t->editor->lines.length - t->scroll.y);
+	uint32_t const	end = MIN(t->size.y, SUMSET_LENGTH(t->editor->lines) - t->scroll.y);
 
 	i = 0;
 	while (i < end)

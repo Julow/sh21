@@ -4,4 +4,5 @@ module editor:
 	public require ft::base
 	public require ft::dstr
 	public require ft::in
+	public require ft::sumset
 	public require ft::vector
