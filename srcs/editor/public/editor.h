@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/04 19:13:22 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/03/02 17:38:26 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/05 15:52:44 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,19 +57,21 @@ typedef struct s_editor					t_editor;
 /*
 ** Text listener's param
 ** -
-** sel			=> Selection in the old text (normalized)
-** sel_begin
-** sel_end		=> Begin/end point (line/col) (computed from 'sel')
-** text			=> New text (that replace the text under 'sel')
+** range		=> Selection in the old text (normalized)
+** begin
+** end			=> Begin/end point (line/col) (computed from 'range')
+** text			=> New text (that replace the text under 'range')
 ** line_count	=> Number of line in 'text'
+** line_lengths	=> The length of each line (including the '\n')
 */
 struct			s_editor_text_event
 {
-	t_editor_sel	sel;
-	t_vec2u			sel_begin;
-	t_vec2u			sel_end;
+	t_vec2u			range;
+	t_vec2u			begin;
+	t_vec2u			end;
 	t_sub			text;
 	uint32_t		line_count;
+	uint32_t const	*line_lengths;
 };
 
 /*

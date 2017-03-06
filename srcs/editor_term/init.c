@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/02/18 19:53:22 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/02/24 22:24:09 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/05 15:56:30 by jaguillo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,12 @@ static void		editor_term_text_change(t_editor_term *t,
 {
 	uint32_t		tmp;
 
-	editor_term_line(t, e->sel_begin.x + 1,
-			e->line_count - (e->sel_end.x - e->sel_begin.x + 1));
+	editor_term_line(t, e->begin.x + 1,
+			e->line_count - (e->end.x - e->begin.x + 1));
 	// TODO: INSERT_CHAR/REMOVE_CHAR update
 	tmp = ft_subfind_c(e->text, '\n', 0);
-	editor_term_redraw(t, e->sel_begin,
-			MAX(tmp, EDITOR_LINE(t->editor, e->sel_begin.x) + 1));
+	editor_term_redraw(t, e->begin,
+			MAX(tmp, EDITOR_LINE(t->editor, e->begin.x) + 1));
 	(void)batch;
 }
 
