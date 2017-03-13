@@ -6,22 +6,25 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/04 18:22:37 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/03/06 22:18:46 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/12 02:07:17 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "editor_viewport.h"
+#include "p_editor_viewport.h"
+
 #include <stddef.h>
 
 static void		on_text_change(t_editor_viewport *v,
 					t_editor_text_event const *event, bool batch)
 {
 	v = V(v) - offsetof(t_editor_viewport, text_listener);
-	if (event->sel_begin.x < t->scroll.y)
-		v->scroll.y += event->line_count - MIN(v->scroll.y, event->sel_end.x)
-				+ event->sel_begin.x;
+	if (event->begin.x < v->scroll.y)
+		v->scroll.y += event->line_count - MIN(v->scroll.y, event->end.x)
+				+ event->begin.x;
 	if (v->flags & EDITOR_LINE_WRAP)
 		editor_update_line_heights(v, true);
+	(void)batch;
 }
 
 static void		on_cursor_change(t_editor_viewport *v,

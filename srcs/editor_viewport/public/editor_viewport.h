@@ -6,7 +6,7 @@
 /*   By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/03/04 17:52:34 by jaguillo          #+#    #+#             */
-/*   Updated: 2017/03/06 22:15:51 by jaguillo         ###   ########.fr       */
+/*   Updated: 2017/03/12 02:02:05 by juloo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,14 +62,15 @@ struct			s_editor_viewport_listener
 						t_editor_viewport_event const *e);
 };
 
-# define EDITOR_VIEWPORT_LISTENER(F)	((t_editor_viewport_listener){(F)})
+# define EDITOR_VIEWPORT_LISTENER(F)	((t_editor_viewport_listener){V(F)})
 
 /*
 ** Viewport object
 ** -
 ** scroll			=> Scroll position (col/line)
 ** size				=> Viewport size (col/line)
-** line_heights		=> The height of the visible lines (if LINE_WRAP is enabled)
+** line_heights		=> The height/y_offset of the visible lines
+** 						(if LINE_WRAP is enabled)
 ** flags			=>
 ** 		EDITOR_LINE_WRAP	Enable line wrap,
 ** 							lines longer than 'size.x' span on multiple lines

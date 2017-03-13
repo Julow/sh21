@@ -1,0 +1,7 @@
+module editor_viewport:
+	public include public/
+	private include ./
+
+	public require ft::base
+	public require ft::vector
+	public require editor
